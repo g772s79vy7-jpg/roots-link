@@ -166,7 +166,7 @@ export function prepare(deck,host,fusion=starterFusion(C.find(card=>card.id===de
    const j=Math.floor(Math.random()*(i+1));
    [d[i],d[j]]=[d[j],d[i]];
  }
- return {hp:20,fusion:[...fusion],h:d.splice(0,4),d,b:[],trash:[],cost:host?1:0,linkCost:host?1:0,capacity:host?1:0,pending:false,root:C.find(card=>card.id===deck[0]).r};
+ return {hp:20,registeredFusion:[...fusion],fusion:[...fusion],h:d.splice(0,4),d,b:[],trash:[],cost:host?1:0,linkCost:host?1:0,capacity:host?1:0,pending:false,root:C.find(card=>card.id===deck[0]).r};
 }
 
 export function applyMove(state,seat,action){

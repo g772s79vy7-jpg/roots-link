@@ -1,4 +1,4 @@
-import { deckFor, prepare, applyMove, validateDeck,validateFusion,starterFusion } from './rules.js';
+import { deckFor, prepare, applyMove, validateDeck,validateFusion,starterFusion,cards } from './rules.js';
 
 const origin = 'https://g772s79vy7-jpg.github.io';
 const cors = {
@@ -57,7 +57,7 @@ Deno.serve(async request => {
     const ready=!!(state.host&&state.guest);
     function view(player,own) {
       if(!player)return null;
-      return {root:player.root,fusion:own?player.fusion:undefined,hp:player.hp,cost:player.cost,linkCost:player.linkCost,linkCapacity:player.linkCost===undefined?undefined:player.capacity,capacity:Math.min(5,player.capacity+(player.activated?1:0)),b:player.b,
+      return {root:player.root,fusion:own?player.fusion:undefined,registeredFusion:own?(player.registeredFusion??[...new Set([...(player.fusion??[]),...player.b.map(u=>u.id),...player.trash].filter(id=>cards.some(card=>card.id===id&&card.t==='fusion')))]):undefined,hp:player.hp,cost:player.cost,linkCost:player.linkCost,linkCapacity:player.linkCost===undefined?undefined:player.capacity,capacity:Math.min(5,player.capacity+(player.activated?1:0)),b:player.b,
         h:own?player.h:Array(player.h.length).fill(null),d:Array(player.d.length).fill(null),
         trash:Array(player.trash.length).fill(null),pending:own&&player.pending,freeFirework:own&&player.freeFirework};
     }
