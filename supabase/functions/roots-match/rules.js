@@ -199,10 +199,11 @@ function summon() {
   }
 }
 function fuse(){let p=G.p,c=C.find(x=>x.id===p.h[handSel]);if(!c||c.t!=='fusion')return;if(p.cost<c.cc)return alert('接続コスト不足。');if(p.b.length<2)return alert('融合素材2体が必要。');let a=unitSel,b=secondSel;if(a===b||!p.b[a]||!p.b[b])return;let u=p.b[a],v=p.b[b];if(u.mats||v.mats||u.equip||v.equip)return alert('装備中のピースは融合できません。');if(!c.m||u.id===v.id||![u.id,v.id].every(id=>c.m.includes(id)))return alert('この融合カードの指定素材ではありません。');p.cost-=c.cc;let indices=[a,b].sort((x,y)=>y-x);for(let i of indices){let m=p.b.splice(i,1)[0];toTrash(p,m,'融合素材')}let f=spendHand();let x=makeUnit(f);x.ready=false;x.shield=u.shield||v.shield;p.b.push(x);log(u.n+'＋'+v.n+' → '+f.n+'！接続コスト'+f.cc+'を使用。')}
-function edgePair(u,v) {
+function edgePair(u,v,direction) {
   const star=u.k==='星導'||v.k==='星導';
   let fallback;
   for(let i=0;i<4;i++){
+    if(direction!==undefined&&direction!==i)continue;
     const j=(i+2)%4;
     const a=u.edges?.[i],b=v.edges?.[j];
     if(a?.used||b?.used)continue;
@@ -221,10 +222,9 @@ function connect(){
   let pair;
   for (const left of u.mats??[u]) {
     for(const right of v.mats??[v]){
-      const candidate=edgePair(left,right);
-      if(candidate){pair={...candidate,left,right};break;}
+      const candidate=edgePair(left,right,action.direction);
+      if(candidate&&(!pair||candidate.c<pair.c))pair={...candidate,left,right};
     }
-    if(pair)break;
   }
   if(!pair)alert('接続できる辺がありません。');
   if(p.cost<pair.c)alert('接続コスト不足。');
@@ -350,7 +350,18 @@ function spell(){
   log(card.n+'を使用（接続コスト'+cost+'）。');
   winCheck();
 }
-function grow(p){let arr=p.b.filter(u=>u.k==='成長'&&!u.mats);for(let u of arr){if(p.cost>=1){p.cost--;u.a++;u.hp++;u.max++;u.growth++;log(u.n+'が成長！攻撃/最大HP+1（累計'+u.growth+'）。')}}}
+function grow(player){
+  for(const unit of player.b){
+    for(const piece of unit.mats??[unit]){
+      if(piece.k!=='成長'||player.cost<1)continue;
+      player.cost--;
+      piece.a++;piece.hp++;piece.max++;
+      piece.growth=(piece.growth??0)+1;
+      log(piece.n+'が成長！ 攻撃・体力+1。');
+    }
+    if(unit.mats)updateLink(unit);
+  }
+}
  const before=JSON.stringify(state);
  const opponentTrash=G.c.trash.length;
  if(G.p.pending&&action.kind!=='patrol') alert('巡回で戻す手札を選んでください。');
