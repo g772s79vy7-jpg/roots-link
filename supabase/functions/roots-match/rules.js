@@ -124,7 +124,7 @@ export function validateDeck(ids) {
   let root;
   for (const id of ids) {
     const card=C.find(entry=>entry.id===id);
-    if (!card) throw new Error('使用できないカードが含まれています。');
+    if (!card||card.t==='fusion') throw new Error('融合ピースは別枠に登録してください。');
     root ??= card.r;
     if (card.r!==root) throw new Error('同じルーツのカードだけを使えます。');
     const count=(counts.get(card.n)??0)+1;
@@ -138,8 +138,17 @@ export function validateDeck(ids) {
 export function deckFor(root) {
   if (!R.some(([id])=>id===root)) throw new Error('ルーツを選んでください。');
   const ids=[0,1,2,3,4,5,6,7,8,9,10,11].map(i=>root+'p'+i);
-  return [...ids,...ids,...[0,2,4].map(i=>root+'s'+i),root+'f0',root+'e0',root+'x0'];
+  return [...ids,...ids,...[0,2,4].map(i=>root+'s'+i),root+'e0',root+'x0',root+'x1'];
 }
+export function starterFusion(root){return [root+'f0',root+'f1',root+'f2'];}
+export function validateFusion(ids,root){
+  if(!Array.isArray(ids)||ids.length>3||new Set(ids).size!==ids.length||
+    ids.some(id=>!C.some(card=>card.id===id&&card.r===root&&card.t==='fusion'))){
+    throw new Error('融合ピースは同じルーツから最大3種類までです。');
+  }
+  return ids;
+}
+
 export function cpuDeckFor(root){
   const deck=deckFor(root);
   const deckCatalog=C.filter(card=>card.r===root&&card.t==='piece'&&card.id.startsWith(root+'x'));
@@ -151,13 +160,13 @@ export function cpuDeckFor(root){
   return deck;
 }
 
-export function prepare(deck,host) {
+export function prepare(deck,host,fusion=starterFusion(C.find(card=>card.id===deck[0]).r)) {
  const d=[...deck];
  for(let i=d.length-1;i>0;i--){
    const j=Math.floor(Math.random()*(i+1));
    [d[i],d[j]]=[d[j],d[i]];
  }
- return {hp:20,h:d.splice(0,4),d,b:[],trash:[],cost:host?1:0,linkCost:host?1:0,capacity:host?1:0,pending:false,root:C.find(card=>card.id===deck[0]).r};
+ return {hp:20,fusion:[...fusion],h:d.splice(0,4),d,b:[],trash:[],cost:host?1:0,linkCost:host?1:0,capacity:host?1:0,pending:false,root:C.find(card=>card.id===deck[0]).r};
 }
 
 export function applyMove(state,seat,action){
@@ -228,7 +237,7 @@ function summon() {
     if(!G.over)patrol(player);
   }
 }
-function fuse(){let p=G.p,c=C.find(x=>x.id===p.h[handSel]);if(!c||c.t!=='fusion')return;if(connectionCost(p)<c.cc)return alert('接続コスト不足。');if(p.b.length<2)return alert('融合素材2体が必要。');let a=unitSel,b=secondSel;if(a===b||!p.b[a]||!p.b[b])return;let u=p.b[a],v=p.b[b];if(u.mats||v.mats||u.equip||v.equip)return alert('装備中のピースは融合できません。');if(!c.m||u.id===v.id||![u.id,v.id].every(id=>c.m.includes(id)))return alert('この融合カードの指定素材ではありません。');spendConnection(p,c.cc);let indices=[a,b].sort((x,y)=>y-x);for(let i of indices){let m=p.b.splice(i,1)[0];toTrash(p,m,'融合素材')}let f=spendHand();let x=makeUnit(f);x.ready=false;x.shield=u.shield||v.shield;x.grows=u.k==='成長'||v.k==='成長';p.b.push(x);log(u.n+'＋'+v.n+' → '+f.n+'！接続コスト'+f.cc+'を使用。')}
+function fuse(){let p=G.p,c=C.find(x=>x.id===(p.fusion? action.fusion:p.h[handSel]));if(!c||c.t!=='fusion'||(p.fusion&&!p.fusion.includes(c.id)))return;if(connectionCost(p)<c.cc)return alert('接続コスト不足。');if(p.b.length<2)return alert('融合素材2体が必要。');let a=unitSel,b=secondSel;if(a===b||!p.b[a]||!p.b[b])return;let u=p.b[a],v=p.b[b];if(u.mats||v.mats||u.equip||v.equip)return alert('装備中のピースは融合できません。');if(!c.m||u.id===v.id||![u.id,v.id].every(id=>c.m.includes(id)))return alert('この融合カードの指定素材ではありません。');spendConnection(p,c.cc);let indices=[a,b].sort((x,y)=>y-x);for(let i of indices){let m=p.b.splice(i,1)[0];toTrash(p,m,'融合素材')}let f=c;if(p.fusion)p.fusion=p.fusion.filter(id=>id!==f.id);else spendHand();let x=makeUnit(f);x.ready=false;x.shield=u.shield||v.shield;x.grows=u.k==='成長'||v.k==='成長';p.b.push(x);log(u.n+'＋'+v.n+' → '+f.n+'！接続コスト'+f.cc+'を使用。')}
 function edgePair(u,v,direction) {
   const star=u.k==='星導'||v.k==='星導';
   let fallback;
@@ -485,6 +494,12 @@ export function playCpuTurn(state) {
     const {h,b}=state.guest;
     if(b.length<3&&state.guest.freeFirework&&tryMove({kind:'firework',hand:h.indexOf('redp1')}))continue;
     let played=false;
+    for(const id of state.guest.fusion??[]){
+      const card=C.find(entry=>entry.id===id);
+      const unit=b.findIndex(piece=>piece.id===card.m[0]);
+      const second=b.findIndex(piece=>piece.id===card.m[1]);
+      if(unit>=0&&second>=0&&tryMove({kind:'fuse',fusion:id,unit,second})){played=true;break;}
+    }
     for(let hand=0;hand<h.length&&!played;hand++){
       const card=C.find(entry=>entry.id===h[hand]);
       if(card.t==='piece')played=tryMove({kind:'summon',hand});

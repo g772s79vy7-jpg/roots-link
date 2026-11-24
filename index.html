@@ -216,12 +216,27 @@ button.primary:hover,.active:hover,#end:enabled:hover,#start:enabled:hover{backg
 .pick-contents h3{margin:8px 0 4px;color:#e6c88d;font-size:.8rem}
 .preview-card{display:flex;justify-content:space-between;gap:7px;padding:5px 0;border-bottom:1px solid #354653;font-size:.84rem}
 #deckPicker .row{justify-content:space-between;margin-bottom:0}
+
+.arena-heading #battleLogButton{order:4;margin-left:auto;min-height:34px;padding:4px 8px;font-size:.74rem}
+.arena-heading #battleSettings{margin-left:0}
+#battleLogDialog .log{height:min(50dvh,360px);white-space:normal}
+.selected-effect{grid-column:1 / 3;margin:0;padding:4px 7px;background:#272036;color:#f2e8f5;border-radius:5px;font-size:.73rem;overflow-wrap:anywhere}
+.board-stage .board{container-type:inline-size;align-items:center}
+.board-stage .field-piece,.empty-slot{aspect-ratio:1;min-height:0;max-height:none;min-width:0}
+.board-stage .field-piece{width:min(100%,calc((100cqw - 16px)/3));justify-self:center;overflow:hidden}
+.board-stage .field-name,.board-stage .field-condition{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+.hand .mini-card,.hand .mini-card.jigsaw{aspect-ratio:1;flex:0 0 86px;width:86px;height:86px;min-height:86px;max-height:86px;overflow:hidden}
+.hand .mini-name{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+.cards>.card[data-id]{aspect-ratio:1;min-height:0;overflow:hidden;grid-template-columns:1fr;grid-template-rows:auto auto minmax(0,1fr) auto auto}
+.cards>.card .desc{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;margin:2px 0;font-size:.72rem}
+.fusion-deck h3{font-size:.9rem;margin:8px 0 4px}.fusion-deck h3 span{color:#d4bee8}
+@media(max-width:630px){.board-stage .field-piece{width:min(100%,calc((100cqw - 8px)/3));min-height:0}.hand .mini-card,.hand .mini-card.jigsaw{flex-basis:70px;width:70px;height:70px;min-height:70px;max-height:70px}.arena-heading #battleLogButton{min-height:32px;padding-inline:5px}}
 </style>
 <header class="site-header"><h1>ROOTS <span>LINK</span></h1>
 <nav><button class="tab active" data-to="builder">デッキ編集</button><button class="tab" data-to="catalog">カード図鑑</button><button class="tab" data-to="battle">対戦</button><button class="tab" data-to="online">オンライン対戦</button></nav></header><main>
-<p id="startupStatus" class="room-status">カードデータを読み込んでいます…</p><section id="builder"><div class="layout"><div class="panel"><h2>カードを選ぶ</h2><div class="tools"><select id="br"><option value="all">全ルーツ</option></select><select id="bt"><option value="all">全種類</option><option value="piece">ピース</option><option value="fusion">融合</option><option value="equipment">装備</option><option value="spell">詠唱</option></select><input id="bs" placeholder="名前・効果を検索"></div><div id="pool" class="cards"></div><button id="poolMore" type="button" hidden>次のカードを表示</button></div><aside class="panel deck-panel"><div class="row"><h2>マイデッキ</h2><b id="count">0 / 30</b></div><div class="deck-library"><label for="savedDecks">保存済みデッキ</label><div class="row"><select id="savedDecks"></select><button id="loadDeck" type="button">編集する</button><button id="newDeck" type="button">新規</button></div><label for="deckName">デッキ名</label><div class="row"><input id="deckName" maxlength="32" placeholder="例：十二市 火花デッキ"><button id="saveDeck" class="primary" type="button" disabled>デッキを保存</button></div></div><div class="tools"><button id="fill">固定デッキ30枚を作る</button><button id="clear">全て外す</button></div><details id="deckDetails"><summary>デッキの中身を見る</summary><div id="deck" class="decklist"></div></details><hr><button id="start" type="button">CPU対戦のデッキを選ぶ</button><p id="deckStatus" class="small" role="status"></p><p class="small">30枚ちょうど / 同名カード3枚まで / 同じルーツのみ。融合・装備・詠唱もデッキ30枚に含みます。</p></aside></div></section>
+<p id="startupStatus" class="room-status">カードデータを読み込んでいます…</p><section id="builder"><div class="layout"><div class="panel"><h2>カードを選ぶ</h2><div class="tools"><select id="br"><option value="all">全ルーツ</option></select><select id="bt"><option value="all">全種類</option><option value="piece">ピース</option><option value="fusion">融合</option><option value="equipment">装備</option><option value="spell">詠唱</option></select><input id="bs" placeholder="名前・効果を検索"></div><div id="pool" class="cards"></div><button id="poolMore" type="button" hidden>次のカードを表示</button></div><aside class="panel deck-panel"><div class="row"><h2>マイデッキ</h2><b id="count">0 / 30</b></div><div class="deck-library"><label for="savedDecks">保存済みデッキ</label><div class="row"><select id="savedDecks"></select><button id="loadDeck" type="button">編集する</button><button id="newDeck" type="button">新規</button></div><label for="deckName">デッキ名</label><div class="row"><input id="deckName" maxlength="32" placeholder="例：十二市 火花デッキ"><button id="saveDeck" class="primary" type="button" disabled>デッキを保存</button></div></div><div class="tools"><button id="fill">固定デッキ30枚を作る</button><button id="clear">全て外す</button></div><details id="deckDetails"><summary>デッキの中身を見る</summary><div id="deck" class="decklist"></div></details><section class="fusion-deck"><h3>融合ピース <span id="fusionCount">0 / 3</span></h3><div id="fusionList"></div><button id="browseFusion" type="button">融合ピースを選ぶ</button></section><hr><button id="start" type="button">CPU対戦のデッキを選ぶ</button><p id="deckStatus" class="small" role="status"></p><p class="small">30枚ちょうど / 同名カード3枚まで / 同じルーツのみ。装備と詠唱は30枚に含みます。融合は別枠です。</p></aside></div></section>
 <section id="catalog" class="hidden"><div class="panel"><h2>カード図鑑 <span id="total" class="small">500種</span></h2><div class="tools"><select id="cr"><option value="all">全ルーツ</option></select><select id="ct"><option value="all">全種類</option><option value="piece">ピース</option><option value="fusion">融合</option><option value="equipment">装備</option><option value="spell">詠唱</option></select><input id="cs" placeholder="名前・効果を検索"></div><div id="book" class="cards"></div><button id="bookMore" type="button" hidden>次のカードを表示</button></div></section>
-<section id="battle" class="hidden"><div class="panel arena"><div class="row arena-heading"><h2 id="battleTitle">CPU対戦</h2><button id="battleBack" type="button" hidden>対戦を出る</button><button id="again" hidden>再戦</button><b id="round">対戦準備中</b><button id="battleSettings" type="button" aria-label="対戦設定" title="対戦設定">⚙ 設定</button></div><p id="leaderRules" class="small"></p><div class="battle board-stage">
+<section id="battle" class="hidden"><div class="panel arena"><div class="row arena-heading"><h2 id="battleTitle">CPU対戦</h2><button id="battleBack" type="button" hidden>対戦を出る</button><button id="again" hidden>再戦</button><b id="round">対戦準備中</b><button id="battleLogButton" type="button">バトルログ</button><button id="battleSettings" type="button" aria-label="対戦設定" title="対戦設定">⚙ 設定</button></div><p id="leaderRules" class="small"></p><div class="battle board-stage">
  <div class="leader-bar rival-bar">
   <div class="reserve opponent-reserve"><div id="enemyHand" class="card-backs" aria-hidden="true"></div><span id="enemyHandCount"></span></div>
   <button id="faceTarget" class="leader portrait" type="button" aria-label="相手リーダーを選ぶ"><b id="opponentName">CPU</b><span id="chp" class="hp">20</span></button>
@@ -238,9 +253,9 @@ button.primary:hover,.active:hover,#end:enabled:hover,#start:enabled:hover{backg
  </div>
 </div>
 <div class="zone hand-zone"><div class="hand-heading"><b>手札</b><span id="handCount"></span></div><div id="hand" class="hand"></div></div>
-<div class="tools battle-actions"><button id="summon" disabled>ピース召喚</button><button id="fusion" disabled>融合</button><button id="equip" disabled>装備</button><button id="spell" disabled>詠唱を使う</button><button id="connect" disabled>選択2体を連結</button><button id="attack" disabled>選択ピースで攻撃</button><button id="detach" disabled>装備を外す</button><button id="firework" hidden>火鉢バチを無料召喚</button><button id="patrolReturn" hidden>巡回で手札を戻す</button><button id="selectionDetail" type="button" hidden>カード詳細</button><div id="edgePick" class="edge-pick" hidden></div><div id="selectionStrip" class="selection-strip" hidden></div><p id="actionHint" class="action-hint"></p><button id="end">ターン終了</button></div>
+<div class="tools battle-actions"><button id="summon" disabled>ピース召喚</button><button id="fusion" disabled>融合</button><button id="equip" disabled>装備</button><button id="spell" disabled>詠唱を使う</button><button id="connect" disabled>選択2体を連結</button><button id="attack" disabled>選択ピースで攻撃</button><button id="detach" disabled>装備を外す</button><button id="firework" hidden>火鉢バチを無料召喚</button><button id="patrolReturn" hidden>巡回で手札を戻す</button><div id="edgePick" class="edge-pick" hidden></div><div id="selectionStrip" class="selection-strip" hidden></div><p id="selectedEffect" class="selected-effect" hidden></p><p id="actionHint" class="action-hint"></p><button id="end">ターン終了</button></div>
 <details class="battle-help"><summary>操作方法</summary><p>手札や盤面のピースを選んでから操作ボタンを押します。連結は自分のピースを2体選択します。相手リーダーを攻撃するときは相手のHP表示を選べます。</p></details>
-<details class="zone log-zone"><summary>バトルログ</summary><div id="log" class="log" aria-live="polite"></div></details></div></section>
+</div></section>
 <section id="online" class="hidden">
   <div class="panel lobby">
     <h2>オンライン対戦</h2>
@@ -259,6 +274,7 @@ button.primary:hover,.active:hover,#end:enabled:hover,#start:enabled:hover{backg
   </div>
 </section>
 </main>
+<dialog id="battleLogDialog" aria-labelledby="battleLogTitle"><h2 id="battleLogTitle">バトルログ</h2><div id="log" class="log" aria-live="polite"></div><form method="dialog"><button>閉じる</button></form></dialog>
 <dialog id="deckPicker" aria-labelledby="deckPickerTitle">
   <h2 id="deckPickerTitle">対戦デッキを選ぶ</h2>
   <label for="pickDeck">使用するデッキ</label>
@@ -416,7 +432,7 @@ function validateDeck(ids) {
   let root;
   for (const id of ids) {
     const card=C.find(entry=>entry.id===id);
-    if (!card) throw new Error('使用できないカードが含まれています。');
+    if (!card||card.t==='fusion') throw new Error('融合ピースは別枠に登録してください。');
     root ??= card.r;
     if (card.r!==root) throw new Error('同じルーツのカードだけを使えます。');
     const count=(counts.get(card.n)??0)+1;
@@ -430,8 +446,17 @@ function validateDeck(ids) {
 function deckFor(root) {
   if (!R.some(([id])=>id===root)) throw new Error('ルーツを選んでください。');
   const ids=[0,1,2,3,4,5,6,7,8,9,10,11].map(i=>root+'p'+i);
-  return [...ids,...ids,...[0,2,4].map(i=>root+'s'+i),root+'f0',root+'e0',root+'x0'];
+  return [...ids,...ids,...[0,2,4].map(i=>root+'s'+i),root+'e0',root+'x0',root+'x1'];
 }
+function starterFusion(root){return [root+'f0',root+'f1',root+'f2'];}
+function validateFusion(ids,root){
+  if(!Array.isArray(ids)||ids.length>3||new Set(ids).size!==ids.length||
+    ids.some(id=>!C.some(card=>card.id===id&&card.r===root&&card.t==='fusion'))){
+    throw new Error('融合ピースは同じルーツから最大3種類までです。');
+  }
+  return ids;
+}
+
 function cpuDeckFor(root){
   const deck=deckFor(root);
   const deckCatalog=C.filter(card=>card.r===root&&card.t==='piece'&&card.id.startsWith(root+'x'));
@@ -443,13 +468,13 @@ function cpuDeckFor(root){
   return deck;
 }
 
-function prepare(deck,host) {
+function prepare(deck,host,fusion=starterFusion(C.find(card=>card.id===deck[0]).r)) {
  const d=[...deck];
  for(let i=d.length-1;i>0;i--){
    const j=Math.floor(Math.random()*(i+1));
    [d[i],d[j]]=[d[j],d[i]];
  }
- return {hp:20,h:d.splice(0,4),d,b:[],trash:[],cost:host?1:0,linkCost:host?1:0,capacity:host?1:0,pending:false,root:C.find(card=>card.id===deck[0]).r};
+ return {hp:20,fusion:[...fusion],h:d.splice(0,4),d,b:[],trash:[],cost:host?1:0,linkCost:host?1:0,capacity:host?1:0,pending:false,root:C.find(card=>card.id===deck[0]).r};
 }
 
 function applyMove(state,seat,action){
@@ -520,7 +545,7 @@ function summon() {
     if(!G.over)patrol(player);
   }
 }
-function fuse(){let p=G.p,c=C.find(x=>x.id===p.h[handSel]);if(!c||c.t!=='fusion')return;if(connectionCost(p)<c.cc)return alert('接続コスト不足。');if(p.b.length<2)return alert('融合素材2体が必要。');let a=unitSel,b=secondSel;if(a===b||!p.b[a]||!p.b[b])return;let u=p.b[a],v=p.b[b];if(u.mats||v.mats||u.equip||v.equip)return alert('装備中のピースは融合できません。');if(!c.m||u.id===v.id||![u.id,v.id].every(id=>c.m.includes(id)))return alert('この融合カードの指定素材ではありません。');spendConnection(p,c.cc);let indices=[a,b].sort((x,y)=>y-x);for(let i of indices){let m=p.b.splice(i,1)[0];toTrash(p,m,'融合素材')}let f=spendHand();let x=makeUnit(f);x.ready=false;x.shield=u.shield||v.shield;x.grows=u.k==='成長'||v.k==='成長';p.b.push(x);log(u.n+'＋'+v.n+' → '+f.n+'！接続コスト'+f.cc+'を使用。')}
+function fuse(){let p=G.p,c=C.find(x=>x.id===(p.fusion? action.fusion:p.h[handSel]));if(!c||c.t!=='fusion'||(p.fusion&&!p.fusion.includes(c.id)))return;if(connectionCost(p)<c.cc)return alert('接続コスト不足。');if(p.b.length<2)return alert('融合素材2体が必要。');let a=unitSel,b=secondSel;if(a===b||!p.b[a]||!p.b[b])return;let u=p.b[a],v=p.b[b];if(u.mats||v.mats||u.equip||v.equip)return alert('装備中のピースは融合できません。');if(!c.m||u.id===v.id||![u.id,v.id].every(id=>c.m.includes(id)))return alert('この融合カードの指定素材ではありません。');spendConnection(p,c.cc);let indices=[a,b].sort((x,y)=>y-x);for(let i of indices){let m=p.b.splice(i,1)[0];toTrash(p,m,'融合素材')}let f=c;if(p.fusion)p.fusion=p.fusion.filter(id=>id!==f.id);else spendHand();let x=makeUnit(f);x.ready=false;x.shield=u.shield||v.shield;x.grows=u.k==='成長'||v.k==='成長';p.b.push(x);log(u.n+'＋'+v.n+' → '+f.n+'！接続コスト'+f.cc+'を使用。')}
 function edgePair(u,v,direction) {
   const star=u.k==='星導'||v.k==='星導';
   let fallback;
@@ -777,6 +802,12 @@ function playCpuTurn(state) {
     const {h,b}=state.guest;
     if(b.length<3&&state.guest.freeFirework&&tryMove({kind:'firework',hand:h.indexOf('redp1')}))continue;
     let played=false;
+    for(const id of state.guest.fusion??[]){
+      const card=C.find(entry=>entry.id===id);
+      const unit=b.findIndex(piece=>piece.id===card.m[0]);
+      const second=b.findIndex(piece=>piece.id===card.m[1]);
+      if(unit>=0&&second>=0&&tryMove({kind:'fuse',fusion:id,unit,second})){played=true;break;}
+    }
     for(let hand=0;hand<h.length&&!played;hand++){
       const card=C.find(entry=>entry.id===h[hand]);
       if(card.t==='piece')played=tryMove({kind:'summon',hand});
@@ -839,9 +870,9 @@ function card(c,showAdd=false){
   const frame=shapeStyle(c);
   const stats=c.t==='piece'?'召喚 '+c.c:c.t==='fusion'?'一体化 '+c.cc:typeName(c.t);
   return `<article class="card ${frame?'jigsaw':''}" style="${frame}" data-id="${c.id}">
-    <h3>${rootName(c.r)} ${esc(c.n)}</h3><button type="button" class="card-detail" data-detail="${c.id}">詳細</button>
+    <h3>${rootName(c.r)} ${esc(c.n)}</h3>
     <div class="stats">${stats}${c.t==='piece'||c.t==='fusion'?`　⚔${c.a} ♥${c.h}`:''}</div>
-    <p class="desc">${esc(c.d)}</p><div class="piece-ports">${edgeLabels(c.e)}</div>${showAdd?`<button class="add-card" type="button" data-add="${c.id}">追加</button>`:''}</article>`;
+    <p class="desc">${esc(c.d)}</p><div class="piece-ports">${edgeLabels(c.e)}</div>${showAdd?`<button class="add-card" type="button" data-add="${c.id}">${c.t==='fusion'?'融合枠に追加':'追加'}</button>`:''}</article>`;
 }
 const initialPage=36;
 let poolLimit=initialPage,bookLimit=initialPage;
@@ -857,15 +888,26 @@ function renderBook(){
   $('total').textContent=entries.length+'種 / 全'+C.length+'種';
 }
 const deckStorageKey='roots-link.deck.v1';
-try {
-  const saved=JSON.parse(localStorage.getItem(deckStorageKey));
-  if(Array.isArray(saved)){
-    for(const id of saved.slice(0,30)){
-      const card=C.find(entry=>entry.id===id);
-      if(card&&(!deck.length||C.find(entry=>entry.id===deck[0]).r===card.r)&&deck.filter(value=>C.find(entry=>entry.id===value).n===card.n).length<3)deck.push(id);
+const fusionStorageKey='roots-link.deck-fusion.v1';
+let fusionDeck=[];
+function migrateDeck(cards,registered){
+  const entries=Array.isArray(cards)?cards.map(id=>C.find(card=>card.id===id)).filter(Boolean):[];
+  const root=entries[0]?.r;
+  if(!root)return {cards:[],fusion:[]};
+  const core=entries.filter(card=>card.r===root&&card.t!=='fusion').slice(0,30).map(card=>card.id);
+  const fusion=[...new Set(Array.isArray(registered)?registered:entries.filter(card=>card.r===root&&card.t==='fusion').map(card=>card.id))].filter(id=>C.some(card=>card.id===id&&card.t==='fusion'&&card.r===root)).slice(0,3);
+  if(entries.length===30&&entries.some(card=>card.t==='fusion')){
+    for(const id of deckFor(root)){
+      if(core.length===30)break;
+      if(core.filter(value=>value===id).length<3)core.push(id);
     }
   }
-} catch {}
+  return {cards:core,fusion};
+}
+try{
+  const existing=migrateDeck(JSON.parse(localStorage.getItem(deckStorageKey)),JSON.parse(localStorage.getItem(fusionStorageKey)));
+  deck=existing.cards;fusionDeck=existing.fusion;
+}catch{}
 function validDeck(ids){try{validateDeck(ids);return true;}catch{return false;}}
 function deckCanPlay(){return validDeck(deck);}
 const deckLibraryKey='roots-link.deck-library.v1';
@@ -875,9 +917,9 @@ let editId=null;
 try{
   const raw=localStorage.getItem(deckLibraryKey);
   const entries=JSON.parse(raw);
-  if(Array.isArray(entries))savedDecks=entries.filter(entry=>typeof entry?.id==='string'&&typeof entry.name==='string'&&validDeck(entry.cards));
+  if(Array.isArray(entries))savedDecks=entries.filter(entry=>typeof entry?.id==='string'&&typeof entry.name==='string').map(entry=>({...entry,...migrateDeck(entry.cards,entry.fusion)})).filter(entry=>validDeck(entry.cards));
   if(raw===null&&deckCanPlay()){
-    savedDecks=[{id:'imported',name:'マイデッキ',cards:[...deck]}];
+    savedDecks=[{id:'imported',name:'マイデッキ',cards:[...deck],fusion:[...fusionDeck]}];
     localStorage.setItem(deckLibraryKey,JSON.stringify(savedDecks));
   }
   const draft=JSON.parse(localStorage.getItem(draftMetaKey));
@@ -899,7 +941,7 @@ function saveNamedDeck(){
   const name=$('deckName').value.trim();
   if(!name||!deckCanPlay())return;
   const id=editId??(globalThis.crypto?.randomUUID?.()??String(Date.now())+String(Math.random()));
-  const entry={id,name,cards:[...deck]};
+  const entry={id,name,cards:[...deck],fusion:[...fusionDeck]};
   const next=savedDecks.some(item=>item.id===id)?savedDecks.map(item=>item.id===id?entry:item):[...savedDecks,entry];
   try{localStorage.setItem(deckLibraryKey,JSON.stringify(next));}
   catch{$('deckStatus').textContent='ブラウザに保存できませんでした。';return;}
@@ -918,14 +960,14 @@ $('loadDeck').onclick=()=>{
   if(!entry)return;
   editId=entry.id;
   $('deckName').value=entry.name;
-  deck=[...entry.cards];
+  deck=[...entry.cards];fusionDeck=[...(entry.fusion??[])];
   saveDraftMeta();
   renderDeck();
   $('deckStatus').textContent='「'+entry.name+'」を編集中です。';
 };
 $('newDeck').onclick=()=>{
-  if(deck.length&&!savedDecks.some(item=>item.id===editId&&JSON.stringify(item.cards)===JSON.stringify(deck)&&item.name===$('deckName').value.trim())&&!confirm('未保存の編集内容を破棄して新しいデッキを作りますか？'))return;
-  editId=null;deck=[];$('deckName').value='';
+  if(deck.length&&!savedDecks.some(item=>item.id===editId&&JSON.stringify(item.cards)===JSON.stringify(deck)&&JSON.stringify(item.fusion??[])===JSON.stringify(fusionDeck)&&item.name===$('deckName').value.trim())&&!confirm('未保存の編集内容を破棄して新しいデッキを作りますか？'))return;
+  editId=null;deck=[];fusionDeck=[];$('deckName').value='';
   saveDraftMeta();renderDeck();
   $('deckStatus').textContent='';
   $('deckName').focus();
@@ -937,9 +979,9 @@ $('deckName').oninput=()=>{
 function deckOptions(){
   const entries=savedDecks.map(item=>({...item,group:'保存済みデッキ'}));
   if(deckCanPlay()&&!savedDecks.some(item=>JSON.stringify(item.cards)===JSON.stringify(deck))){
-    entries.push({id:'draft',name:$('deckName').value.trim()||'編集中のデッキ',cards:[...deck],group:'編集中'});
+    entries.push({id:'draft',name:$('deckName').value.trim()||'編集中のデッキ',cards:[...deck],fusion:[...fusionDeck],group:'編集中'});
   }
-  for(const [root,name] of R)entries.push({id:'starter-'+root,name:name+' スターター',cards:deckFor(root),group:'スターター'});
+  for(const [root,name] of R)entries.push({id:'starter-'+root,name:name+' スターター',cards:deckFor(root),fusion:starterFusion(root),group:'スターター'});
   return entries;
 }
 let pickOptions=[],pickCallback;
@@ -969,8 +1011,9 @@ function updateDeckPreview(){
   if(!choice)return;
   const quantities=new Map();
   for(const id of choice.cards)quantities.set(id,(quantities.get(id)??0)+1);
+  for(const id of choice.fusion??[])quantities.set(id,1);
   const rows=[...quantities].map(([id,count])=>({card:C.find(x=>x.id===id),count}));
-  $('pickSummary').textContent=rootName(rows[0].card.r)+' · '+choice.cards.length+'枚';
+  $('pickSummary').textContent=rootName(rows[0].card.r)+' · 通常 '+choice.cards.length+'枚 · 融合 '+(choice.fusion?.length??0)+'/3';
   for(const type of ['piece','fusion','equipment','spell']){
     const cards=rows.filter(item=>item.card.t===type);
     if(!cards.length)continue;
@@ -997,17 +1040,23 @@ $('pickConfirm').onclick=()=>{
   const entry=pickOptions.find(item=>item.id===$('pickDeck').value);
   if(!entry||!validDeck(entry.cards))return;
   $('deckPicker').close();
-  pickCallback?.([...entry.cards]);
+  pickCallback?.([...entry.cards],[...(entry.fusion??[])]);
 };
 function chooseCpuDeck(){
   if(G?.over)show('builder');
   openDeckPicker('CPU対戦のデッキを選ぶ','このデッキで開始',startGame);
 }
-function renderDeck(){try{localStorage.setItem(deckStorageKey,JSON.stringify(deck))}catch{}$('count').textContent=deck.length+' / 30';$('saveDeck').disabled=!deckCanPlay()||!$('deckName').value.trim();$('deck').innerHTML=deck.map((id,i)=>{let c=C.find(x=>x.id===id);return `<div class="item">${rootName(c.r)} ${esc(c.n)} <button data-del="${i}">外す</button></div>`}).join('')||'<p class="small">カードを追加してね。</p>'}
+function renderDeck(){try{localStorage.setItem(deckStorageKey,JSON.stringify(deck));localStorage.setItem(fusionStorageKey,JSON.stringify(fusionDeck));}catch{}$('fusionCount').textContent=fusionDeck.length+' / 3';$('fusionList').innerHTML=fusionDeck.map(id=>'<div class="item">'+esc(C.find(c=>c.id===id).n)+'<button data-fusion-remove="'+id+'">外す</button></div>').join('');$('count').textContent=deck.length+' / 30';$('saveDeck').disabled=!deckCanPlay()||!$('deckName').value.trim();$('deck').innerHTML=deck.map((id,i)=>{let c=C.find(x=>x.id===id);return `<div class="item">${rootName(c.r)} ${esc(c.n)} <button data-del="${i}">外す</button></div>`}).join('')||'<p class="small">カードを追加してね。</p>'}
 function add(id){
   const entry=C.find(card=>card.id===id);
   if(!entry)return;
   const setStatus=message=>{$('deckStatus').textContent=message;};
+  const root=C.find(card=>card.id===(deck[0]??fusionDeck[0]))?.r;
+  if(root&&root!==entry.r)return setStatus('同じルーツのカードを選んでください。');
+  if(entry.t==='fusion'){
+    if(fusionDeck.includes(id)||fusionDeck.length>=3)return setStatus('融合枠は異なるピースを最大3種類まで登録できます。');
+    fusionDeck.push(id);renderDeck();setStatus(entry.n+'を融合枠に追加しました。');return;
+  }
   if(deck.length>=30)return setStatus('デッキは30枚までです。');
   if(deck.length&&C.find(card=>card.id===deck[0]).r!==entry.r)return setStatus('マイデッキと同じルーツを選んでください。');
   if(deck.filter(value=>C.find(card=>card.id===value).n===entry.n).length>=3)return setStatus('同名カードは3枚までです。');
@@ -1015,6 +1064,8 @@ function add(id){
   renderDeck();
   setStatus(entry.n+'を追加しました。');
 }
+$('fusionList').onclick=event=>{const item=event.target.closest('[data-fusion-remove]');if(item){fusionDeck=fusionDeck.filter(id=>id!==item.dataset.fusionRemove);renderDeck();}};
+$('browseFusion').onclick=()=>{$('bt').value='fusion';poolLimit=initialPage;renderPool();$('bt').scrollIntoView({block:'nearest'});};
 function show(id){document.body.classList.toggle('playing',id==='battle'&&!!G);document.querySelectorAll('main>section').forEach(s=>s.classList.toggle('hidden',s.id!==id));document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.to===id))}
 function log(s){G.logs.unshift(s);$('log').innerHTML=G.logs.map(esc).join('<br>')}
 let cpuMatch=null;
@@ -1023,16 +1074,16 @@ function renderCpuMatch(){
   const previous=G;
   G={p:{...host,capacity:Math.min(5,host.capacity+(host.activated?1:0))},
     c:guest,round,turn:turn==='host'?'p':'c',over:!!winner,won:winner==='host',logs:[...logs]};
-  handSel=unitSel=secondSel=-1;targetSel=null;
+  handSel=unitSel=secondSel=-1;targetSel=null;inspectedCard=null;
   $('log').innerHTML=logs.map(esc).join('<br>');
   renderGame();
   showBattleEvent(previous,G);
 }
-function startGame(cards){
+function startGame(cards,fusion){
   if(!validDeck(cards))return;
   window.closeOnlineMatch?.();
   const rival=R[Math.floor(Math.random()*R.length)][0];
-  cpuMatch={host:prepare(cards,true),guest:prepare(cpuDeckFor(rival),false),
+  cpuMatch={host:prepare(cards,true,fusion),guest:prepare(cpuDeckFor(rival),false),
     round:1,turn:'host',winner:null,logs:['対戦開始。あなたが先攻です。']};
   renderCpuMatch();
   show('battle');
@@ -1093,20 +1144,30 @@ function unitHTML(u,i,side){
   const classes=['unit','field-piece',frame?'jigsaw':'',selected?'selected':'',attackable?'attack-target':'',spellTarget?'spell-target':'',side==='p'&&u.ready?'ready-piece':''].join(' ');
   const ports=edgeLabels(u.edges);
   const detail=[u.shield?'盾':'',u.equip?'装備：'+u.equip.n:'',u.mats?u.mats.length+'体連結':''].filter(Boolean).join(' · ');
-  return '<button type="button" class="'+classes+'" style="'+frame+';--root-color:'+pieceColors[u.r]+';grid-column:span '+(u.mats?.length??1)+'" data-'+side+'u="'+i+'" aria-pressed="'+selected+'"'+(side==='c'&&!attackable&&!spellTarget?' disabled':'')+'>'+
+  return '<button type="button" class="'+classes+'" style="'+frame+';--root-color:'+pieceColors[u.r]+';grid-column:span '+(u.mats?.length??1)+'" data-'+side+'u="'+i+'" aria-pressed="'+selected+'"'+'>'+
     '<span class="field-name">'+esc(u.n)+'</span><span class="field-condition">'+esc(detail||u.k||'')+'</span>'+
     '<span class="field-ports">'+ports+'</span><span class="field-atk" aria-label="攻撃 '+u.a+'">'+u.a+'</span><span class="field-hp" aria-label="体力 '+u.hp+'">'+u.hp+'</span></button>';
 }
 const actionIds={summon:'summon',fusion:'fuse',equip:'equip',spell:'spell',connect:'connect',attack:'attack',detach:'detach',firework:'firework',patrolReturn:'patrol'};
 let chooseEdge=null;
-function currentAction(kind,direction){
-  return {kind,hand:handSel,unit:unitSel,second:secondSel,target:targetSel,direction};
+let inspectedCard=null;
+function inspectPiece(unit){
+  if(!unit)return null;
+  const card=C.find(entry=>entry.id===unit.id);
+  const gear=C.find(entry=>entry.id===unit.equip?.id);
+  const parts=unit.mats?.map(piece=>piece.n).join('・');
+  const inherited=[unit.shield?'盾':'',unit.grows?'成長':''].filter(Boolean).join('・');
+  const text=[parts?'素材：'+parts:card?.d,gear?'装備：'+gear.n+' '+gear.d:'',inherited?'有効：'+inherited:''].filter(Boolean).join(' / ');
+  return {n:unit.n,d:text};
 }
-function legalAction(kind,direction,target=targetSel){
+function currentAction(kind,direction,fusion){
+  return {kind,hand:handSel,unit:unitSel,second:secondSel,target:targetSel,direction,fusion};
+}
+function legalAction(kind,direction,target=targetSel,fusion){
   if(!G||G.over||G.turn!=='p')return false;
   if(kind==='attack'&&(target===null||secondSel>=0))return false;
   try{
-    applyMove({host:G.p,guest:G.c,round:G.round,turn:'host',winner:null,logs:[]},'host',{...currentAction(kind,direction),target});
+    applyMove({host:G.p,guest:G.c,round:G.round,turn:'host',winner:null,logs:[]},'host',{...currentAction(kind,direction,fusion),target});
     return true;
   }catch{return false;}
 }
@@ -1120,10 +1181,13 @@ function renderActions(){
   edgeList.replaceChildren();
   edgeList.hidden=true;
   const selectedCard=C.find(card=>card.id===G.p.h[handSel]);
-  $('selectionDetail').hidden=!selectedCard;
-  $('selectionDetail').onclick=()=>{if(selectedCard)openCard(selectedCard.id);};
+  const picked=inspectedCard??selectedCard??C.find(card=>card.id===G.p.b[unitSel]?.id);
+  const effect=$('selectedEffect');
+  effect.hidden=!picked;
+  effect.textContent=picked?picked.n+'｜'+(picked.d||'固有効果なし'):'';
+  const eligible=(G.p.fusion??[]).filter(id=>legalAction('fuse',undefined,targetSel,id));
   for(const [id,kind] of Object.entries(actionIds)){
-    const possible=(id==='attack'&&secondSel>=0)?false:legalAction(kind);
+    const possible=(id==='attack'&&secondSel>=0)?false:id==='fusion'&&G.p.fusion?eligible.length>0:legalAction(kind);
     $(id).hidden=!possible;
     $(id).disabled=!possible;
   }
@@ -1135,7 +1199,17 @@ function renderActions(){
   const strip=$('selectionStrip');
   strip.hidden=!(selectedCard||source);
   strip.textContent=[selectedCard?.n,source?.n,target?'対象：'+target:''].filter(Boolean).join(' · ');
-  if(chooseEdge){
+  if(chooseEdge==='fuse'&&G.p.fusion){
+    for(const id of eligible){
+      const card=C.find(entry=>entry.id===id);
+      const button=document.createElement('button');
+      button.type='button';
+      button.textContent=card.n+' · 接続 '+card.cc;
+      button.onclick=()=>window.applyBattleMove('fuse',undefined,id);
+      edgeList.append(button);
+    }
+    edgeList.hidden=!edgeList.childElementCount;
+  }else if(chooseEdge){
     const labels=chooseEdge==='connect'?['上 ↔ 下','右 ↔ 左','下 ↔ 上','左 ↔ 右']:['上','右','下','左'];
     const candidates=chooseEdge==='connect'?[]:attachmentChoices(source,selectedCard);
     labels.forEach((label,direction)=>{
@@ -1155,6 +1229,7 @@ function selectHand(e){
   if(!target)return;
   const index=Number(target.dataset.hand);
   handSel=handSel===index?-1:index;
+  inspectedCard=null;
   targetSel=null;
   chooseEdge=null;
   renderGame();
@@ -1164,6 +1239,7 @@ function selectOwn(e){
   const target=e.target.closest('[data-pu]');
   if(!target)return;
   const index=Number(target.dataset.pu);
+  inspectedCard=inspectPiece(G.p.b[index]);
   if(unitSel<0){unitSel=index;secondSel=-1;}
   else if(index===unitSel){unitSel=-1;secondSel=-1;}
   else secondSel=secondSel===index?-1:index;
@@ -1193,12 +1269,8 @@ $('battleSettings').onclick=()=>{
   optionsDialog.showModal();
 };
 $('showFlashes').onchange=$('simpleStage').onchange=updateBattleSettings;
-$('showMatchLog').onclick=()=>{
-  optionsDialog.close();
-  const log=document.querySelector('.log-zone');
-  log.open=true;
-  log.scrollIntoView({block:'nearest'});
-};
+$('battleLogButton').onclick=()=>$('battleLogDialog').showModal();
+$('showMatchLog').onclick=()=>{optionsDialog.close();$('battleLogDialog').showModal();};
 $('askConcede').onclick=()=>confirmView(true);
 $('cancelConcede').onclick=()=>confirmView(false);
 $('confirmConcede').onclick=()=>{
@@ -1243,17 +1315,17 @@ function openCard(id){
   else $('cardDialog').setAttribute('open','');
 }
 $('pool').onclick=e=>{
-  const detail=e.target.closest('[data-detail]');
-  if(detail){openCard(detail.dataset.detail);return;}
+  const addButton=e.target.closest('[data-add]');
+  if(addButton){add(addButton.dataset.add);return;}
   const card=e.target.closest('[data-id]');
-  if(card)add(card.dataset.id);
+  if(card)openCard(card.dataset.id);
 };
 $('book').onclick=e=>{
   const card=e.target.closest('[data-id]');
   if(card)openCard(card.dataset.id);
 };
-$('deck').onclick=e=>{let b=e.target.closest('[data-del]');if(b){deck.splice(+b.dataset.del,1);renderDeck()}};$('fill').onclick=()=>{const selected=$('br').value;deck=deckFor(selected==='all'?(C.find(x=>x.id===deck[0])?.r??'red'):selected);renderDeck();$('deckStatus').textContent='固定デッキを作りました。'};$('clear').onclick=()=>{deck=[];renderDeck()};$('start').onclick=chooseCpuDeck;$('again').onclick=chooseCpuDeck;
-document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{if(b.dataset.to==='battle'){chooseCpuDeck();return;}show(b.dataset.to)});$('hand').onclick=selectHand;$('pboard').onclick=selectOwn;$('cboard').onclick=e=>{let b=e.target.closest('[data-cu]');if(b&&(canAttackTarget(+b.dataset.cu)||canSpellTarget(+b.dataset.cu))){targetSel=+b.dataset.cu;secondSel=-1;chooseEdge=null;renderGame()}};
+$('deck').onclick=e=>{let b=e.target.closest('[data-del]');if(b){deck.splice(+b.dataset.del,1);renderDeck()}};$('fill').onclick=()=>{const selected=$('br').value;const root=selected==='all'?(C.find(x=>x.id===(deck[0]??fusionDeck[0]))?.r??'red'):selected;deck=deckFor(root);fusionDeck=starterFusion(root);renderDeck();$('deckStatus').textContent='固定デッキを作りました。'};$('clear').onclick=()=>{deck=[];fusionDeck=[];renderDeck()};$('start').onclick=chooseCpuDeck;$('again').onclick=chooseCpuDeck;
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{if(b.dataset.to==='battle'){chooseCpuDeck();return;}show(b.dataset.to)});$('hand').onclick=selectHand;$('pboard').onclick=selectOwn;$('cboard').onclick=e=>{let b=e.target.closest('[data-cu]');if(b){const index=+b.dataset.cu;inspectedCard=inspectPiece(G.c.b[index]);if(canAttackTarget(index)||canSpellTarget(index)){targetSel=index;secondSel=-1;}chooseEdge=null;renderGame()}};
 
 (()=>{
  const $=id=>document.getElementById(id); let roomTimer=null, roomRequest=0;
@@ -1366,7 +1438,7 @@ document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{if(b.dataset.to==='b
        const first=!G?.online;
        const previous=G;
        G={...match,online:true};
-       handSel=unitSel=secondSel=-1;targetSel=null;
+       handSel=unitSel=secondSel=-1;targetSel=null;inspectedCard=null;
        $('log').innerHTML=G.logs.map(esc).join('<br>');
        renderGame();
        showBattleEvent(previous,G);
@@ -1387,12 +1459,12 @@ document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{if(b.dataset.to==='b
      else if(matchRoom&&!G?.over)matchTimer=setTimeout(()=>matchUpdate(),1600);
    }
  }
- $('chooseOnlineDeck').onclick=()=>openDeckPicker('オンライン対戦のデッキを選ぶ','このデッキで対戦',cards=>{
-   if(matchRoom&&!$('matchSetup').classList.contains('hidden'))matchUpdate({kind:'ready',deck:cards});
+ $('chooseOnlineDeck').onclick=()=>openDeckPicker('オンライン対戦のデッキを選ぶ','このデッキで対戦',(cards,fusion)=>{
+   if(matchRoom&&!$('matchSetup').classList.contains('hidden'))matchUpdate({kind:'ready',deck:cards,fusion});
  });
- function move(kind,direction) {
+ function move(kind,direction,fusion) {
    if(kind==='attack'&&!legalAction('attack'))return;
-   const action=currentAction(kind,direction);
+   const action=currentAction(kind,direction,fusion);
    chooseEdge=null;
    if(G?.online)matchUpdate(action);
    else cpuMove(action);
@@ -1402,7 +1474,7 @@ document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{if(b.dataset.to==='b
    ['summon','summon'],['fusion','fuse'],['connect','connect'],
    ['equip','equip'],['detach','detach'],['spell','spell'],
    ['attack','attack'],['end','end'],
- ]) $(id).onclick=()=>{if(['connect','equip','spell'].includes(kind)){chooseEdge=chooseEdge===kind?null:kind;renderActions();}else move(kind);};
+ ]) $(id).onclick=()=>{if(['connect','equip','spell'].includes(kind)||(kind==='fuse'&&G.p.fusion)){chooseEdge=chooseEdge===kind?null:kind;renderActions();}else move(kind);};
  $('firework').onclick=()=>move('firework');
  $('patrolReturn').onclick=()=>move('patrol');
  $('faceTarget').onclick=()=>{if(canAttackTarget(-1)){targetSel=-1;renderGame();}};
