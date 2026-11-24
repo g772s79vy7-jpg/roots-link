@@ -339,12 +339,13 @@ button.primary:hover,.active:hover,#end:enabled:hover,#start:enabled:hover{backg
 .cost-track .spent{background:#ffffff45}
 .cost-track .available{background:var(--meter-fill);box-shadow:0 0 5px color-mix(in srgb,var(--meter-fill),transparent 40%)}
 .cost-meters{gap:7px}
-#cost.cost-meter{flex:1.16;border-color:#ac89da}
-#linkCostHud.cost-meter{flex:1}
+#cost.cost-meter{border-color:#ac89da}
 .cost-meter{padding:6px 8px 8px}
-.cost-reading,.cost-cap{font-size:.87rem}
+.cost-reading{flex-wrap:wrap;column-gap:6px;row-gap:2px;font-size:.87rem;white-space:normal}
+.cost-label{flex:0 0 auto;white-space:nowrap}
+.cost-reading span:has(>.cost-now){margin-inline-start:auto;white-space:nowrap}
+.cost-cap{font-size:.87rem}
 .cost-now{font-size:1.75rem}
-#cost .cost-now{font-size:2rem}
 .cost-track i{height:7px}
 @media(max-width:370px){
   .cost-meter{padding-inline:6px}
