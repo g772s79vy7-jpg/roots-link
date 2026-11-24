@@ -181,10 +181,10 @@ export function applyMove(state,seat,action){
  const index=(n)=>Number.isInteger(n)&&n>=0&&n<9?n:-1;
  let handSel=index(action.hand),unitSel=index(action.unit),secondSel=index(action.second),targetSel=index(action.target);
  const log=(s)=>{state.logs.unshift(s);state.logs.length=Math.min(60,state.logs.length);};
- const recordHit=(player,name,amount,leader=false)=>{
+ const recordHit=(player,name,amount,leader=false,index)=>{
    const id=(state.hitId??0)+1;
    state.hitId=id;
-   state.hits=[...(state.hits??[]),{id,seat:player===G.p?seat:opponent,name,amount,leader}].slice(-48);
+   state.hits=[...(state.hits??[]),{id,seat:player===G.p?seat:opponent,name,amount,leader,index}].slice(-48);
  };
  const damageLeader=(player,amount,source)=>{
    if(amount<=0)return;
@@ -317,13 +317,13 @@ function damageUnit(player,index,damage){
       log(unit.n+'の装備がダメージを防ぎました。');
       return;
     }
-    recordHit(player,unit.n,damage);
+    recordHit(player,unit.n,damage,false,index);
     unit.hp-=damage;
     log(unit.n+'に'+damage+'ダメージ！');
     if(unit.hp<=0){player.b.splice(index,1);toTrash(player,unit,'破壊');}
     return;
   }
-  recordHit(player,unit.n,damage);
+  recordHit(player,unit.n,damage,false,index);
   log(unit.n+'に'+damage+'ダメージ！');
   unit.mats.sort((a,b)=>a.hp-b.hp);
   for(const piece of unit.mats){
@@ -407,7 +407,9 @@ function spell(){
   const cost=join.cost;
   spendConnection(p,cost);
   spendHand();
-  log(card.n+'を使用（接続コスト'+cost+'）。');
+  unit.edges[join.direction]={s:'無',c:0,used:true};
+  const side=['上','右','下','左'][join.direction];
+  log(card.n+'を使用（接続コスト'+cost+'）。'+unit.n+'の'+side+'の辺を消費。');
   switch(card.effect??card.ef){
     case 'draw':
       draw(p,card.n+'の効果');

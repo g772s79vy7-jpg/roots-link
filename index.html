@@ -290,20 +290,43 @@ button.primary:hover,.active:hover,#end:enabled:hover,#start:enabled:hover{backg
   width:calc((100cqw - 16px) / 3);padding:4.5cqw 0 7cqw;
 }
 .damage-impact{
-  position:absolute;z-index:8;pointer-events:none;left:50%;
-  top:calc(42% + var(--hit-row) * 1.45rem);transform:translate(-50%,-50%);
-  max-width:95%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
-  border:1px solid #ffc5ad;border-radius:8px;padding:.14rem .5rem;
-  background:#681d34;color:#fff1e5;font-size:clamp(.75rem,3.5vw,1rem);font-weight:850;
-  box-shadow:0 0 .9rem #ff4e5e90;animation:damage-impact 1.15s calc(var(--hit-row) * 80ms) both;
+  position:absolute;z-index:8;pointer-events:none;left:var(--hit-x,50%);top:50%;
+  width:0;height:0;--impact-color:#ffb23d;--impact-core:#fff6ca;
 }
-@keyframes damage-impact{
-  0%{opacity:0;transform:translate(-50%,-50%) scale(.75)}
-  16%{opacity:1;transform:translate(-50%,-50%) scale(1.08)}
-  28%,72%{opacity:1;transform:translate(-50%,-50%)}
-  100%{opacity:0;transform:translate(-50%,-65%)}
+.damage-impact[data-side="p"]{--impact-color:#ff475a;--impact-core:#ffe4eb}
+.damage-impact::before,.damage-impact::after{
+  content:"";position:absolute;inset:-46px;opacity:0;transform:translateX(-50%);
+  animation:hit-burst .58s var(--hit-delay) both;
 }
-@media(prefers-reduced-motion:reduce){.damage-impact{animation:none}}
+.damage-impact::before{
+  left:0;width:92px;clip-path:polygon(48% 0,60% 34%,99% 15%,70% 48%,100% 75%,59% 66%,45% 100%,37% 66%,0 87%,27% 50%,3% 22%,35% 34%);
+  background:radial-gradient(circle,var(--impact-core) 12%,var(--impact-color) 52%,transparent 75%);
+}
+.damage-impact::after{
+  left:0;width:92px;border:3px solid var(--impact-color);border-radius:50%;
+  box-shadow:0 0 22px var(--impact-color),inset 0 0 14px var(--impact-color);
+}
+.damage-value{
+  display:block;width:max-content;font-size:clamp(2.1rem,8vw,3.6rem);font-weight:950;line-height:1;
+  color:var(--impact-core);paint-order:stroke fill;-webkit-text-stroke:4px #261026;
+  text-shadow:0 0 15px var(--impact-color),0 4px 5px #140717;
+  animation:hit-value 1.05s var(--hit-delay) both;
+}
+@keyframes hit-burst{
+  0%{opacity:0;transform:translateX(-50%) scale(.35)}
+  20%{opacity:1;transform:translateX(-50%) scale(.9)}
+  100%{opacity:0;transform:translateX(-50%) scale(1.45)}
+}
+@keyframes hit-value{
+  0%{opacity:0;transform:translate(-50%,-30%) scale(.6)}
+  18%{opacity:1;transform:translate(-50%,-68%) scale(1.2)}
+  36%,75%{opacity:1;transform:translate(-50%,-75%) scale(1)}
+  100%{opacity:0;transform:translate(-50%,-110%)}
+}
+@media(prefers-reduced-motion:reduce){
+  .damage-impact::before,.damage-impact::after{animation:none}
+  .damage-value{animation:none;transform:translate(-50%,-65%)}
+}
 </style>
 <header class="site-header"><h1>ROOTS <span>LINK</span></h1>
 <nav><button class="tab active" data-to="builder">デッキ編集</button><button class="tab" data-to="catalog">カード図鑑</button><button class="tab" data-to="battle">対戦</button><button class="tab" data-to="online">オンライン対戦</button></nav></header><main>
@@ -563,10 +586,10 @@ function applyMove(state,seat,action){
  const index=(n)=>Number.isInteger(n)&&n>=0&&n<9?n:-1;
  let handSel=index(action.hand),unitSel=index(action.unit),secondSel=index(action.second),targetSel=index(action.target);
  const log=(s)=>{state.logs.unshift(s);state.logs.length=Math.min(60,state.logs.length);};
- const recordHit=(player,name,amount,leader=false)=>{
+ const recordHit=(player,name,amount,leader=false,index)=>{
    const id=(state.hitId??0)+1;
    state.hitId=id;
-   state.hits=[...(state.hits??[]),{id,seat:player===G.p?seat:opponent,name,amount,leader}].slice(-48);
+   state.hits=[...(state.hits??[]),{id,seat:player===G.p?seat:opponent,name,amount,leader,index}].slice(-48);
  };
  const damageLeader=(player,amount,source)=>{
    if(amount<=0)return;
@@ -699,13 +722,13 @@ function damageUnit(player,index,damage){
       log(unit.n+'の装備がダメージを防ぎました。');
       return;
     }
-    recordHit(player,unit.n,damage);
+    recordHit(player,unit.n,damage,false,index);
     unit.hp-=damage;
     log(unit.n+'に'+damage+'ダメージ！');
     if(unit.hp<=0){player.b.splice(index,1);toTrash(player,unit,'破壊');}
     return;
   }
-  recordHit(player,unit.n,damage);
+  recordHit(player,unit.n,damage,false,index);
   log(unit.n+'に'+damage+'ダメージ！');
   unit.mats.sort((a,b)=>a.hp-b.hp);
   for(const piece of unit.mats){
@@ -789,7 +812,9 @@ function spell(){
   const cost=join.cost;
   spendConnection(p,cost);
   spendHand();
-  log(card.n+'を使用（接続コスト'+cost+'）。');
+  unit.edges[join.direction]={s:'無',c:0,used:true};
+  const side=['上','右','下','左'][join.direction];
+  log(card.n+'を使用（接続コスト'+cost+'）。'+unit.n+'の'+side+'の辺を消費。');
   switch(card.effect??card.ef){
     case 'draw':
       draw(p,card.n+'の効果');
@@ -1000,7 +1025,7 @@ function shapeStyle(piece){
 function edgeLabels(edges){
   if(edges&&!Array.isArray(edges))return edges.s==='凸'?String(edges.c):'';
   if(!Array.isArray(edges))return '';
-  return edges.map((edge,i)=>edge.used?['↑','→','↓','←'][i]+'済':edge.s==='凸'?['↑','→','↓','←'][i]+edge.c:'').filter(Boolean).join(' ');
+  return edges.map((edge,i)=>edge.used&&edge.s!=='無'?['↑','→','↓','←'][i]+'済':edge.s==='凸'?['↑','→','↓','←'][i]+edge.c:'').filter(Boolean).join(' ');
 }
 function card(c,showAdd=false){
   const frame=shapeStyle(c);
@@ -1464,23 +1489,44 @@ $('confirmConcede').onclick=()=>{
 };
 updateBattleSettings();
 let turnBannerTimer;
-function showDamage(hits){
+function showDamage(hits,previous,next){
   if(!hits.length)return;
   if(typeof navigator.vibrate==='function'&&matchMedia('(pointer:coarse)').matches){
     navigator.vibrate(hits.flatMap((_,index)=>index?[65,45]:[45]));
   }
-  const offsets=new Map();
-  for(const {side,leader,name,amount} of hits){
-    const anchor=leader?$(side==='p'?'php':'chp').closest('.portrait'):$(side+'board').parentElement;
-    const row=offsets.get(anchor)??0;
-    offsets.set(anchor,row+1);
+  const repeats=new Map();
+  for(const {side,leader,name,amount,index} of hits){
+    const board=$(side+'board');
+    const anchor=leader?$(side==='p'?'php':'chp').closest('.portrait'):board.parentElement;
     const impact=document.createElement('span');
     impact.className='damage-impact';
-    impact.style.setProperty('--hit-row',row);
-    impact.textContent=(leader?'':name+' ')+'−'+amount;
+    impact.dataset.side=side;
+    if(!leader){
+      const visible=[...board.querySelectorAll('.field-piece')].filter(piece=>piece.querySelector('.field-name')?.textContent===name);
+      const match=visible.find(piece=>Number(piece.getAttribute('data-'+side+'u'))===index)??visible[0];
+      const prior=previous[side].b;
+      const original=prior[index]?.n===name?index:prior.findIndex(piece=>piece.n===name);
+      const field=original>=0?prior:next[side].b;
+      const slot=Math.min(2,Math.max(0,original>=0?original:index??0));
+      const start=field.slice(0,slot).reduce((total,piece)=>total+(piece.mats?.length??1),0);
+      const span=field[slot]?.mats?.length??1;
+      const bounds=anchor.getBoundingClientRect();
+      const box=match?.getBoundingClientRect();
+      const x=box&&bounds.width?(box.left+box.width/2-bounds.left)/bounds.width*100:(start+span/2)/3*100;
+      impact.style.setProperty('--hit-x',Math.max(8,Math.min(92,x))+'%');
+    }
+    const key=[side,leader,index??name].join(':');
+    const count=repeats.get(key)??0;
+    repeats.set(key,count+1);
+    const delay=count*340;
+    impact.style.setProperty('--hit-delay',delay+'ms');
+    const value=document.createElement('strong');
+    value.className='damage-value';
+    value.textContent='−'+amount;
+    impact.append(value);
     impact.setAttribute('aria-hidden','true');
     anchor.append(impact);
-    setTimeout(()=>impact.remove(),1200+row*80);
+    setTimeout(()=>impact.remove(),1100+delay);
   }
 }
 function showBattleEvent(previous,next){
@@ -1495,7 +1541,7 @@ function showBattleEvent(previous,next){
   }
   if(!previous||previous.online!==next.online)return;
   const hits=(next.hits??[]).filter(hit=>hit.id>(previous.hitId??0));
-  showDamage(hits);
+  showDamage(hits,previous,next);
   if(hits.length||!$('showFlashes').checked)return;
   const recent=next.logs?.[0];
   const boardChanged=previous.p.b.length!==next.p.b.length||previous.c.b.length!==next.c.b.length;
