@@ -343,6 +343,16 @@ button.primary:hover,.active:hover,#end:enabled:hover,#start:enabled:hover{backg
 .cost-track .available{background:var(--meter-fill);box-shadow:0 0 5px color-mix(in srgb,var(--meter-fill),transparent 40%)}
 .fusion-effect-line{display:block;margin-top:5px;color:#ffe1a1;line-height:1.4}
 .fusion-effect-name{font-weight:800}
+.card.jigsaw::after,.hand .mini-card.jigsaw::after,.board-stage .field-piece.jigsaw::after,.detail-shape.jigsaw::after,.card:not(.jigsaw),.board-stage .field-piece:not(.jigsaw),#detailShape{
+  background-image:linear-gradient(180deg,#0b0c1c65 0%,#0b0c1c25 40%,#0b0c1ca8 100%),var(--piece-art,none);
+  background-size:100% 100%,var(--art-size,cover);
+  background-position:center,var(--art-position,center);
+  background-repeat:no-repeat;
+}
+.card h3,.card .desc,.card .stats,.card .piece-ports,.mini-name,.mini-edges,.field-name,.field-condition,.field-ports{
+  text-shadow:0 1px 3px #070810,0 1px 5px #070810,0 0 2px #070810;
+}
+.card .desc{color:#fff1de;background:#141224a6;border-radius:5px}
 </style>
 <header class="site-header"><h1>ROOTS <span>LINK</span></h1>
 <nav><button class="tab active" data-to="builder">デッキ編集</button><button class="tab" data-to="catalog">カード図鑑</button><button class="tab" data-to="battle">対戦</button><button class="tab" data-to="online">オンライン対戦</button></nav></header><main>
@@ -1023,6 +1033,131 @@ function esc(s){return String(s).replace(/[&<>"]/g,x=>({'&':'&amp;','<':'&lt;','
 function opts(){for(let id of ['br','cr'])R.forEach(([r,n])=>$(id).add(new Option(n,r)))}
 function list(root,type,q){return C.filter(c=>(root==='all'||c.r===root)&&(type==='all'||c.t===type)&&(!q||(c.n+c.d+c.k).includes(q)))}
 const pieceColors={red:'#d97876',blue:'#70afd8',green:'#86bc91',white:'#e8dba4',black:'#aa8eca'};
+const artCache=new Map();
+const artPalettes={
+  red:['#23162c','#b73c40','#ffbb66','#ffe2ac'],
+  blue:['#091c3a','#187e9b','#65e5db','#e5fcff'],
+  green:['#132c31','#437b53','#ecc06c','#ffe8b4'],
+  white:['#1c2047','#5761a3','#d6b6ff','#fff4da'],
+  black:['#211427','#784260','#e66b90','#ffe4c1'],
+};
+const namedMotifs={
+ red:['虎','鼠','龍','牛','蛇','馬','兎','猿','犬','猪','狐','太鼓','鶴','河童','天狗','猫','鬼','竹','傘','百鬼'],
+ blue:['イルカ','雨','人魚','ラッパ','歌姫','ラッパ','魚','鯨','クラゲ','歌姫','蛸','亀','魚','真珠','クラゲ','鮫','琴','巻貝','蓄音機','皇帝'],
+ green:['桜','向日葵','コスモス','菫','薔薇','若葉','樫','葉','藤','欅','紅葉','椿','紫陽花','たんぽぽ','木蓮','竹','朝顔','苔','花','世界樹'],
+ white:['弓','獅子','蠍','水瓶','羊','牛','双子','蟹','星','山羊','天秤','魚','星','蠍','牛','双子','水瓶','蟹','山羊','星'],
+ black:['箱','兵士','熊','人形','怪人','包帯','狼','兵士','熊','道化','兎','箱','騎士','蜘蛛','狼','人形','人形','列車','道化','騎士'],
+};
+function pieceArt(card){
+  if(!card?.id||!artPalettes[card.r])return '';
+  if(artCache.has(card.id))return artCache.get(card.id);
+  const [night,base,accent,light]=artPalettes[card.r];
+  const index=Number(card.id.match(/\d+$/)?.[0]??0);
+  let seed=Array.from(card.id).reduce((n,c)=>Math.imul(n,31)+c.charCodeAt(0),17)>>>0;
+  const rand=()=>((seed=(Math.imul(seed,1664525)+1013904223)>>>0)/4294967296);
+  const canvas=document.createElement('canvas');
+  canvas.width=canvas.height=144;
+  const g=canvas.getContext('2d');
+  const disk=(x,y,rx,ry,color)=>{g.fillStyle=color;g.beginPath();g.ellipse(x,y,rx,ry,0,0,Math.PI*2);g.fill()};
+  const poly=(points,color)=>{g.fillStyle=color;g.beginPath();points.forEach(([x,y],i)=>i?g.lineTo(x,y):g.moveTo(x,y));g.closePath();g.fill()};
+  const stroke=(points,color,width=3)=>{g.strokeStyle=color;g.lineWidth=width;g.lineJoin='round';g.lineCap='round';g.beginPath();points.forEach(([x,y],i)=>i?g.lineTo(x,y):g.moveTo(x,y));g.stroke()};
+  const sky=g.createLinearGradient(0,0,144,144);
+  sky.addColorStop(0,night);sky.addColorStop(.62,base);sky.addColorStop(1,night);
+  g.fillStyle=sky;g.fillRect(0,0,144,144);
+  const sunX=40+rand()*64;
+  disk(sunX,47,34,34,accent);
+  disk(sunX,47,29,29,light);
+  for(let i=0;i<28;i++){
+    const x=rand()*144,y=rand()*132;
+    disk(x,y,.6+rand()*2,.6+rand()*2,i%2?light:accent);
+  }
+  for(let i=0;i<4;i++){
+    const y=86+i*15;
+    poly([[0,y],[22,y-10-rand()*20],[57,y-4],[95,y-14-rand()*17],[144,y+2],[144,144],[0,144]],i%2?base:night);
+  }
+  const FUSION=card.t==='fusion';
+  const motif=namedMotifs[card.r][index];
+  const flower=(x,y,size,count)=>{
+    for(let j=0;j<count;j++){const angle=j*6.283/count;disk(x+Math.cos(angle)*size*.63,y+Math.sin(angle)*size*.63,size*.56,size*.56,j%2?light:accent);}
+    disk(x,y,size*.38,size*.38,night);disk(x,y,size*.2,size*.2,light);
+  };
+  const spark=(x,y,scale)=>{
+    poly([[x,y-scale],[x+scale*.19,y-scale*.18],[x+scale*.79,y],[x+scale*.18,y+scale*.18],[x,y+scale],[x-scale*.18,y+scale*.18],[x-scale*.79,y],[x-scale*.18,y-scale*.18]],light);
+  };
+  const ring=(x,y,r,color,width)=>{g.strokeStyle=color;g.lineWidth=width;g.beginPath();g.arc(x,y,r,0,6.283);g.stroke()};
+  if(FUSION){
+    ring(72,69,55,light,2);ring(72,69,49,accent,3);
+    for(let j=0;j<8;j++){let a=j*Math.PI/4; spark(72+Math.sin(a)*53,69+Math.cos(a)*53,5);}
+    for(const [j,id] of (card.m??[]).entries()){
+      const material=C.find(item=>item.id===id);
+      const symbol=namedMotifs[material?.r]?.[Number(id.match(/\d+$/)?.[0])];
+      g.font='bold 22px system-ui';g.textAlign='center';g.textBaseline='middle';g.fillStyle=light;
+      const x=j?105:39;disk(x,91,18,18,night);g.fillText(symbol?.slice(0,1)??'✦',x,92);
+    }
+    poly([[72,18],[92,54],[120,34],[104,82],[72,105],[40,82],[24,34],[52,54]],night);
+    poly([[72,30],[81,61],[104,49],[94,78],[72,95],[50,78],[40,49],[63,61]],base);
+    spark(72,65,23);
+  }else if(card.t==='spell'){
+    ring(72,70,40,light,2);ring(72,70,34,accent,4);
+    for(let j=0;j<5+index;j++){
+      const a=j*6.283/(5+index)+rand()*.18;
+      spark(72+Math.cos(a)*41,70+Math.sin(a)*41,5+rand()*9);
+    }
+    if(card.r==='green')flower(72,70,19,5+index);
+    else if(card.r==='blue'){disk(72,70,19,24,light);disk(78,65,15,17,base);spark(67,72,16);}
+    else if(card.r==='black'){poly([[72,42],[96,70],[72,98],[48,70]],night);disk(72,70,18,9,accent);disk(72,70,5,9,night);}
+    else spark(72,69,24+index*2);
+  }else if(card.t==='equipment'){
+    g.save();g.translate(72,67);g.rotate((index%4-1.5)*.16);g.translate(-72,-67);
+    const shape=index%5;
+    if(shape===0){poly([[45,44],[72,32],[99,44],[94,81],[72,105],[50,81]],night);poly([[52,49],[72,41],[92,49],[85,81],[72,94],[59,81]],accent);spark(72,66,15);}
+    if(shape===1){stroke([[68,98],[68,60],[48,47],[48,31]],night,11);stroke([[75,98],[75,60],[95,47],[95,31]],night,11);stroke([[72,97],[72,62],[52,46],[52,31]],accent,5);stroke([[72,62],[91,46],[91,31]],light,5);}
+    if(shape===2){poly([[39,50],[103,50],[109,83],[36,88]],night);poly([[45,56],[99,56],[98,76],[46,81]],accent);stroke([[47,64],[96,67]],light,5);}
+    if(shape===3){poly([[42,94],[51,47],[87,39],[103,84],[91,102]],night);poly([[51,91],[57,55],[83,48],[93,83],[86,94]],accent);spark(73,71,15);}
+    if(shape===4){poly([[51,97],[84,35],[103,29],[96,49],[61,103]],light);stroke([[47,80],[73,96]],accent,7);stroke([[56,91],[44,108]],night,8);}
+    g.restore();
+  }else{
+    const variant=card.id.includes('x')?index%5:index%7;
+    const bird=['鶴','天狗'].includes(motif),ears=['虎','鼠','牛','兎','狐','猫','狼','熊','犬','猪','羊','山羊','獅子','龍'].includes(motif)||card.r==='black'&&index%2===0;
+    const aquatic=card.r==='blue';
+    const plant=card.r==='green';
+    const cx=69+Math.floor(rand()*8);
+    const face=card.r==='black'?'#bc898e':light;
+    poly([[cx-52,144],[cx-40,101],[cx-21,86],[cx+20,86],[cx+44,106],[cx+53,144]],night);
+    poly([[cx-36,133],[cx-26,102],[cx-10,98],[cx,113],[cx+14,96],[cx+32,104],[cx+38,133]],base);
+    if(variant%3===0)stroke([[cx-31,104],[cx+20,137]],accent,6);
+    else stroke([[cx-18,105],[cx,122],[cx+21,104]],light,3);
+    if(ears||bird){
+      const tall=['兎','狐','龍','狼'].includes(motif)?30:19;
+      poly([[cx-26,63],[cx-30,47-tall],[cx-6,43],[cx+10,43],[cx+30,47-tall],[cx+26,63]],night);
+      poly([[cx-23,49],[cx-25,51-tall],[cx-11,46],[cx+12,46],[cx+24,51-tall],[cx+21,50]],accent);
+    }
+    if(aquatic){poly([[cx-32,83],[cx-54,57],[cx-41,45],[cx-22,55],[cx+21,55],[cx+48,48],[cx+52,66],[cx+32,83]],accent);}
+    disk(cx,65,28,32,night);disk(cx,67,22,24,face);
+    poly([[cx-24,57],[cx-22,45],[cx-10,35],[cx+13,37],[cx+28,51],[cx+24,61],[cx+3,49],[cx-7,61]],variant%2?base:night);
+    disk(cx-9,67,3,4,night);disk(cx+9,67,3,4,night);
+    if(bird||aquatic)poly([[cx-8,76],[cx+9,75],[cx+2,85]],accent);
+    else stroke([[cx-4,81],[cx,83],[cx+4,81]],night,2);
+    if(card.r==='black')stroke([[cx+12,73],[cx+18,83],[cx+10,84]],base,2);
+    if(plant){flower(cx-20,44,9,5+variant%3);flower(cx+19,58,6,5);}
+    else if(card.r==='white'){spark(cx,41,14);stroke([[cx-25,53],[cx,44],[cx+25,53]],accent,4);}
+    else if(card.r==='red')stroke([[cx-23,55],[cx+23,51],[cx+37,59]],base,5);
+    else if(aquatic){ring(cx+30,84,8,light,2);ring(cx-33,90,6,accent,2);}
+    if(variant%3===0){stroke([[21,127],[37,78],[40,69]],light,4);spark(39,69,8);}
+    if(variant%3===1){disk(111,109,15,20,night);disk(111,107,11,15,accent);spark(111,106,8);}
+    if(variant%3===2){stroke([[25,124],[44,100],[55,97]],accent,5);ring(39,112,10,light,2);}
+  }
+  const art='url("'+canvas.toDataURL('image/webp',.82)+'")';
+  artCache.set(card.id,art);
+  return art;
+}
+function artStyle(piece){
+  const arts=(piece.mats??[piece]).map(pieceArt).filter(Boolean);
+  if(!arts.length)return '';
+  const layers=arts.length===1?arts[0]:arts.join(',');
+  return '--piece-art:'+layers+';--art-size:'+(arts.length===1?'cover':arts.map(()=>100/arts.length+'% 100%').join(','))+
+    ';--art-position:'+(arts.length===1?'center':arts.map((_,i)=>100*i/(arts.length-1)+'% center').join(','));
+}
 function shapeStyle(piece){
   const original=piece.edges??piece.e;
   const edges=original&&!Array.isArray(original)?[original,{s:'無'},{s:'無'},{s:'無'}]:original;
@@ -1047,7 +1182,7 @@ function edgeLabels(edges){
 function card(c,showAdd=false){
   const frame=shapeStyle(c);
   const stats=c.t==='piece'?'召喚 '+c.c:c.t==='fusion'?'一体化 '+c.cc:typeName(c.t);
-  return `<article class="card ${frame?'jigsaw':''}" style="${frame}" data-id="${c.id}">
+  return `<article class="card ${frame?'jigsaw':''}" style='${frame};${artStyle(c)}' data-id="${c.id}">
     <h3>${rootName(c.r)} ${esc(c.n)}</h3>
     <div class="stats">${stats}${c.t==='piece'||c.t==='fusion'?`　⚔${c.a} ♥${c.h}`:''}</div>
     <p class="desc">${esc(c.d)}</p><div class="piece-ports">${edgeLabels(c.e)}</div>${showAdd?`<button class="add-card" type="button" data-add="${c.id}">${c.t==='fusion'?'融合枠に追加':'追加'}</button>`:''}</article>`;
@@ -1350,7 +1485,7 @@ function renderGame(){if(!G)return;let p=G.p,c=G.c;$('battleTitle').textContent=
  const cost=card.t==='piece'?card.c:card.t==='fusion'?card.cc:card.e?.s==='凸'?card.e.c:'';
  const unit=card.t==='piece'||card.t==='fusion';
  const frame=shapeStyle(card);
- return '<button type="button" class="mini-card'+selected+(frame?' jigsaw':'')+'" style="'+frame+';--mini-color:'+pieceColors[card.r]+'" data-hand="'+i+'" aria-pressed="'+(i===handSel)+'"><span class="mini-cost">'+cost+'</span><span class="mini-name '+handNameSize(card.n)+'">'+esc(card.n)+'</span><span class="mini-edges">'+esc(edgeLabels(card.e))+'</span><span class="mini-atk" aria-label="攻撃 '+card.a+'">'+(unit?card.a:'')+'</span><span class="mini-hp" aria-label="'+(unit?'体力 '+card.h:typeName(card.t))+'">'+(unit?card.h:typeName(card.t))+'</span></button>';
+ return '<button type="button" class="mini-card'+selected+(frame?' jigsaw':'')+'" style="'+frame+';'+artStyle(card).replaceAll('"','&quot;')+';--mini-color:'+pieceColors[card.r]+'" data-hand="'+i+'" aria-pressed="'+(i===handSel)+'"><span class="mini-cost">'+cost+'</span><span class="mini-name '+handNameSize(card.n)+'">'+esc(card.n)+'</span><span class="mini-edges">'+esc(edgeLabels(card.e))+'</span><span class="mini-atk" aria-label="攻撃 '+card.a+'">'+(unit?card.a:'')+'</span><span class="mini-hp" aria-label="'+(unit?'体力 '+card.h:typeName(card.t))+'">'+(unit?card.h:typeName(card.t))+'</span></button>';
 }).join('');
 renderField(p,'p');renderField(c,'c');renderActions();
 $('faceTarget').disabled=!canAttackTarget(-1);
@@ -1365,7 +1500,7 @@ function unitHTML(u,i,side){
   const classes=['unit','field-piece',frame?'jigsaw':'',u.mats?'linked-piece':'',selected?'selected':'',attackable?'attack-target':'',spellTarget?'spell-target':'',side==='p'&&u.ready?'ready-piece':''].join(' ');
   const ports=edgeLabels(u.edges);
   const detail=[u.shield?'盾':'',u.equip?'装備：'+u.equip.n:'',u.mats?u.mats.length+'体連結':''].filter(Boolean).join(' · ');
-  return '<button type="button" class="'+classes+'" style="'+frame+';--root-color:'+pieceColors[u.r]+';grid-column:span '+(u.mats?.length??1)+'" data-'+side+'u="'+i+'" aria-pressed="'+selected+'"'+'>'+
+  return '<button type="button" class="'+classes+'" style="'+frame+';'+artStyle(u).replaceAll('"','&quot;')+';--root-color:'+pieceColors[u.r]+';grid-column:span '+(u.mats?.length??1)+'" data-'+side+'u="'+i+'" aria-pressed="'+selected+'"'+'>'+
     '<span class="field-name">'+esc(u.n)+'</span><span class="field-condition">'+esc(detail||u.k||'')+'</span>'+
     '<span class="field-ports">'+ports+'</span><span class="field-atk" aria-label="攻撃 '+u.a+'">'+u.a+'</span><span class="field-hp" aria-label="体力 '+u.hp+'">'+u.hp+'</span></button>';
 }
@@ -1617,8 +1752,8 @@ function openCard(id){
   $('detailText').textContent=card.d||'固有効果なし';
   $('detailEdges').textContent='';
   const frame=shapeStyle(card);
-  $('detailShape').hidden=!frame;
-  $('detailShape').style.cssText=frame;
+  $('detailShape').hidden=false;
+  $('detailShape').style.cssText=frame+';'+artStyle(card);
   $('detailShape').textContent=edgeLabels(card.e);
   if(typeof $('cardDialog').showModal==='function')$('cardDialog').showModal();
   else $('cardDialog').setAttribute('open','');
