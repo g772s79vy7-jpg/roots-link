@@ -11,6 +11,14 @@ dialog{width:min(90vw,440px);color:#edf3ff;background:#1c293b;border:1px solid #
 dialog::backdrop{background:#050a12bb}
 .piece-ports{letter-spacing:.08em;overflow-wrap:anywhere}
 @media(max-width:540px){.card .card-detail{font-size:13px}dialog{max-height:80dvh;overflow:auto}}
+.card.jigsaw,.unit.jigsaw{position:relative;isolation:isolate;background:transparent;border-color:transparent;padding:16px 18px}
+.jigsaw::before,.jigsaw::after{content:"";position:absolute;inset:0;z-index:-2;clip-path:var(--piece-shape);background:var(--root-color,#8293b1);pointer-events:none}
+.jigsaw::after{inset:2px;background:#253650;z-index:-1}
+.jigsaw.selected::after{background:#394960}
+.jigsaw.selected::before{background:#ffd36a}
+.jigsaw .piece-ports{grid-column:1/-1;color:#d4dce8;font-size:.78rem}
+.piece-stat{color:#ffd36a;font-weight:750}
+@media(max-width:540px){.card.jigsaw,.unit.jigsaw{padding:14px 16px}.jigsaw .piece-ports{font-size:.7rem}}
 </style>
 <header><h1>ROOTS LINK <small></small></h1><div class="small">CPU対戦・デッキ編集・カード図鑑 / 招待コードで1対1対戦</div>
 <nav><button class="tab active" data-to="builder">デッキ編集</button><button class="tab" data-to="catalog">カード図鑑</button><button class="tab" data-to="battle">CPU対戦</button><button class="tab" data-to="online">オンライン対戦</button></nav></header><main>
@@ -31,7 +39,35 @@ const $=x=>document.getElementById(x),rootName=r=>R.find(x=>x[0]===r)[1],typeNam
 function esc(s){return String(s).replace(/[&<>"]/g,x=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[x]))}
 function opts(){for(let id of ['br','cr'])R.forEach(([r,n])=>$(id).add(new Option(n,r)))}
 function list(root,type,q){return C.filter(c=>(root==='all'||c.r===root)&&(type==='all'||c.t===type)&&(!q||(c.n+c.d+c.k).includes(q)))}
-function card(c){return `<article class="card" data-id="${c.id}"><h3>${rootName(c.r)} ${esc(c.n)}</h3><button type="button" class="card-detail" data-detail="${c.id}">詳細</button><div class="stats">${c.t==='piece'||c.t==='fusion'?`⚔${c.a} ♥${c.h}　`:''}${c.t==='piece'?'召喚 '+c.c:typeName(c.t)}</div><p class="desc">${esc(c.d)}</p><div class="meta">${typeName(c.t)} ${c.k||''}</div></article>`}
+const pieceColors={red:'#d97876',blue:'#70afd8',green:'#86bc91',white:'#e8dba4',black:'#aa8eca'};
+function shapeStyle(piece){
+  const edges=piece.edges??piece.e;
+  if(!Array.isArray(edges)||edges.length!==4)return '';
+  const border=[];
+  const transform=[
+    (x,y)=>[x,y],(x,y)=>[100-y,x],(x,y)=>[100-x,100-y],(x,y)=>[y,100-x],
+  ];
+  for(let side=0;side<4;side++){
+    const drop=edges[side].s==='凸'?1:edges[side].s==='凹'?13:7;
+    for(const [x,y] of [[7,7],[39,7],[41,drop],[45,drop],[55,drop],[59,drop],[61,7],[93,7]]){
+      border.push(transform[side](x,y).map(n=>n+'%').join(' '));
+    }
+  }
+  return '--piece-shape:polygon('+border.join(',')+');--root-color:'+(pieceColors[piece.r]??'#8293b1');
+}
+function edgeLabels(edges){
+  if(!Array.isArray(edges)||!edges.length)return '';
+  return edges.map((edge,i)=>['↑','→','↓','←'][i]+
+    (edge.s==='無'?'—':edge.s==='凸'?'凸'+edge.c:'凹')+(edge.used?'済':'')).join(' ');
+}
+function card(c){
+  const frame=shapeStyle(c);
+  const stats=c.t==='piece'?'召喚 '+c.c:c.t==='fusion'?'一体化 '+c.cc:typeName(c.t);
+  return `<article class="card ${frame?'jigsaw':''}" style="${frame}" data-id="${c.id}">
+    <h3>${rootName(c.r)} ${esc(c.n)}</h3><button type="button" class="card-detail" data-detail="${c.id}">詳細</button>
+    <div class="stats">${stats}${c.t==='piece'||c.t==='fusion'?`　⚔${c.a} ♥${c.h}`:''}</div>
+    <p class="desc">${esc(c.d)}</p><div class="piece-ports">${edgeLabels(c.e)}</div></article>`;
+}
 function renderPool(){let a=list($('br').value,$('bt').value,$('bs').value);$('pool').innerHTML=a.map(card).join('')}
 function renderBook(){let a=list($('cr').value,$('ct').value,$('cs').value);$('book').innerHTML=a.map(card).join('');$('total').textContent=a.length+'種表示 / 全'+C.length+'種'}
 const deckStorageKey='roots-link.deck.v1';
@@ -85,8 +121,17 @@ function cpuMove(action){
     }
   }catch(error){$('log').textContent=error.message;}
 }
-function renderGame(){if(!G)return;let p=G.p,c=G.c;$('battleTitle').textContent=G.online?'オンライン対戦':'CPU対戦';$('opponentName').textContent=G.online?'相手':'CPU';$('leaderRules').textContent=[leaderText[p.root]&&'自分：'+leaderText[p.root],leaderText[c.root]&&'相手：'+leaderText[c.root]].filter(Boolean).join(' / ');$('php').textContent=p.hp;$('chp').textContent=c.hp;$('pinfo').textContent=`手札${p.h.length} / 山札${p.d.length} / トラッシュ${p.trash.length}`;$('cinfo').textContent=`手札${c.h.length} / 山札${c.d.length} / トラッシュ${c.trash.length}`;$('round').textContent=G.over?(G.won?'勝利！':'敗北'):`ラウンド ${G.round}・${G.turn==='p'?'あなたのターン':G.online?'相手のターン':'CPUのターン'}`;$('cost').textContent=`共通コスト ${p.cost} / ${p.capacity}（未使用分はターン終了で消滅）`;$('hand').innerHTML=p.h.map((id,i)=>{let x=C.find(z=>z.id===id);return `<div class="card ${handSel===i?'selected':''}" data-hand="${i}"><h3>${esc(x.n)}</h3><button type="button" class="card-detail" data-detail="${x.id}">詳細</button><div class="stats">${x.t==='piece'||x.t==='fusion'?`⚔${x.a} ♥${x.h}`:typeName(x.t)} / ${x.t==='piece'?'召喚 '+x.c:(x.t==='equipment'||x.t==='spell')?'接続':'接続 '+(x.cc||1)}</div><div class="desc">${esc(x.d)}</div><div class="meta">${rootName(x.r)} ${x.k||''}</div></div>`}).join('');$('pboard').innerHTML=p.b.map((u,i)=>unitHTML(u,i,'p')).join('');$('cboard').innerHTML=c.b.map((u,i)=>unitHTML(u,i,'c')).join('');let own=G.turn==='p'&&!G.over&&!G.p.pending;$('summon').disabled=!own||handSel<0||C.find(x=>x.id===p.h[handSel])?.t!=='piece';$('fusion').disabled=!own||handSel<0||C.find(x=>x.id===p.h[handSel])?.t!=='fusion';$('equip').disabled=!own||handSel<0||C.find(x=>x.id===p.h[handSel])?.t!=='equipment'||unitSel<0;$('spell').disabled=!own||handSel<0||C.find(x=>x.id===p.h[handSel])?.t!=='spell'||unitSel<0;$('connect').disabled=!own||unitSel<0||secondSel<0||unitSel===secondSel;$('attack').disabled=!own||unitSel<0||!p.b[unitSel]?.ready;$('detach').disabled=!own||unitSel<0||!p.b[unitSel]?.equip;$('end').disabled=!own;$('patrolReturn').hidden=!G.p.pending||G.turn!=='p'||G.over;$('patrolReturn').disabled=handSel<0;$('firework').hidden=!G.p.freeFirework||!own;$('firework').disabled=G.p.h[handSel]!=='redp1';$('faceTarget').hidden=G.over;$('again').hidden=!!G.online}
-function unitHTML(u,i,side){let sel=side==='p'?(i===unitSel||i===secondSel):i===targetSel;let mats=u.mats?`<br><small>素材HP順: ${u.mats.map(m=>m.n+'('+m.hp+'/'+m.max+')').join(' → ')}</small>`:'';return `<div class="unit ${sel?'selected':''}" data-${side}u="${i}"><b>${esc(u.n)}</b><br>⚔${u.a} ♥${u.hp}/${u.max}<br><small>${u.k||''} ${u.ready?'攻撃可':'行動不可'} ${u.shield?'🛡盾':''}</small><br><small>辺 ${u.edges.map((e,j)=>' '+['↑','→','↓','←'][j]+e.s+(e.used?'×':'')+'('+e.c+')').join('')}</small>${u.equip?'<br><small>装備：'+esc(u.equip.n)+'</small>':''}${mats}</div>`}
+function renderGame(){if(!G)return;let p=G.p,c=G.c;$('battleTitle').textContent=G.online?'オンライン対戦':'CPU対戦';$('opponentName').textContent=G.online?'相手':'CPU';$('leaderRules').textContent=[leaderText[p.root]&&'自分：'+leaderText[p.root],leaderText[c.root]&&'相手：'+leaderText[c.root]].filter(Boolean).join(' / ');$('php').textContent=p.hp;$('chp').textContent=c.hp;$('pinfo').textContent=`手札${p.h.length} / 山札${p.d.length} / トラッシュ${p.trash.length}`;$('cinfo').textContent=`手札${c.h.length} / 山札${c.d.length} / トラッシュ${c.trash.length}`;$('round').textContent=G.over?(G.won?'勝利！':'敗北'):`ラウンド ${G.round}・${G.turn==='p'?'あなたのターン':G.online?'相手のターン':'CPUのターン'}`;$('cost').textContent=`共通コスト ${p.cost} / ${p.capacity}（未使用分はターン終了で消滅）`;$('hand').innerHTML=p.h.map((id,i)=>{let x=C.find(z=>z.id===id);return `<div style="${shapeStyle(x)}" class="card ${x.t==='piece'?'jigsaw':''} ${handSel===i?'selected':''}" data-hand="${i}"><h3>${esc(x.n)}</h3><button type="button" class="card-detail" data-detail="${x.id}">詳細</button><div class="stats">${x.t==='piece'||x.t==='fusion'?`⚔${x.a} ♥${x.h}`:typeName(x.t)} / ${x.t==='piece'?'召喚 '+x.c:(x.t==='equipment'||x.t==='spell')?'接続':'接続 '+(x.cc||1)}</div><div class="desc">${esc(x.d)}</div><div class="meta">${rootName(x.r)} ${x.k||''}</div><div class="piece-ports">${edgeLabels(x.e)}</div></div>`}).join('');$('pboard').innerHTML=p.b.map((u,i)=>unitHTML(u,i,'p')).join('');$('cboard').innerHTML=c.b.map((u,i)=>unitHTML(u,i,'c')).join('');let own=G.turn==='p'&&!G.over&&!G.p.pending;$('summon').disabled=!own||handSel<0||C.find(x=>x.id===p.h[handSel])?.t!=='piece';$('fusion').disabled=!own||handSel<0||C.find(x=>x.id===p.h[handSel])?.t!=='fusion';$('equip').disabled=!own||handSel<0||C.find(x=>x.id===p.h[handSel])?.t!=='equipment'||unitSel<0;$('spell').disabled=!own||handSel<0||C.find(x=>x.id===p.h[handSel])?.t!=='spell'||unitSel<0;$('connect').disabled=!own||unitSel<0||secondSel<0||unitSel===secondSel;$('attack').disabled=!own||unitSel<0||!p.b[unitSel]?.ready;$('detach').disabled=!own||unitSel<0||!p.b[unitSel]?.equip;$('end').disabled=!own;$('patrolReturn').hidden=!G.p.pending||G.turn!=='p'||G.over;$('patrolReturn').disabled=handSel<0;$('firework').hidden=!G.p.freeFirework||!own;$('firework').disabled=G.p.h[handSel]!=='redp1';$('faceTarget').hidden=G.over;$('again').hidden=!!G.online}
+function unitHTML(u,i,side){
+  const selected=side==='p'?(i===unitSel||i===secondSel):i===targetSel;
+  const frame=shapeStyle(u);
+  const mats=u.mats?.map(m=>esc(m.n)+'('+m.hp+'/'+m.max+')').join(' ＋ ');
+  return `<div class="unit ${frame?'jigsaw':''} ${selected?'selected':''}" style="${frame}" data-${side}u="${i}">
+    <b>${esc(u.n)}</b><br><span class="piece-stat">⚔${u.a} ♥${u.hp}/${u.max}</span><br>
+    <small>${esc(u.k||'')} ${u.ready?'攻撃可':'行動不可'} ${u.shield?'🛡盾':''}</small><br>
+    <small class="piece-ports">${edgeLabels(u.edges)}</small>
+    ${u.equip?'<br><small>装備：'+esc(u.equip.n)+'</small>':''}${mats?'<br><small>'+mats+'</small>':''}</div>`;
+}
 function selectHand(e){const detail=e.target.closest('[data-detail]');if(detail){openCard(detail.dataset.detail);return;}let b=e.target.closest('[data-hand]');if(b){handSel=+b.dataset.hand;renderGame()}}
 function selectOwn(e){let b=e.target.closest('[data-pu]');if(!b)return;let i=+b.dataset.pu;if(unitSel<0)unitSel=i;else if(secondSel<0&&i!==unitSel)secondSel=i;else{unitSel=i;secondSel=-1}targetSel=-1;renderGame()}
 opts();renderPool();renderBook();renderDeck();

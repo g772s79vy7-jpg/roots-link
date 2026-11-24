@@ -7,20 +7,71 @@ white:['射手座の騎士アルタイル','獅子座の公爵レオニス','蠍
 black:['びっくり箱のボックス','ブリキ兵士アイアン','吸血ぬいぐるみドラキュラベア','操り人形マリオネット','継ぎ接ぎ男フランケン','包帯人形ミイラちゃん','狼男の着ぐるみウルフ','錆びたゼンマイ兵長','呪いのテディローズ','道化師ピエロ・ノワール','ゼンマイ兎ラビット','呪われたオルゴールメロディ','首なし騎士ホロウ','からくり蜘蛛スパイダー','ぬいぐるみ狼グルル','毒針人形ピノ','呪いの人形館長ドールマン','玩具列車トレイン・ゴースト','片目のピエロボロ','おもちゃ墓場の番人グレイブ']};
 const F={red:[['花火師多摩屋',0,1],['龍角武将龍轟丸',2,3],['九尾蛇忍白影',4,10],['月鶴姫千代',6,12],['百鬼天狗猫魔王',15,14]],blue:[['蒼海歌姫ディーヴァ',0,2],['深海大指揮者グランフォルテ',7,11],['響震海獣オクトシャーク',10,5],['幻奏水母クリスタリア',8,14],['海底交響皇帝オーケストラ',19,16]],green:[['桜陽の女王サクラヒメ',0,1],['棘華生徒会長ロザリア',4,14],['千年竹林王バンブロード',15,9],['星花の大先輩コスモリア',2,12],['虹樹大賢者ユグドラ',19,7]],white:[['獅弓星皇レオタリウス',0,1],['双星王ジェミニオン',6,15],['星毒大公スコルピア',2,13],['星海女帝アクアピス',3,11],['天象神帝ゾディアーク',19,9]],black:[['吸血箱魔王ブラッドボックス',0,2],['鋼鉄怪人アイアンフランケン',1,4],['狼操傀儡ウルフマリオ',3,6],['呪刻ミイラ兎クロノラビット',10,5],['玩具墓王グレイヴドール',19,16]]};
 const S={red:['鬼火一閃','武士の覚悟','破魔の太刀','疾風の陣','百鬼夜行'],blue:['潮騒の旋律','深海の調律','逆再生の音色','真珠の子守歌','大海の交響曲'],green:['芽吹きの合図','急成長の魔法陣','花咲く祝福','放課後の園芸','世界樹の恵み'],white:['星の導き','月光の癒やし','星座の結界','天体の共鳴','流星の祝福'],black:['呪いの指先','玩具の葬列','破滅の糸','呪われた契約','墓場の呼び声']};
-const EQN=['連結の護符','星屑の腕輪','深海の羅針盤','花守りの冠','怨念の歯車'];
-let C=[];const edges=['凸','凹','無'];
-for(const [r,label] of R){let root=label.slice(2);
-N[r].forEach((n,i)=>{let k=r==='blue'&&i%5===0?'巡回':r==='green'&&i%4===0?'成長':r==='white'&&i%4===0?'星導':r==='black'&&i%4===0?'怨念':r==='red'&&i%6===0?'速攻':'';let e=Array.from({length:4},(_,j)=>({s:((i+j*2)%5===0?'無':edges[(i+j)%2]),c:1+((i+j)%2)}));C.push({id:r+'p'+i,n,r,t:'piece',a:2+i%4,h:2+(i*3)%5,c:1+i%3,k,d:'各ルーツの個性を持つピース。',e})});
-for(let i=0;i<50;i++){let k=r==='blue'&&i%9===0?'巡回':r==='green'&&i%8===0?'成長':r==='white'&&i%10===0?'星導':r==='black'&&i%7===0?'怨念':'';C.push({id:r+'x'+i,n:['若き','新米','見習い','古参','伝説の'][i%5]+root+' '+['守り手','奏者','学徒','騎士','人形'][i%5]+' '+(i+1),r,t:'piece',a:1+i%5,h:2+(i*2)%5,c:1+i%3,k,d:'生成カード。テスト用の仮ステータス。',e:Array.from({length:4},(_,j)=>({s:((i+j)%6===0?'無':edges[(i+j)%2]),c:1+((i+j)%2)}))})}
-F[r].forEach(([n,a,b],i)=>C.push({id:r+'f'+i,n,r,t:'fusion',a:6+i,h:7+i,c:0,cc:1+i%2,k:'融合',d:'指定された同ルーツの融合素材2体が必要。接続コストのみ。',m:[r+'p'+a,r+'p'+b]}));
-for(let i=0;i<20;i++)C.push({id:r+'e'+i,n:EQN[i%5]+' '+(i+1),r,t:'equipment',a:i%3===0?2:1,h:i%3===1?2:0,c:1+i%2,e:{s:i%2===0?'凸':'凹',c:1+i%2},k:'装備',d:'対象ピースに装備。攻撃力/HPを補正。装備中は接続・融合不可。'});
-S[r].forEach((n,i)=>C.push({id:r+'s'+i,n,r,t:'spell',a:0,h:0,c:0,e:{s:i%2===0?'凸':'凹',c:1+i%2},k:'詠唱',d:['相手ピースに2ダメージ','自分リーダーを2回復','味方ピースを+1/+1強化','このターン召喚コスト+1','相手リーダーに2ダメージ'][i],ef:i}));
+const pieceNames={
+ red:[['夜桜','朝霧','夕凪','初雪','朱月','風花','宵霞','花曇','遠雷','残照'],['火消し','太刀持ち','手裏剣師','祭り囃子','面打ち']],
+ blue:[['珊瑚礁の','海峡の','真珠浜の','海底洞の','氷湾の','深海港の','波間の','藍の入り江の','海流の','夜潮の'],['フルート吹き','打楽器奏者','合唱隊員','弦楽奏者','調律師']],
+ green:[['山吹組の','銀杏組の','桜草組の','白樺組の','鈴蘭組の','柊組の','山茶花組の','蒲公英組の','藤組の','橘組の'],['園芸委員','花壇当番','温室係','生徒会書記','標本部員']],
+ white:[['北極星の','流星群の','月食の','黄道の','天の川の','明けの明星の','星雲の','新月の','極光の','白夜の'],['衛兵','修道士','従騎士','航海士','観測官']],
+ black:[['空玩具箱の','屋根裏の','倉庫裏の','閉店後の','雨戸の奥の','からくり棚の','地下室の','紙貼り小屋の','見本棚の','忘れ物箱の'],['おばけ独楽','ブリキ狼','針鼠人形','おどけ骸骨','包帯うさぎ']],
+};
+const equipmentNames={
+ red:[['朱塗り','漆黒','銀糸','緋色'],['火鉢','陣羽織','鉢巻','祭鈴','小太刀']],
+ blue:[['珊瑚の','真珠の','流氷の','深海の'],['音叉','指揮棒','調律器','楽譜入れ','小鐘']],
+ green:[['桜組の','柊組の','藤組の','橘組の'],['剪定ばさみ','花冠','じょうろ','手帳','標本箱']],
+ white:[['月光の','流星の','彗星の','黄道の'],['小盾','紋章旗','星図','杖','胸当て']],
+ black:[['錆びた','曲がった','煤けた','ひび割れた'],['歯車','ゼンマイ','鉄仮面','鈴','鎖']],
+};
+const profiles=[
+ [1,1,3,4],[1,2,2,2],[1,0,4,4],[2,2,4,3],[2,3,3,2],
+ [2,1,5,4],[3,3,5,3],[3,4,4,2],[3,2,6,4],[4,4,7,2],
+];
+function ports(index,count) {
+  const result=Array.from({length:4},()=>({s:'無',c:0}));
+  const order=[[0,2,1,3],[1,3,2,0],[2,0,3,1],[3,1,0,2]][index%4];
+  for(let step=0;step<count;step++){
+    const s=(step+Math.floor(index/4))%2===0?'凸':'凹';
+    result[order[step]]={s,c:s==='凸'&&(index+step)%7===0?2:s==='凸'?1:0};
+  }
+  return result;
+}
+function piece(root,id,name,index,keyword) {
+  const [c,attack,health,count]=profiles[index%profiles.length];
+  const guard=keyword==='盾';
+  const aggressive=root==='red'&&!keyword&&count<4;
+  const support=keyword==='巡回'||keyword==='成長'||keyword==='活性';
+  return {id,n:name,r:root,t:'piece',c,k:keyword,a:Math.max(1,attack+(aggressive?1:0)-(support||guard?1:0)),
+    h:health+(guard||(root==='black'&&(keyword==='怨念'||c<=2))?1:0)-(aggressive||support?1:0),e:ports(index,count),d:''};
+}
+const C=[];
+for(const [r] of R){
+  const key={red:'速攻',blue:'巡回',green:'成長',white:'星導',black:'怨念'}[r];
+  N[r].forEach((name,i)=>{
+    const keyword=(r==='white'&&[7,14].includes(i))?'盾':i%5===0?key:'';
+    C.push(piece(r,r+'p'+i,name,i,keyword));
+  });
+  const [prefixes,roles]=pieceNames[r];
+  for(let i=0;i<50;i++){
+    const keyword=r==='white'&&i%10===4?'盾':i%10===2||i%10===6?key:'';
+    const name=prefixes[Math.floor(i/5)]+roles[i%5];
+    C.push(piece(r,r+'x'+i,name,i+Math.floor(i/5),keyword));
+  }
+  F[r].forEach(([n,a,b],i)=>C.push({id:r+'f'+i,n,r,t:'fusion',a:5+i,h:7+i,c:0,cc:2+i%3,k:'一体化リンク',m:[r+'p'+a,r+'p'+b]}));
+  const [descriptors,gear]=equipmentNames[r];
+  for(let i=0;i<20;i++){
+    C.push({id:r+'e'+i,n:descriptors[Math.floor(i/5)]+gear[i%5],r,t:'equipment',a:i%3===0?2:1,
+      h:i%3===1?2:0,e:{s:i%2===0?'凸':'凹',c:i%2===0?1:0},k:'装備'});
+  }
+  S[r].forEach((n,i)=>C.push({id:r+'s'+i,n,r,t:'spell',e:{s:i%2===0?'凸':'凹',c:i%2===0?1:0},k:'詠唱',
+    d:['相手ピースに2ダメージ','自分リーダーを2回復','味方ピースの攻撃と体力を+1','このターンの残りコストを+1','相手リーダーに2ダメージ'][i],ef:i}));
 }
 
 const overrides = {
+  redp3:{a:3,h:4,c:2},
   redp0:{a:3,h:3,c:2,d:'召喚時、手札の火鉢バチ1体をコストなしで出せる。'},
   redp1:{a:3,h:8,c:4,d:'場に出た時、山札からピースをランダムに1枚手札に加える。'},
   redf0:{n:'花火師 多摩屋',a:8,h:10,cc:5,d:'相手のピースがトラッシュに送られた時、相手リーダーと全ピースに5ダメージ。各自分ターンに1回。'},
+  whitep4:{k:'星導',linkBonus:1,d:'星導。連結している間、連結体の攻撃力を+1。'},
+  whitep2:{h:5},
   whitep6:{d:'このピースを含む連結体に、場の3体目を接続できる。'},
   whitep7:{k:'盾',d:'相手の通常攻撃をこのピースに引きつける。'},
   greenp1:{k:'活性',a:2,h:3,d:'召喚したターンだけ最大コストと残りコストを1増やす。上限5。'},
@@ -192,7 +243,7 @@ function updateLink(unit){
   unit.n=mats.map(piece=>piece.n).join('＋')+' LINK';
   unit.hp=mats.reduce((sum,piece)=>sum+piece.hp,0);
   unit.max=mats.reduce((sum,piece)=>sum+piece.max,0);
-  unit.a=Math.max(0,mats.reduce((sum,piece)=>sum+piece.a,0)+(unit.bonus??0));
+  unit.a=Math.max(0,mats.reduce((sum,piece)=>sum+piece.a+(C.find(card=>card.id===piece.id)?.linkBonus??0),0)+(unit.bonus??0));
   unit.shield=mats.some(piece=>piece.shield||piece.k==='盾');
 }
 function toTrash(p,u,why){if(u.mats){u.mats.forEach(m=>{p.trash.push(m.id||'linked-material');if(m.k==='怨念')resent(p,m.n)})}else{p.trash.push(u.id);if(u.k==='怨念')resent(p,u.n)}if(u.equip)p.trash.push(u.equip.id);log(u.n+'はトラッシュへ（'+why+'）。');}
@@ -289,7 +340,10 @@ function spell(){
       damageUnit(G.c,targetSel,2);
       break;
     case 1: p.hp=Math.min(20,p.hp+2); break;
-    case 2: unit.a++;unit.hp++;unit.max++; break;
+    case 2:
+      if(unit.mats){unit.bonus=(unit.bonus??0)+1;unit.mats[0].hp++;unit.mats[0].max++;updateLink(unit);}
+      else{unit.a++;unit.hp++;unit.max++;}
+      break;
     case 3: p.cost=Math.min(5,p.cost+1); break;
     case 4: G.c.hp-=2; break;
   }
