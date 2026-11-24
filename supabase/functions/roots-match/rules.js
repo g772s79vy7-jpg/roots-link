@@ -26,6 +26,23 @@ const overrides = {
 };
 for(const card of C) Object.assign(card,overrides[card.id]);
 
+export function validateDeck(ids) {
+  if (!Array.isArray(ids) || ids.length!==30) throw new Error('デッキを30枚にしてください。');
+  const counts=new Map();
+  let root;
+  for (const id of ids) {
+    const card=C.find(entry=>entry.id===id);
+    if (!card) throw new Error('使用できないカードが含まれています。');
+    root ??= card.r;
+    if (card.r!==root) throw new Error('同じルーツのカードだけを使えます。');
+    const count=(counts.get(card.n)??0)+1;
+    if(count>3) throw new Error('同名カードは3枚までです。');
+    counts.set(card.n,count);
+  }
+  if(!ids.some(id=>C.find(card=>card.id===id).t==='piece')) throw new Error('デッキにはピースが必要です。');
+  return ids;
+}
+
 export function deckFor(root) {
   if (!R.some(([id])=>id===root)) throw new Error('ルーツを選んでください。');
   const ids=[0,1,2,3,4,5,6,7,8,9,10,11].map(i=>root+'p'+i);

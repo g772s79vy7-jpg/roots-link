@@ -1,4 +1,4 @@
-import { deckFor, prepare, applyMove } from './rules.js';
+import { deckFor, prepare, applyMove, validateDeck } from './rules.js';
 
 const origin = 'https://g772s79vy7-jpg.github.io';
 const cors = {
@@ -41,7 +41,7 @@ Deno.serve(async request => {
       try {
         if(action.kind==='ready'){
           if(state[seat]) throw new Error('デッキは選択済みです。');
-          state[seat]=prepare(deckFor(action.root),seat==='host');
+          state[seat]=prepare(action.deck===undefined?deckFor(action.root):validateDeck(action.deck),seat==='host');
         } else {
           if(!state.host||!state.guest||state.winner) throw new Error('対戦中のみ操作できます。');
           state=applyMove(state,seat,action);
