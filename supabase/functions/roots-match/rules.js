@@ -173,14 +173,25 @@ export function applyMove(state,seat,action){
  const opponent=seat==='host'?'guest':'host';
  if(state.winner)throw new Error('対戦は終了しています。');
  if(action.kind==='concede'){
-   return {...state,winner:opponent,logs:['降参により対戦が終了しました。',...state.logs].slice(0,12)};
+   return {...state,winner:opponent,logs:['降参により対戦が終了しました。',...state.logs].slice(0,60)};
  }
  if(state.turn!==seat) throw new Error('相手のターンです。');
  state=structuredClone(state);
  const G={p:state[seat],c:state[opponent],round:state.round};
  const index=(n)=>Number.isInteger(n)&&n>=0&&n<9?n:-1;
  let handSel=index(action.hand),unitSel=index(action.unit),secondSel=index(action.second),targetSel=index(action.target);
- const log=(s)=>{state.logs.unshift(s);state.logs.length=Math.min(12,state.logs.length);};
+ const log=(s)=>{state.logs.unshift(s);state.logs.length=Math.min(60,state.logs.length);};
+ const recordHit=(player,name,amount,leader=false)=>{
+   const id=(state.hitId??0)+1;
+   state.hitId=id;
+   state.hits=[...(state.hits??[]),{id,seat:player===G.p?seat:opponent,name,amount,leader}].slice(-48);
+ };
+ const damageLeader=(player,amount,source)=>{
+   if(amount<=0)return;
+   player.hp-=amount;
+   recordHit(player,'リーダー',amount,true);
+   log(source+' → '+(player===G.p?'自分':'相手')+'リーダーに'+amount+'ダメージ。');
+ };
  const alert=(s)=>{throw new Error(s);};
  const connectionCost=player=>player.linkCost??player.cost;
  const spendConnection=(player,amount)=>{
@@ -190,7 +201,7 @@ export function applyMove(state,seat,action){
  };
 
 
- const draw=(p)=>{
+ const draw=(p,source)=>{
    if(!p.d.length){
      const owner=p===G.p?seat:opponent;
      const other=p===G.p?opponent:seat;
@@ -200,10 +211,16 @@ export function applyMove(state,seat,action){
      return [];
    }
    const id=p.d.shift();
-   if(p.h.length>=9)p.trash.push(id);else p.h.push(id);
+   if(p.h.length>=9){
+     p.trash.push(id);
+     log((source?source+'：':'')+'手札上限により、引いた1枚がトラッシュへ。');
+   }else{
+     p.h.push(id);
+     if(source)log(source+'で山札から1枚引きました。');
+   }
    return [id];
  };
- const patrol=(p)=>{p.pending=true;};
+ const patrol=(p)=>{p.pending=true;log('巡回が発動。手札から1枚を山札の下へ戻します。');};
  const winCheck=()=>{if(G.c.hp<=0)state.winner=seat;if(G.p.hp<=0)state.winner=opponent;};
 function makeUnit(c){return {n:c.n,id:c.id,r:c.r,a:c.a,hp:c.h,max:c.h,k:c.k||'',ready:c.k==='速攻',shield:c.k==='盾',edges:c.e?c.e.map(x=>({...x,used:false})):[],equip:null,mats:null,entered:G.round,growth:0,attacks:0,attackLimit:c.attackLimit??1,attacked:false}}
 function boardSlots(p){return p.b.reduce((n,u)=>n+(u.mats?.length??1),0)}
@@ -231,9 +248,10 @@ function summon() {
   if(card.k==='活性'&&player.capacity<5&&!player.activated){
     player.activated=true;
     player.cost++;
+    log(card.n+'の活性で召喚コスト+1。');
   }
   if(card.k==='巡回'){
-    draw(player);
+    draw(player,card.n+'の巡回');
     if(!G.over)patrol(player);
   }
 }
@@ -274,7 +292,11 @@ function connect(){
   updateLink(merged);
   for(const i of [unitSel,secondSel].sort((a,b)=>b-a))p.b.splice(i,1);
   p.b.push(merged);
-  log(merged.n+'が成立しました。');
+  log(merged.n+'が成立しました。接続コスト'+pair.c+'。');
+  for(const material of mats){
+    const bonus=C.find(card=>card.id===material.id)?.linkBonus;
+    if(bonus)log(material.n+'の連結効果で攻撃力+'+bonus+'。');
+  }
 }
 function updateLink(unit){
   const mats=unit.mats;
@@ -288,18 +310,21 @@ function toTrash(p,u,why){if(u.mats){u.mats.forEach(m=>{p.trash.push(m.id||'link
 function resent(p,n){p.b.forEach(u=>{if(u.k==='怨念'&&u.id!=='link'){u.a++;log(u.n+'の怨念！攻撃力+1。')}})}
 function damageUnit(player,index,damage){
   const unit=player.b[index];
-  if(!unit)return;
+  if(!unit||damage<=0)return;
   if(!unit.mats){
     if(unit.equip?.effect==='guard'&&damage>0){
       removeEquipment(player,unit,false);
       log(unit.n+'の装備がダメージを防ぎました。');
       return;
     }
+    recordHit(player,unit.n,damage);
     unit.hp-=damage;
     log(unit.n+'に'+damage+'ダメージ！');
     if(unit.hp<=0){player.b.splice(index,1);toTrash(player,unit,'破壊');}
     return;
   }
+  recordHit(player,unit.n,damage);
+  log(unit.n+'に'+damage+'ダメージ！');
   unit.mats.sort((a,b)=>a.hp-b.hp);
   for(const piece of unit.mats){
     const dealt=Math.min(damage,piece.hp);
@@ -330,8 +355,7 @@ function attack(){
     if(attackPower>0)damageUnit(c,targetSel,attackPower);
     if(retaliation>0)damageUnit(p,unitSel,retaliation);
   }else{
-    c.hp-=attackPower;
-    log(attacker.n+'が相手リーダーに'+attackPower+'ダメージ！');
+    damageLeader(c,attackPower,attacker.n);
   }
   unitSel=targetSel=-1;
   winCheck();
@@ -351,6 +375,7 @@ function equip(){
   unit.a+=card.a;unit.hp+=card.h;unit.max+=card.h;
   spendHand();
   log(card.n+'を'+unit.n+'に装備。接続コスト'+join.cost+'。');
+  if(card.a||card.h)log('装備効果：'+unit.n+'の攻撃力'+(card.a>=0?'+':'')+card.a+'、体力'+(card.h>=0?'+':'')+card.h+'。');
 }
 function removeEquipment(player,unit,allowReturn){
   const equipment=unit.equip;
@@ -382,9 +407,10 @@ function spell(){
   const cost=join.cost;
   spendConnection(p,cost);
   spendHand();
+  log(card.n+'を使用（接続コスト'+cost+'）。');
   switch(card.effect??card.ef){
     case 'draw':
-      draw(p);
+      draw(p,card.n+'の効果');
       if(!G.over)patrol(p);
       break;
     case 'break-equipment':
@@ -394,35 +420,50 @@ function spell(){
     case 'sacrifice':
       p.b.splice(unitSel,1);
       toTrash(p,unit,'詠唱の効果');
-      G.c.hp-=3;
+      damageLeader(G.c,3,card.n);
       break;
     case 'weaken':
       if(!enemy)alert('相手のピースを選んでください。');
+      const attackBefore=enemy.a;
       if(enemy.mats){
         enemy.bonus=(enemy.bonus??0)-2;
         updateLink(enemy);
       }else enemy.a=Math.max(0,enemy.a-2);
+      log(enemy.n+'の攻撃力：'+attackBefore+' → '+enemy.a+'。');
       break;
     case 'bounce':
       if(!enemy||enemy.mats||C.find(card=>card.id===enemy.id)?.t!=='piece')alert('相手の単独ピースを選んでください。');
       G.c.b.splice(targetSel,1);
       if(enemy.equip)removeEquipment(G.c,enemy,false);
       if(G.c.h.length>=9)toTrash(G.c,enemy,'手札上限');
-      else G.c.h.push(enemy.id);
+      else{
+        G.c.h.push(enemy.id);
+        log(enemy.n+'が相手の手札に戻りました。');
+      }
       break;
     case 0:
       if(!enemy)alert('相手のピースを選んでください。');
       damageUnit(G.c,targetSel,2);
       break;
-    case 1: p.hp=Math.min(20,p.hp+2); break;
+    case 1: {
+      const before=p.hp;
+      p.hp=Math.min(20,p.hp+2);
+      log('リーダーが'+(p.hp-before)+'回復（体力'+p.hp+'）。');
+      break;
+    }
     case 2:
       if(unit.mats){unit.bonus=(unit.bonus??0)+1;unit.mats[0].hp++;unit.mats[0].max++;updateLink(unit);}
       else{unit.a++;unit.hp++;unit.max++;}
+      log(unit.n+'の攻撃力・体力が1増加。');
       break;
-    case 3: p.cost=Math.min(5,p.cost+1); break;
-    case 4: G.c.hp-=2; break;
+    case 3: {
+      const before=p.cost;
+      p.cost=Math.min(5,p.cost+1);
+      log('召喚コスト：'+before+' → '+p.cost+'。');
+      break;
+    }
+    case 4: damageLeader(G.c,2,card.n); break;
   }
-  log(card.n+'を使用（接続コスト'+cost+'）。');
   winCheck();
 }
 function grow(player){
@@ -488,9 +529,9 @@ function grow(player){
  })) {
    for(const tamaya of G.p.b.filter(unit=>unit.id==='redf0'&&!unit.tamayaTriggered)){
      tamaya.tamayaTriggered=true;
-     G.c.hp-=5;
+     log(tamaya.n+'の効果が発動！');
+     damageLeader(G.c,5,tamaya.n);
      for(let i=G.c.b.length-1;i>=0;i--)damageUnit(G.c,i,5);
-     log('花火師 多摩屋の効果が発動！');
    }
    winCheck();
  }

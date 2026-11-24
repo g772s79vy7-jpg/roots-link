@@ -63,6 +63,7 @@ Deno.serve(async request => {
     }
     return answer({version,ready,p:view(state[seat],true),c:view(state[other],false),
       turn:state.turn===seat?'p':'c',round:state.round,over:!!state.winner,
-      won:state.winner===seat,logs:state.logs});
+      won:state.winner===seat,logs:state.logs,hitId:state.hitId??0,
+      hits:(state.hits??[]).map(({seat:recipient,...hit})=>({...hit,side:recipient===seat?'p':'c'}))});
   } catch { return answer({error:'対戦サーバーに接続できませんでした。'},500); }
 });
