@@ -1,3 +1,4 @@
+export {C as cards, R as factions, leaders, leaderText, attachmentChoices, validateDeck, deckFor, starterFusion, validateFusion, cpuDeckFor, prepare, applyMove, playCpuTurn};
 const R=[['red','🔴十二市'],['blue','🔵音海楽団'],['green','🟢虹色学園'],['white','⚪天体衆'],['black','⚫怨墓侘屋']];
 const N={
 red:['紅花札 虎威虎威','鼠花火 火鉢バチ','龍侍 龍ノ介','大岩力士 牛轟丸','蛇忍 影縫','疾風騎馬 馬之助','餅月巫女 白兎','猿楽役者 猿之助','狛犬番人 阿吽','猪突武者 猪之助','狐面師コンコン','雷太鼓鳴門','鶴舞剣士千鶴','河童相撲皿之助','天狗山伏烈風','化け猫芸者玉三郎','鬼瓦大工鉄造','竹取姫かぐや','唐傘お化けパラ吉','百鬼夜行総大将百々目鬼'],
@@ -105,12 +106,23 @@ for(const card of C) {
     card.d='素材：'+card.m.map(id=>C.find(material=>material.id===id).n).join('＋')+'。一体化リンク時、素材の盾・成長を引き継ぐ。';
   }
 }
-export {C as cards,R as factions};
-export const leaderText={
+const leaders=[{"root":"red","id":"volcano","name":"炎龍 ボルカニカ","effect":"自分のピースに速攻を付与。付与された速攻は召喚したターンに相手ピースのみ攻撃できます。","hp":18},{"root":"red","id":"musashi","name":"小太刀二刀流 武蔵","effect":"装備ピースの接続コストが0。対応する接続口は必要です。","hp":22},{"root":"red","id":"magma","name":"火の精霊 マグマ","effect":"自分の行動中に相手の場から12体トラッシュへ送ると勝利。","hp":22},{"root":"blue","id":"neptune","name":"海王ネプチューン","effect":"巡回するたび、相手の場で体力が最も低いピースに2ダメージ。","hp":22},{"root":"blue","id":"lorelei","name":"氷の女王 ローレライ","effect":"巡回で引いた通常ピースの召喚コスト−1。最低1。","hp":27},{"root":"blue","id":"aqua","name":"水の精霊 アクア","effect":"自分の行動中、最初の巡回で追加で1枚引く。自分の山札が0枚になると勝利。","hp":25},{"root":"green","id":"newton","name":"天才博士 ニュートン","effect":"自分の場から6体トラッシュへ送られると、りんご姫（攻撃0・体力9・盾）を1回出す。","hp":15},{"root":"green","id":"nurse","name":"保健室の女神","effect":"自分の行動中、最初の成長でリーダーを1回復する。","hp":14},{"root":"green","id":"haru","name":"木の精霊 ハル","effect":"活性6回で勝利。コスト上限でも、自分の行動中に1回まで数えます。","hp":19},{"root":"white","id":"luna","name":"星の王女 ルナ","effect":"連結体は攻撃・体力+2。連結が解除されると山札から通常ピース1枚を手札へ。","hp":26},{"root":"white","id":"holy","name":"ホーリーナイト","effect":"最初に場に出した自分のピース1体に盾を付与する。","hp":23},{"root":"white","id":"cosmo","name":"精霊王 コスモ","effect":"両方のリンクを成立させ、7ターン目以降の自分の行動中に勝利。","hp":21},{"root":"black","id":"grimm","name":"玩具墓守 グリム","effect":"自分の行動中に1回、味方がトラッシュへ行くと、相手の場で攻撃力が最高のピースの攻撃力−1。","hp":18},{"root":"black","id":"zen","name":"からくり工房の主 ゼンマ","effect":"自分の行動中に1回、自分の効果で味方をトラッシュへ送ると1枚引く。","hp":19},{"root":"black","id":"lost","name":"壊れた玩具の精霊 ロスト","effect":"自分の効果で場の通常ピースを3体トラッシュに送り、5ターン目以降に勝利。","hp":22}];
+const playableIds=new Set(["redp2","redp10","redp11","redp12","redx0","redx1","redx2","redx19","redx26","redx34","redx42","redp0","redp3","redp4","redp14","redp15","redx11","redx12","redx36","redx38","redx46","redp5","redp6","redp7","redp8","redx6","redx14","redx15","redx22","redx30","redx32","redp1","redp9","redp19","redx16","rede0","rede1","rede8","rede9","rede12","reds0","reds1","reds2","reds3","reds4","redf0","redf1","redf2","redf3","redf4","bluep0","bluep1","bluep2","bluep10","bluep11","bluex0","bluex1","bluex2","bluex19","bluex26","bluex34","bluex42","bluep3","bluep4","bluep5","bluep14","bluep15","bluex11","bluex12","bluex28","bluex36","bluex46","bluep6","bluep7","bluep8","bluep16","bluex6","bluex15","bluex22","bluex30","bluex32","bluep9","bluep19","bluex16","bluex41","bluee0","bluee1","bluee8","bluee9","bluee12","blues0","blues1","blues2","blues3","blues4","bluef0","bluef1","bluef2","bluef3","bluef4","greenp0","greenp1","greenp2","greenp10","greenp11","greenp12","greenx0","greenx1","greenx2","greenx19","greenx26","greenx42","greenp3","greenp4","greenp5","greenp14","greenp15","greenx11","greenx12","greenx28","greenx36","greenx46","greenp6","greenp7","greenp8","greenx6","greenx14","greenx15","greenx22","greenx30","greenx32","greenp9","greenp19","greenx16","greenx41","greene0","greene1","greene8","greene9","greene12","greens0","greens1","greens2","greens3","greens4","greenf0","greenf1","greenf2","greenf3","greenf4","whitep0","whitep1","whitep2","whitep10","whitep11","whitex0","whitex1","whitex2","whitex26","whitex34","whitex42","whitex44","whitep3","whitep4","whitep5","whitep13","whitep14","whitep15","whitex4","whitex12","whitex36","whitex46","whitep6","whitep7","whitep8","whitex6","whitex14","whitex15","whitex22","whitex24","whitex32","whitep9","whitep19","whitex16","whitex41","whitee0","whitee1","whitee8","whitee9","whitee12","whites0","whites1","whites2","whites3","whites4","whitef0","whitef1","whitef2","whitef3","whitef4","blackp0","blackp1","blackp2","blackp10","blackp11","blackx0","blackx1","blackx2","blackx19","blackx26","blackx34","blackx42","blackp3","blackp4","blackp5","blackp15","blackx11","blackx12","blackx28","blackx36","blackx46","blackp6","blackp7","blackp8","blackp16","blackx6","blackx15","blackx22","blackx23","blackx30","blackx32","blackp9","blackp19","blackx16","blackx41","blacke0","blacke1","blacke8","blacke9","blacke12","blacks0","blacks1","blacks2","blacks3","blacks4","blackf0","blackf1","blackf2","blackf3","blackf4"]);
+const tuned=true, haruGoal=6;
+R.find(([root])=>root==='white')[1]='⚪天導衆';
+for(const c of C){
+ if(['redp0','redp15','redx2','redx6','redx32','redx42','redx46'].includes(c.id)){c.k='';if(c.id!=='redp0')c.d='';}
+ if(c.t==='piece'&&c.r==='blue'&&c.k==='巡回'&&c.c<=2)c.h++;
+ if(c.t==='piece'&&c.r==='green'&&c.k==='成長'&&c.c>=2)c.h--;
+ if(c.t==='fusion'&&c.r==='white')c.cc=Math.max(1,c.cc-1);
+ if(['greenp2','greenp12','greenx19','greenx0','greenp11'].includes(c.id)){c.k='活性';c.d='召喚時に活性。各自分の行動中に1回、召喚コストを上限5まで+1。';}
+ if(c.id==='blacks3'){c.effect='sacrifice';c.d='接続した味方ピースをトラッシュへ送り、相手リーダーに3ダメージ。';}
+}
+const leaderText={
   blue:'音海楽団のリーダーは、空の山札からカードを引こうとすると勝利します。',
 };
 
-export function attachmentChoices(unit,card) {
+function attachmentChoices(unit,card) {
   if(!unit||!card?.e||Array.isArray(card.e))return [];
   return (unit.edges??[]).flatMap((edge,direction)=>{
     if(!edge||edge.used||edge.s==='無'||edge.s===card.e.s)return [];
@@ -118,13 +130,13 @@ export function attachmentChoices(unit,card) {
   });
 }
 
-export function validateDeck(ids) {
+function validateDeck(ids) {
   if (!Array.isArray(ids) || ids.length!==30) throw new Error('デッキを30枚にしてください。');
   const counts=new Map();
   let root;
   for (const id of ids) {
     const card=C.find(entry=>entry.id===id);
-    if (!card||card.t==='fusion') throw new Error('融合ピースは別枠に登録してください。');
+    if (!card||!playableIds.has(id)||card.t==='fusion') throw new Error('融合ピースは別枠に登録してください。');
     root ??= card.r;
     if (card.r!==root) throw new Error('同じルーツのカードだけを使えます。');
     const count=(counts.get(card.n)??0)+1;
@@ -135,13 +147,13 @@ export function validateDeck(ids) {
   return ids;
 }
 
-export function deckFor(root) {
+function deckFor(root) {
   if (!R.some(([id])=>id===root)) throw new Error('ルーツを選んでください。');
   const ids=[0,1,2,3,4,5,6,7,8,9,10,11].map(i=>root+'p'+i);
   return [...ids,...ids,...[0,2,4].map(i=>root+'s'+i),root+'e0',root+'x0',root+'x1'];
 }
-export function starterFusion(root){return [root+'f0',root+'f1',root+'f2'];}
-export function validateFusion(ids,root){
+function starterFusion(root){return [root+'f0',root+'f1',root+'f2'];}
+function validateFusion(ids,root){
   if(!Array.isArray(ids)||ids.length>3||new Set(ids).size!==ids.length||
     ids.some(id=>!C.some(card=>card.id===id&&card.r===root&&card.t==='fusion'))){
     throw new Error('融合ピースは同じルーツから最大3種類までです。');
@@ -149,9 +161,9 @@ export function validateFusion(ids,root){
   return ids;
 }
 
-export function cpuDeckFor(root){
+function cpuDeckFor(root){
   const deck=deckFor(root);
-  const deckCatalog=C.filter(card=>card.r===root&&card.t==='piece'&&card.id.startsWith(root+'x'));
+  const deckCatalog=C.filter(card=>card.r===root&&card.t==='piece'&&playableIds.has(card.id)&&card.id.startsWith(root+'x'));
   for(let i=16;i<22;i++){
     const cost=C.find(card=>card.id===deck[i]).c;
     const candidates=deckCatalog.filter(card=>card.c===cost&&!deck.includes(card.id));
@@ -160,16 +172,20 @@ export function cpuDeckFor(root){
   return deck;
 }
 
-export function prepare(deck,host,fusion=starterFusion(C.find(card=>card.id===deck[0]).r)) {
+function prepare(deck,host,fusion=starterFusion(C.find(card=>card.id===deck[0]).r),leaderId) {
+ const root=C.find(card=>card.id===deck[0]).r;
+ const leader=leaders.find(item=>item.root===root&&(leaderId===undefined||item.id===leaderId));
+ if(!leader)throw new Error('デッキと同じルーツのリーダーを選んでください。');
+ const maxHp=leader.hp+(host?0:2);
  const d=[...deck];
  for(let i=d.length-1;i>0;i--){
    const j=Math.floor(Math.random()*(i+1));
    [d[i],d[j]]=[d[j],d[i]];
  }
- return {hp:20,registeredFusion:[...fusion],fusion:[...fusion],h:d.splice(0,4),d,b:[],trash:[],cost:host?1:0,linkCost:host?1:0,capacity:host?1:0,pending:false,root:C.find(card=>card.id===deck[0]).r};
+ return {hp:maxHp,maxHp,leader:leader.id,registeredFusion:[...fusion],fusion:[...fusion],h:d.splice(0,4),d,b:[],trash:[],cost:host?1:0,linkCost:host?1:0,capacity:host?1:0,pending:false,root:C.find(card=>card.id===deck[0]).r};
 }
 
-export function applyMove(state,seat,action){
+function applyMove(state,seat,action){
  const opponent=seat==='host'?'guest':'host';
  if(state.winner)throw new Error('対戦は終了しています。');
  if(action.kind==='concede'){
@@ -205,26 +221,34 @@ export function applyMove(state,seat,action){
    if(!p.d.length){
      const owner=p===G.p?seat:opponent;
      const other=p===G.p?opponent:seat;
-     state.winner=p.root==='blue'?owner:other;
+     state.winner=other;
      log(p.root==='blue'?'音海楽団のリーダーが山札切れで勝利！':'山札切れで対戦終了。');
      G.over=true;
      return [];
    }
    const id=p.d.shift();
-   if(p.h.length>=9){
+   const added=p.h.length<9;
+   if(!added){
      p.trash.push(id);
      log((source?source+'：':'')+'手札上限により、引いた1枚がトラッシュへ。');
    }else{
      p.h.push(id);
      if(source)log(source+'で山札から1枚引きました。');
    }
-   return [id];
+   if(p.leader==='aqua'&&!p.d.length){log('アクアの特殊勝利！');state.winner=p===G.p?seat:opponent;state.special='aqua';G.over=true;}
+   return [id,added];
  };
- const patrol=(p)=>{p.pending=true;log('巡回が発動。手札から1枚を山札の下へ戻します。');};
+ const patrol=(p,drawn)=>{p.pending=true;
+   if(p.leader==='neptune'&&G.c.b.length){
+     const hit=G.c.b.reduce((j,u,i)=>u.hp<G.c.b[j].hp?i:j,0);damageUnit(G.c,hit,2);
+   }
+   if(p.leader==='lorelei'&&drawn?.[1]===true&&p.h.at(-1)===drawn[0]&&C.find(c=>c.id===drawn[0])?.t==='piece')p.discounts=[...new Set([...(p.discounts??[]),p.h.length-1])];
+   if(tuned&&p.leader==='aqua'&&p.aquaRound!==G.round){p.aquaRound=G.round;draw(p);}
+log('巡回が発動。手札から1枚を山札の下へ戻します。');};
  const winCheck=()=>{if(G.c.hp<=0)state.winner=seat;if(G.p.hp<=0)state.winner=opponent;};
-function makeUnit(c){return {n:c.n,id:c.id,r:c.r,a:c.a,hp:c.h,max:c.h,k:c.k||'',ready:c.k==='速攻',shield:c.k==='盾',edges:c.e?c.e.map(x=>({...x,used:false})):[],equip:null,mats:null,entered:G.round,growth:0,attacks:0,attackLimit:c.attackLimit??1,attacked:false}}
+function makeUnit(c,entering=true){return {n:c.n,id:c.id,r:c.r,a:c.a,hp:c.h,max:c.h,k:c.k||'',ready:c.k==='速攻'||G.p.leader==='volcano',shield:c.k==='盾'||(entering&&G.p.leader==='holy'&&!G.p.firstHoly&&(G.p.firstHoly=true)),rush:c.k!=='速攻'&&G.p.leader==='volcano',edges:c.e?c.e.map(x=>({...x,used:false})):[],equip:null,mats:null,entered:G.round,growth:0,attacks:0,attackLimit:c.attackLimit??1,attacked:false}}
 function boardSlots(p){return p.b.reduce((n,u)=>n+(u.mats?.length??1),0)}
-function spendHand(){let id=G.p.h.splice(handSel,1)[0];handSel=-1;return C.find(x=>x.id===id)}
+function spendHand(){const p=G.p;p.discounts=p.discounts?.filter(i=>i!==handSel).map(i=>i>handSel?i-1:i);let id=p.h.splice(handSel,1)[0];handSel=-1;return C.find(x=>x.id===id)}
 function drawPieceToHand(player) {
   if (player.h.length>=9) return;
   const candidates=player.d.flatMap((id,i)=>C.find(card=>card.id===id)?.t==='piece'?[i]:[]);
@@ -238,21 +262,23 @@ function summon() {
   const card=C.find(entry=>entry.id===player.h[handSel]);
   if(card?.t!=='piece')return;
   if(boardSlots(player)>=3)alert('場は最大3枠。');
-  if(player.cost<card.c)alert('召喚コスト不足。');
-  player.cost-=card.c;
+  const cost=player.discounts?.includes(handSel)?Math.max(1,card.c-1):card.c;
+  if(player.cost<cost)alert('召喚コスト不足。');
+  player.cost-=cost;
   spendHand();
   player.b.push(makeUnit(card));
   log(card.n+'を召喚！');
   if(card.id==='redp0'&&player.h.includes('redp1')&&boardSlots(player)<3)player.freeFirework=true;
   if(card.id==='redp1')drawPieceToHand(player);
-  if(card.k==='活性'&&player.capacity<5&&!player.activated){
+  if(card.k==='活性'&&!player.activated){
     player.activated=true;
-    player.cost++;
+    if(player.capacity<5)player.cost++;
+    player.activations=(player.activations??0)+1;
     log(card.n+'の活性で召喚コスト+1。');
   }
   if(card.k==='巡回'){
-    draw(player,card.n+'の巡回');
-    if(!G.over)patrol(player);
+    const drawn=draw(player,card.n+'の巡回');
+    if(!G.over)patrol(player,drawn);
   }
 }
 function fuse(){let p=G.p,c=C.find(x=>x.id===(p.fusion? action.fusion:p.h[handSel]));if(!c||c.t!=='fusion'||(p.fusion&&!p.fusion.includes(c.id)))return;if(connectionCost(p)<c.cc)return alert('接続コスト不足。');if(p.b.length<2)return alert('融合素材2体が必要。');let a=unitSel,b=secondSel;if(a===b||!p.b[a]||!p.b[b])return;let u=p.b[a],v=p.b[b];if(u.mats||v.mats||u.equip||v.equip)return alert('装備中のピースは融合できません。');if(!c.m||u.id===v.id||![u.id,v.id].every(id=>c.m.includes(id)))return alert('この融合カードの指定素材ではありません。');spendConnection(p,c.cc);let indices=[a,b].sort((x,y)=>y-x);for(let i of indices){let m=p.b.splice(i,1)[0];toTrash(p,m,'融合素材')}let f=c;if(p.fusion)p.fusion=p.fusion.filter(id=>id!==f.id);else spendHand();let x=makeUnit(f);x.ready=false;x.shield=u.shield||v.shield;x.grows=u.k==='成長'||v.k==='成長';p.b.push(x);log(u.n+'＋'+v.n+' → '+f.n+'！接続コスト'+f.cc+'を使用。')}
@@ -289,6 +315,8 @@ function connect(){
   if(pair.right.edges?.[pair.j])pair.right.edges[pair.j].used=true;
   const merged={id:'link',r:u.r,k:'連結',edges:[],mats,ready:u.ready&&v.ready,
     attacked:u.attacked||v.attacked,entered:G.round};
+  if(p.leader==='luna'){merged.bonus=2;merged.linkShieldHp=2;}
+  p.connected=true;
   updateLink(merged);
   for(const i of [unitSel,secondSel].sort((a,b)=>b-a))p.b.splice(i,1);
   p.b.push(merged);
@@ -301,12 +329,24 @@ function connect(){
 function updateLink(unit){
   const mats=unit.mats;
   unit.n=mats.map(piece=>piece.n).join('＋')+' LINK';
-  unit.hp=mats.reduce((sum,piece)=>sum+piece.hp,0);
+  unit.hp=mats.reduce((sum,piece)=>sum+piece.hp,0)+(unit.linkShieldHp??0);
   unit.max=mats.reduce((sum,piece)=>sum+piece.max,0);
   unit.a=Math.max(0,mats.reduce((sum,piece)=>sum+piece.a+(C.find(card=>card.id===piece.id)?.linkBonus??0),0)+(unit.bonus??0));
   unit.shield=mats.some(piece=>piece.shield||piece.k==='盾');
 }
-function toTrash(p,u,why){if(u.mats){u.mats.forEach(m=>{p.trash.push(m.id||'linked-material');if(m.k==='怨念')resent(p,m.n)})}else{p.trash.push(u.id);if(u.k==='怨念')resent(p,u.n)}if(u.equip)p.trash.push(u.equip.id);log(u.n+'はトラッシュへ（'+why+'）。');}
+function countTrash(p,amount,why){
+ p.lost=(p.lost??0)+amount;
+ if(p===G.c)G.p.enemyLost=(G.p.enemyLost??0)+amount;
+ if(p===G.p&&why==='詠唱の効果'){
+  p.selfLost=(p.selfLost??0)+amount;
+  if(p.leader==='zen'&&p.zenRound!==G.round){p.zenRound=G.round;draw(p);}
+ }
+ if(p===G.p&&p.leader==='grimm'&&p.grimmRound!==G.round&&G.c.b.length){
+  p.grimmRound=G.round;
+  const enemy=G.c.b.reduce((a,b)=>a.a>=b.a?a:b);enemy.a=Math.max(0,enemy.a-1);
+ }
+}
+function toTrash(p,u,why){countTrash(p,u.mats?.length??1,why);if(u.mats){u.mats.forEach(m=>{p.trash.push(m.id||'linked-material');if(m.k==='怨念')resent(p,m.n)})}else{p.trash.push(u.id);if(u.k==='怨念')resent(p,u.n)}if(u.equip)p.trash.push(u.equip.id);log(u.n+'はトラッシュへ（'+why+'）。');}
 function resent(p,n){p.b.forEach(u=>{if(u.k==='怨念'&&u.id!=='link'){u.a++;log(u.n+'の怨念！攻撃力+1。')}})}
 function damageUnit(player,index,damage){
   const unit=player.b[index];
@@ -325,20 +365,22 @@ function damageUnit(player,index,damage){
   }
   recordHit(player,unit.n,damage,false,index);
   log(unit.n+'に'+damage+'ダメージ！');
+  const absorbed=Math.min(damage,unit.linkShieldHp??0);if(absorbed){unit.linkShieldHp-=absorbed;damage-=absorbed;}
   unit.mats.sort((a,b)=>a.hp-b.hp);
   for(const piece of unit.mats){
     const dealt=Math.min(damage,piece.hp);
     damage-=dealt;
     piece.hp-=dealt;
-    if(piece.hp===0){player.trash.push(piece.id);if(piece.k==='怨念')resent(player,piece.n);log(piece.n+'がトラッシュへ。');}
+    if(piece.hp===0){countTrash(player,1,'破壊');player.trash.push(piece.id);if(piece.k==='怨念')resent(player,piece.n);log(piece.n+'がトラッシュへ。');}
   }
   unit.mats=unit.mats.filter(piece=>piece.hp>0);
   if(!unit.mats.length)player.b.splice(index,1);
   else if(unit.mats.length===1){
     const [survivor]=unit.mats;
-    player.b[index]={...makeUnit(C.find(card=>card.id===survivor.id)),...survivor,
+    player.b[index]={...makeUnit(C.find(card=>card.id===survivor.id)??survivor,false),...survivor,
       ready:unit.ready,attacked:unit.attacked,attacks:unit.attacks??0};
   } else updateLink(unit);
+  if(unit.mats.length<=1&&player.leader==='luna')drawPieceToHand(player);
 }
 function attack(){
   const {p,c}=G;
@@ -355,6 +397,7 @@ function attack(){
     if(attackPower>0)damageUnit(c,targetSel,attackPower);
     if(retaliation>0)damageUnit(p,unitSel,retaliation);
   }else{
+    if(attacker.rush&&attacker.entered===G.round)alert('付与速攻');
     damageLeader(c,attackPower,attacker.n);
   }
   unitSel=targetSel=-1;
@@ -369,12 +412,13 @@ function equip(){
   if(card?.t!=='equipment'||!unit||unit.mats||unit.equip||C.find(entry=>entry.id===unit.id)?.t!=='piece')alert('装備できるのは装備なしの単独ピースのみ。');
   const join=attachment(unit,card);
   if(!join)alert('装備カードと凸凹が合う未使用辺がありません。');
-  spendConnection(p,join.cost);
+  const cost=p.leader==='musashi'?0:join.cost;
+  spendConnection(p,cost);
   unit.edges[join.direction].used=true;
   unit.equip={id:card.id,n:card.n,a:card.a,h:card.h,effect:card.effect,direction:join.direction};
   unit.a+=card.a;unit.hp+=card.h;unit.max+=card.h;
   spendHand();
-  log(card.n+'を'+unit.n+'に装備。接続コスト'+join.cost+'。');
+  log(card.n+'を'+unit.n+'に装備。接続コスト'+cost+'。');
   if(card.a||card.h)log('装備効果：'+unit.n+'の攻撃力'+(card.a>=0?'+':'')+card.a+'、体力'+(card.h>=0?'+':'')+card.h+'。');
 }
 function removeEquipment(player,unit,allowReturn){
@@ -412,8 +456,8 @@ function spell(){
   log(card.n+'を使用（接続コスト'+cost+'）。'+unit.n+'の'+side+'の辺を消費。');
   switch(card.effect??card.ef){
     case 'draw':
-      draw(p,card.n+'の効果');
-      if(!G.over)patrol(p);
+      const drawn=draw(p,card.n+'の効果');
+      if(!G.over)patrol(p,drawn);
       break;
     case 'break-equipment':
       if(!enemy?.equip)alert('装備がある相手ピースを選んでください。');
@@ -449,7 +493,7 @@ function spell(){
       break;
     case 1: {
       const before=p.hp;
-      p.hp=Math.min(20,p.hp+2);
+      p.hp=Math.min(p.maxHp??20,p.hp+2);
       log('リーダーが'+(p.hp-before)+'回復（体力'+p.hp+'）。');
       break;
     }
@@ -475,6 +519,7 @@ function grow(player){
       player.cost--;
       piece.a++;piece.hp++;piece.max++;
       piece.growth=(piece.growth??0)+1;
+      if(player.leader==='nurse'&&(!tuned||player.healRound!==G.round)){player.healRound=G.round;player.hp=Math.min(player.maxHp,player.hp+(tuned?1:3));}
       log(piece.n+'が成長！ 攻撃・体力+1。');
     }
     if(unit.mats)updateLink(unit);
@@ -486,6 +531,7 @@ function grow(player){
  switch(action.kind){
   case 'patrol':
     if(!G.p.pending||!G.p.h[handSel])alert('戻す手札を選んでください。');
+    G.p.discounts=G.p.discounts?.filter(i=>i!==handSel).map(i=>i>handSel?i-1:i);
     G.p.d.push(G.p.h.splice(handSel,1)[0]);
     G.p.pending=false;
     log('巡回で手札を1枚戻しました。');
@@ -500,7 +546,7 @@ function grow(player){
     drawPieceToHand(G.p);
     break;
   }
-  case 'fuse': fuse(); break;
+  case 'fuse': {const n=G.p.fusion.length;fuse();if(G.p.fusion.length<n)G.p.fused=true;break;}
   case 'connect': connect(); break;
   case 'attack':
     if(action.target!==-1&&(!Number.isInteger(action.target)||action.target<0||action.target>=G.c.b.length))alert('攻撃対象を選んでください。');
@@ -537,31 +583,49 @@ function grow(player){
    }
    winCheck();
  }
+ for(const player of [G.p,G.c]){
+   if(player.leader==='newton'&&!player.apple&&player.lost>=(tuned?6:5)&&boardSlots(player)<3){
+     player.apple=true;player.b.push({id:'green-apple',n:'りんご姫',r:'green',a:0,hp:tuned?9:15,max:tuned?9:15,shield:true,ready:false,edges:[],entered:G.round});
+   }
+ }
+ if(!state.winner){
+   const p=G.p;
+   if((p.leader==='magma'&&p.enemyLost>=(tuned?12:10))||(p.leader==='haru'&&p.activations>=haruGoal)||
+      (p.leader==='cosmo'&&p.connected&&p.fused&&(!tuned||G.round>=7))||(p.leader==='lost'&&p.selfLost>=(tuned?3:6)&&(!tuned||G.round>=5))){
+     state.winner=seat;state.special=p.leader;
+     log(leaders.find(item=>item.id===p.leader).name+'の特殊勝利！');
+   }
+ }
  if(JSON.stringify(state)===before)alert('その操作はできません。');
  return state;
 }
 
-export function playCpuTurn(state) {
-  const seat='guest';
+function playCpuTurn(state,seat='guest') {
+  const rival=seat==='host'?'guest':'host';
   const tryMove=(move)=>{
     try{state=applyMove(state,seat,move);return true;}catch{return false;}
   };
   if(state.turn!==seat||state.winner)return state;
   const settlePatrol=()=>{
-    if(!state.guest.pending)return;
-    const index=state.guest.h.findIndex(id=>C.find(card=>card.id===id).t!=='piece');
+    if(!state[seat].pending)return;
+    const index=state[seat].h.findIndex(id=>C.find(card=>card.id===id).t!=='piece');
     tryMove({kind:'patrol',hand:Math.max(0,index)});
   };
   settlePatrol();
   for(let step=0;step<8&&!state.winner;step++){
-    const {h,b}=state.guest;
-    if(b.length<3&&state.guest.freeFirework&&tryMove({kind:'firework',hand:h.indexOf('redp1')}))continue;
+    const {h,b}=state[seat];
+    if(b.length<3&&state[seat].freeFirework&&tryMove({kind:'firework',hand:h.indexOf('redp1')}))continue;
     let played=false;
-    for(const id of state.guest.fusion??[]){
+    for(const id of state[seat].fusion??[]){
       const card=C.find(entry=>entry.id===id);
       const unit=b.findIndex(piece=>piece.id===card.m[0]);
       const second=b.findIndex(piece=>piece.id===card.m[1]);
       if(unit>=0&&second>=0&&tryMove({kind:'fuse',fusion:id,unit,second})){played=true;break;}
+    }
+    if((state[seat].leader==='cosmo'&&(!tuned||state[seat].fused))||state[seat].leader==='luna'){
+      for(let u=0;u<b.length&&!played;u++)for(let v=u+1;v<b.length&&!played;v++)
+        played=tryMove({kind:'connect',unit:u,second:v});
+      if(played)continue;
     }
     for(let hand=0;hand<h.length&&!played;hand++){
       const card=C.find(entry=>entry.id===h[hand]);
@@ -573,9 +637,9 @@ export function playCpuTurn(state) {
       }
       if(card.t==='equipment'||card.t==='spell'){
         for(let unit=0;unit<b.length&&!played;unit++){
-          const target=state.host.b.length?0:-1;
-          if(card.t==='spell'&&card.ef===1&&state.guest.hp===20)continue;
-          if(card.t==='spell'&&card.ef===3)continue;
+          const target=state[rival].b.length?0:-1;
+          if(card.t==='spell'&&card.ef===1&&state[seat].hp===state[seat].maxHp)continue;
+          if(card.t==='spell'&&card.ef===3&&card.effect!=='sacrifice')continue;
           played=tryMove({kind:card.t==='equipment'?'equip':'spell',hand,unit,target});
         }
       }
@@ -583,12 +647,13 @@ export function playCpuTurn(state) {
     if(!played)break;
     settlePatrol();
   }
-  for(let unit=0;unit<state.guest.b.length&&!state.winner;unit++){
-    const fieldCount=state.guest.b.length;
-    const opponent=state.host;
+  for(let unit=0;unit<state[seat].b.length&&!state.winner;unit++){
+    const fieldCount=state[seat].b.length;
+    const opponent=state[rival];
     let target=opponent.b.findIndex(piece=>piece.shield);
-    if(target<0&&opponent.hp>state.guest.b[unit].a)target=opponent.b.findIndex(piece=>piece.hp<=state.guest.b[unit].a);
-    if(tryMove({kind:'attack',unit,target})&&!state.winner&&(state.guest.b.length<fieldCount||state.guest.b[unit]?.ready)){
+    if(target<0&&opponent.hp>state[seat].b[unit].a)target=opponent.b.findIndex(piece=>piece.hp<=state[seat].b[unit].a);
+    if(target<0&&state[seat].b[unit].rush&&state[seat].b[unit].entered===state.round&&opponent.b.length)target=0;
+    if(tryMove({kind:'attack',unit,target})&&!state.winner&&(state[seat].b.length<fieldCount||state[seat].b[unit]?.ready)){
       unit--;
     }
   }

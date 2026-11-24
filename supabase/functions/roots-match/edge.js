@@ -44,7 +44,7 @@ Deno.serve(async request => {
           const deck=action.deck===undefined?deckFor(action.root):validateDeck(action.deck);
           const root=deck[0].match(/^[a-z]+?(?=[pxes]\d+$)/)?.[0];
           const fusion=action.fusion===undefined?starterFusion(root):validateFusion(action.fusion,root);
-          state[seat]=prepare(deck,seat==='host',fusion);
+          state[seat]=prepare(deck,seat==='host',fusion,action.leader);
           if(state[other]&&state[other].linkCost===undefined)delete state[seat].linkCost;
         } else {
           if(!state.host||!state.guest||state.winner) throw new Error('対戦中のみ操作できます。');
@@ -57,7 +57,7 @@ Deno.serve(async request => {
     const ready=!!(state.host&&state.guest);
     function view(player,own) {
       if(!player)return null;
-      return {root:player.root,fusion:own?player.fusion:undefined,registeredFusion:own?(player.registeredFusion??[...new Set([...(player.fusion??[]),...player.b.map(u=>u.id),...player.trash].filter(id=>cards.some(card=>card.id===id&&card.t==='fusion')))]):undefined,hp:player.hp,cost:player.cost,linkCost:player.linkCost,linkCapacity:player.linkCost===undefined?undefined:player.capacity,capacity:Math.min(5,player.capacity+(player.activated?1:0)),b:player.b,
+      return {root:player.root,leader:player.leader,maxHp:player.maxHp,discounts:own?player.discounts:undefined,activations:player.activations,enemyLost:player.enemyLost,selfLost:player.selfLost,connected:player.connected,fused:player.fused,fusion:own?player.fusion:undefined,registeredFusion:own?(player.registeredFusion??[...new Set([...(player.fusion??[]),...player.b.map(u=>u.id),...player.trash].filter(id=>cards.some(card=>card.id===id&&card.t==='fusion')))]):undefined,hp:player.hp,cost:player.cost,linkCost:player.linkCost,linkCapacity:player.linkCost===undefined?undefined:player.capacity,capacity:Math.min(5,player.capacity+(player.activated?1:0)),b:player.b,
         h:own?player.h:Array(player.h.length).fill(null),d:Array(player.d.length).fill(null),
         trash:Array(player.trash.length).fill(null),pending:own&&player.pending,freeFirework:own&&player.freeFirework};
     }
