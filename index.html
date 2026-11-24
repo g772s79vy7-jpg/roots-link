@@ -95,11 +95,21 @@ button.primary:hover,.active:hover,#end:enabled:hover,#start:enabled:hover{backg
  .battle-actions button{min-height:36px;padding:4px 6px;font-size:.72rem}
  #cost{flex:1 1 70%;font-size:.75rem}
 }
+.add-card{grid-column:1/-1;justify-self:start;min-height:38px;background:#28493f;color:#def7ec;font-weight:700}
+#poolMore,#bookMore{margin-top:12px}
+@media(max-width:750px){
+ .deck-panel{grid-row:1;margin:0;padding:10px 12px}
+ .deck-panel .row,.deck-panel .tools{margin:4px 0}
+ .deck-panel h2{font-size:1rem}
+ .deck-panel hr{display:none}
+ #deckStatus:empty{display:none}
+ #deckStatus{margin:4px 0}
+}
 </style>
 <header class="site-header"><h1>ROOTS <span>LINK</span></h1>
 <nav><button class="tab active" data-to="builder">デッキ編集</button><button class="tab" data-to="catalog">カード図鑑</button><button class="tab" data-to="battle">対戦</button><button class="tab" data-to="online">オンライン対戦</button></nav></header><main>
-<section id="builder"><div class="layout"><div class="panel"><h2>カードを選ぶ</h2><div class="tools"><select id="br"><option value="all">全ルーツ</option></select><select id="bt"><option value="all">全種類</option><option value="piece">ピース</option><option value="fusion">融合</option><option value="equipment">装備</option><option value="spell">詠唱</option></select><input id="bs" placeholder="名前・効果を検索"></div><div id="pool" class="cards"></div></div><aside class="panel"><div class="row"><h2>マイデッキ</h2><b id="count">0 / 30</b></div><div class="tools"><button id="fill">ピースでランダム30枚</button><button id="clear">全て外す</button></div><div id="deck" class="decklist"></div><hr><button id="start" disabled>このデッキでCPU対戦！</button><p class="small">30枚ちょうど / 同名カード3枚まで / 同じルーツのみ。融合・装備・詠唱もデッキ30枚に含みます。</p></aside></div></section>
-<section id="catalog" class="hidden"><div class="panel"><h2>カード図鑑 <span id="total" class="small">500種</span></h2><div class="tools"><select id="cr"><option value="all">全ルーツ</option></select><select id="ct"><option value="all">全種類</option><option value="piece">ピース</option><option value="fusion">融合</option><option value="equipment">装備</option><option value="spell">詠唱</option></select><input id="cs" placeholder="名前・効果を検索"></div><div id="book" class="cards"></div></div></section>
+<p id="startupStatus" class="room-status">カードデータを読み込んでいます…</p><section id="builder"><div class="layout"><div class="panel"><h2>カードを選ぶ</h2><div class="tools"><select id="br"><option value="all">全ルーツ</option></select><select id="bt"><option value="all">全種類</option><option value="piece">ピース</option><option value="fusion">融合</option><option value="equipment">装備</option><option value="spell">詠唱</option></select><input id="bs" placeholder="名前・効果を検索"></div><div id="pool" class="cards"></div><button id="poolMore" type="button" hidden>次のカードを表示</button></div><aside class="panel deck-panel"><div class="row"><h2>マイデッキ</h2><b id="count">0 / 30</b></div><div class="tools"><button id="fill">固定デッキ30枚を作る</button><button id="clear">全て外す</button></div><details id="deckDetails"><summary>デッキの中身を見る</summary><div id="deck" class="decklist"></div></details><hr><button id="start" disabled>このデッキでCPU対戦！</button><p id="deckStatus" class="small" role="status"></p><p class="small">30枚ちょうど / 同名カード3枚まで / 同じルーツのみ。融合・装備・詠唱もデッキ30枚に含みます。</p></aside></div></section>
+<section id="catalog" class="hidden"><div class="panel"><h2>カード図鑑 <span id="total" class="small">500種</span></h2><div class="tools"><select id="cr"><option value="all">全ルーツ</option></select><select id="ct"><option value="all">全種類</option><option value="piece">ピース</option><option value="fusion">融合</option><option value="equipment">装備</option><option value="spell">詠唱</option></select><input id="cs" placeholder="名前・効果を検索"></div><div id="book" class="cards"></div><button id="bookMore" type="button" hidden>次のカードを表示</button></div></section>
 <section id="battle" class="hidden"><div class="panel arena"><div class="row arena-heading"><h2 id="battleTitle">CPU対戦</h2><button id="again">新しい対戦</button><b id="round">対戦準備中</b></div><p id="leaderRules" class="small"></p><div class="battle"><div class="zone battlefield enemy"><button id="faceTarget" class="leader" type="button" aria-label="相手リーダーを選ぶ"><b id="opponentName">CPU</b><span id="chp" class="hp">20</span></button><div id="cboard" class="board"></div><div id="cinfo" class="small field-info"></div></div><div class="zone battlefield ally"><div class="leader"><b>あなた</b><span id="php" class="hp">20</span></div><div id="pboard" class="board"></div><div id="pinfo" class="small field-info"></div></div></div>
 <div class="zone hand-zone"><b>手札</b><div id="hand" class="hand"></div></div>
 <div class="tools battle-actions"><b id="cost">召喚 1 / 接続 1</b><button id="summon" disabled>ピース召喚</button><button id="fusion" disabled>融合</button><button id="equip" disabled>装備</button><button id="spell" disabled>詠唱を使う</button><button id="connect" disabled>選択2体を連結</button><button id="attack" disabled>選択ピースで攻撃</button><button id="detach" disabled>装備を外す</button><button id="firework" hidden>火鉢バチを無料召喚</button><button id="patrolReturn" hidden>巡回で手札を戻す</button><button id="end">ターン終了</button></div>
@@ -123,10 +133,468 @@ button.primary:hover,.active:hover,#end:enabled:hover,#start:enabled:hover{backg
   </div>
 </section>
 </main>
-<dialog id="cardDialog"><h2 id="detailTitle"></h2><p id="detailStats"></p><p id="detailText"></p><p id="detailEdges" class="piece-ports"></p><form method="dialog"><button>閉じる</button></form></dialog>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script type="module">
-import {cards as C,factions as R,leaderText,prepare,deckFor,applyMove,playCpuTurn} from './supabase/functions/roots-match/rules.js?v=5';
+<dialog id="cardDialog"><h2 id="detailTitle"></h2><p id="detailStats"></p><p id="detailText"></p><p id="detailEdges" class="piece-ports"></p><button id="detailClose" type="button">閉じる</button></dialog>
+<script>
+(() => {
+  const notice=document.getElementById('startupStatus');
+  window.addEventListener('error',()=>{
+    if(!notice.hidden)notice.textContent='画面を読み込めませんでした。Safariで開き直してください。';
+  },{once:true});
+})();
+</script>
+<script>
+/* BEGIN SHARED RULES */
+const R=[['red','🔴十二市'],['blue','🔵音海楽団'],['green','🟢虹色学園'],['white','⚪天体衆'],['black','⚫怨墓侘屋']];
+const N={
+red:['紅花札 虎威虎威','鼠花火 火鉢バチ','龍侍 龍ノ介','大岩力士 牛轟丸','蛇忍 影縫','疾風騎馬 馬之助','餅月巫女 白兎','猿楽役者 猿之助','狛犬番人 阿吽','猪突武者 猪之助','狐面師コンコン','雷太鼓鳴門','鶴舞剣士千鶴','河童相撲皿之助','天狗山伏烈風','化け猫芸者玉三郎','鬼瓦大工鉄造','竹取姫かぐや','唐傘お化けパラ吉','百鬼夜行総大将百々目鬼'],
+blue:['ドルフィン・ド','レイニー・レ','ミーナ・ミ','ファンファーレ・ファ','ソプラノ・ソ','ラッパー・ラ','シーラ・シ','巨鯨指揮者フォルテ','海月奏者ピアノ','深海の歌姫クレッシェンド','タクト・タコット','海亀楽長アンダンテ','低音魚バッソ','真珠の歌姫アリア','音叉海月チューナ','太鼓鮫ドンドン','珊瑚琴の奏者ハープ','逆再生の巻貝リバース','深海蓄音機グラモ','海底交響王シンフォニー'],
+green:['桜木サクラ','向日葵先生','コスモス先輩','菫野スミレ','薔薇園ローズ','若葉の芽衣','樫木ゴウ','植物博士クスノキ','藤棚のフジ','大樹の校長ケヤキ','紅葉カエデ','椿山ツバキ','紫陽花アジサイ','たんぽぽポポ','木蓮モクレン','竹林先生バンブー','朝顔アサミ','苔庭コケ丸','花壇の用務員ハナジイ','世界樹の図書館司書リンデン'],
+white:['射手座の騎士アルタイル','獅子座の公爵レオニス','蠍座の暗殺伯爵スコルピオ','水瓶座の女王アクエリア','牡羊座の戦将アリエス','牡牛座の大公タウラス','双子座の双子王子ジェミニ','蟹座の守護騎士キャンサー','乙女座の聖女ヴァルゴ','山羊座の大賢者カプリコーン','天秤座の裁判官リブラ','魚座の姫君ピスケス','乙女座の侍女長ディーヴァ','蠍座の毒薬博士アンタレス','牡牛座の近衛隊長ブル','双子座の宮廷道化師ジェミ','水瓶座の大司祭ウラノス','蟹座の王宮料理長クラブ','山羊座の大公爵サターン','十二星座の皇帝ゾディアック'],
+black:['びっくり箱のボックス','ブリキ兵士アイアン','吸血ぬいぐるみドラキュラベア','操り人形マリオネット','継ぎ接ぎ男フランケン','包帯人形ミイラちゃん','狼男の着ぐるみウルフ','錆びたゼンマイ兵長','呪いのテディローズ','道化師ピエロ・ノワール','ゼンマイ兎ラビット','呪われたオルゴールメロディ','首なし騎士ホロウ','からくり蜘蛛スパイダー','ぬいぐるみ狼グルル','毒針人形ピノ','呪いの人形館長ドールマン','玩具列車トレイン・ゴースト','片目のピエロボロ','おもちゃ墓場の番人グレイブ']};
+const F={red:[['花火師多摩屋',0,1],['龍角武将龍轟丸',2,3],['九尾蛇忍白影',4,10],['月鶴姫千代',6,12],['百鬼天狗猫魔王',15,14]],blue:[['蒼海歌姫ディーヴァ',0,2],['深海大指揮者グランフォルテ',7,11],['響震海獣オクトシャーク',10,5],['幻奏水母クリスタリア',8,14],['海底交響皇帝オーケストラ',19,16]],green:[['桜陽の女王サクラヒメ',0,1],['棘華生徒会長ロザリア',4,14],['千年竹林王バンブロード',15,9],['星花の大先輩コスモリア',2,12],['虹樹大賢者ユグドラ',19,7]],white:[['獅弓星皇レオタリウス',0,1],['双星王ジェミニオン',6,15],['星毒大公スコルピア',2,13],['星海女帝アクアピス',3,11],['天象神帝ゾディアーク',19,9]],black:[['吸血箱魔王ブラッドボックス',0,2],['鋼鉄怪人アイアンフランケン',1,4],['狼操傀儡ウルフマリオ',3,6],['呪刻ミイラ兎クロノラビット',10,5],['玩具墓王グレイヴドール',19,16]]};
+const S={red:['鬼火一閃','武士の覚悟','破魔の太刀','疾風の陣','百鬼夜行'],blue:['潮騒の旋律','深海の調律','逆再生の音色','真珠の子守歌','大海の交響曲'],green:['芽吹きの合図','急成長の魔法陣','花咲く祝福','放課後の園芸','世界樹の恵み'],white:['星の導き','月光の癒やし','星座の結界','天体の共鳴','流星の祝福'],black:['呪いの指先','玩具の葬列','破滅の糸','呪われた契約','墓場の呼び声']};
+const pieceNames={
+ red:[['夜桜','朝霧','夕凪','初雪','朱月','風花','宵霞','花曇','遠雷','残照'],['火消し','太刀持ち','手裏剣師','祭り囃子','面打ち']],
+ blue:[['珊瑚礁の','海峡の','真珠浜の','海底洞の','氷湾の','深海港の','波間の','藍の入り江の','海流の','夜潮の'],['フルート吹き','打楽器奏者','合唱隊員','弦楽奏者','調律師']],
+ green:[['山吹組の','銀杏組の','桜草組の','白樺組の','鈴蘭組の','柊組の','山茶花組の','蒲公英組の','藤組の','橘組の'],['園芸委員','花壇当番','温室係','生徒会書記','標本部員']],
+ white:[['北極星の','流星群の','月食の','黄道の','天の川の','明けの明星の','星雲の','新月の','極光の','白夜の'],['衛兵','修道士','従騎士','航海士','観測官']],
+ black:[['空玩具箱の','屋根裏の','倉庫裏の','閉店後の','雨戸の奥の','からくり棚の','地下室の','紙貼り小屋の','見本棚の','忘れ物箱の'],['おばけ独楽','ブリキ狼','針鼠人形','おどけ骸骨','包帯うさぎ']],
+};
+const equipmentNames={
+ red:[['朱塗り','漆黒','銀糸','緋色'],['火鉢','陣羽織','鉢巻','祭鈴','小太刀']],
+ blue:[['珊瑚の','真珠の','流氷の','深海の'],['音叉','指揮棒','調律器','楽譜入れ','小鐘']],
+ green:[['桜組の','柊組の','藤組の','橘組の'],['剪定ばさみ','花冠','じょうろ','手帳','標本箱']],
+ white:[['月光の','流星の','彗星の','黄道の'],['小盾','紋章旗','星図','杖','胸当て']],
+ black:[['錆びた','曲がった','煤けた','ひび割れた'],['歯車','ゼンマイ','鉄仮面','鈴','鎖']],
+};
+const profiles=[
+ [1,1,3,4],[1,2,2,2],[1,0,4,4],[2,2,4,3],[2,3,3,2],
+ [2,1,5,4],[3,3,5,3],[3,4,4,2],[3,2,6,4],[4,4,7,2],
+];
+function ports(index,count) {
+  const result=Array.from({length:4},()=>({s:'無',c:0}));
+  const order=[[0,2,1,3],[1,3,2,0],[2,0,3,1],[3,1,0,2]][index%4];
+  for(let step=0;step<count;step++){
+    const s=(step+Math.floor(index/4))%2===0?'凸':'凹';
+    result[order[step]]={s,c:s==='凸'&&(index+step)%7===0?2:s==='凸'?1:0};
+  }
+  return result;
+}
+function piece(root,id,name,index,keyword) {
+  const [c,attack,health,count]=profiles[index%profiles.length];
+  const guard=keyword==='盾';
+  const aggressive=root==='red'&&!keyword&&count<4;
+  const support=keyword==='巡回'||keyword==='成長'||keyword==='活性';
+  return {id,n:name,r:root,t:'piece',c,k:keyword,a:Math.max(1,attack+(aggressive?1:0)-(support||guard?1:0)),
+    h:health+(guard||(root==='black'&&(keyword==='怨念'||c<=2))?1:0)-(aggressive||support?1:0),e:ports(index,count),d:''};
+}
+const C=[];
+for(const [r] of R){
+  const key={red:'速攻',blue:'巡回',green:'成長',white:'星導',black:'怨念'}[r];
+  N[r].forEach((name,i)=>{
+    const keyword=(r==='white'&&[7,14].includes(i))?'盾':i%5===0?key:'';
+    C.push(piece(r,r+'p'+i,name,i,keyword));
+  });
+  const [prefixes,roles]=pieceNames[r];
+  for(let i=0;i<50;i++){
+    const keyword=r==='white'&&i%10===4?'盾':i%10===2||i%10===6?key:'';
+    const name=prefixes[Math.floor(i/5)]+roles[i%5];
+    C.push(piece(r,r+'x'+i,name,i+Math.floor(i/5),keyword));
+  }
+  F[r].forEach(([n,a,b],i)=>C.push({id:r+'f'+i,n,r,t:'fusion',a:5+i,h:7+i,c:0,cc:2+i%3,k:'一体化リンク',m:[r+'p'+a,r+'p'+b]}));
+  const [descriptors,gear]=equipmentNames[r];
+  for(let i=0;i<20;i++){
+    C.push({id:r+'e'+i,n:descriptors[Math.floor(i/5)]+gear[i%5],r,t:'equipment',a:i%3===0?2:1,
+      h:i%3===1?2:0,e:{s:i%2===0?'凸':'凹',c:i%2===0?1:0},k:'装備'});
+  }
+  S[r].forEach((n,i)=>C.push({id:r+'s'+i,n,r,t:'spell',e:{s:i%2===0?'凸':'凹',c:i%2===0?1:0},k:'詠唱',
+    d:['相手ピースに2ダメージ','自分リーダーを2回復','味方ピースの攻撃と体力を+1','このターンの残りコストを+1','相手リーダーに2ダメージ'][i],ef:i}));
+}
+
+const overrides = {
+  redp3:{a:3,h:4,c:2},
+  redp0:{a:3,h:3,c:2,d:'召喚時、手札の火鉢バチ1体をコストなしで出せる。'},
+  redp1:{a:3,h:8,c:4,d:'場に出た時、山札からピースをランダムに1枚手札に加える。'},
+  redf0:{n:'花火師 多摩屋',a:8,h:10,cc:5,d:'相手のピースがトラッシュに送られた時、相手リーダーと全ピースに5ダメージ。各自分ターンに1回。'},
+  whitep4:{k:'星導',linkBonus:1,d:'星導。連結している間、連結体の攻撃力を+1。'},
+  whitep2:{h:5},
+  whitep6:{d:'このピースを含む連結体に、場の3体目を接続できる。'},
+  whitep7:{k:'盾',d:'相手の通常攻撃をこのピースに引きつける。'},
+  greenp1:{k:'活性',a:2,h:3,d:'召喚したターンだけ最大コストと残りコストを1増やす。上限5。'},
+};
+const keywordText={
+  '巡回':'召喚時に1枚引き、手札1枚を山札の一番下に戻す。',
+  '成長':'ターン終了時、残りコストを1消費できれば攻撃と体力が永続で+1。',
+  '星導':'凸凹が合わなくても連結できる。接続コストは必要。',
+  '怨念':'このピースがトラッシュに置かれた時、場にいる味方の怨念ピースの攻撃力を+1。',
+  '速攻':'召喚したターンに攻撃できる。',
+};
+  const specialEquipment={
+    whitee0:{effect:'guard',a:0,h:0,d:'身代わり。装備ピースへの最初のダメージを防ぎ、装備はトラッシュへ。'},
+    rede0:{effect:'boost',a:2,h:0,d:'装備ピースの攻撃力を+2。'},
+    bluee0:{effect:'return',a:1,h:0,d:'攻撃力+1。装備を外すと手札に戻る。手札が満杯ならトラッシュへ。'},
+  };
+  const specialSpell={
+    blues0:{effect:'draw',d:'カードを1枚引く。その後、巡回する。'},
+    reds2:{effect:'break-equipment',d:'選んだ相手ピースの装備を破壊する。'},
+    blacks0:{effect:'sacrifice',d:'接続した味方ピースをトラッシュに送り、相手リーダーに3ダメージ。'},
+    blacks2:{effect:'weaken',d:'選んだ相手ピースの攻撃力を2下げる。最低0。'},
+    blues2:{effect:'bounce',d:'選んだ相手の単独ピースを手札に戻す。'},
+  };
+for(const card of C) {
+  if(card.t==='piece')card.d=keywordText[card.k]??'';
+  Object.assign(card,overrides[card.id]);
+  if(card.t==='equipment')card.d='装備ピースの攻撃力+'+card.a+'、体力+'+card.h+'。';
+  Object.assign(card,specialEquipment[card.id],specialSpell[card.id]);
+  if(card.t==='fusion'&&!card.id.endsWith('redf0')){
+    card.d='素材：'+card.m.map(id=>C.find(material=>material.id===id).n).join('＋')+'。一体化リンク時、両素材の盾を引き継ぐ。';
+  }
+}
+const leaderText={
+  blue:'音海楽団のリーダーは、空の山札からカードを引こうとすると勝利します。',
+};
+
+function validateDeck(ids) {
+  if (!Array.isArray(ids) || ids.length!==30) throw new Error('デッキを30枚にしてください。');
+  const counts=new Map();
+  let root;
+  for (const id of ids) {
+    const card=C.find(entry=>entry.id===id);
+    if (!card) throw new Error('使用できないカードが含まれています。');
+    root ??= card.r;
+    if (card.r!==root) throw new Error('同じルーツのカードだけを使えます。');
+    const count=(counts.get(card.n)??0)+1;
+    if(count>3) throw new Error('同名カードは3枚までです。');
+    counts.set(card.n,count);
+  }
+  if(!ids.some(id=>C.find(card=>card.id===id).t==='piece')) throw new Error('デッキにはピースが必要です。');
+  return ids;
+}
+
+function deckFor(root) {
+  if (!R.some(([id])=>id===root)) throw new Error('ルーツを選んでください。');
+  const ids=[0,1,2,3,4,5,6,7,8,9,10,11].map(i=>root+'p'+i);
+  return [...ids,...ids,...[0,2,4].map(i=>root+'s'+i),root+'f0',root+'e0',root+'x0'];
+}
+function prepare(deck,host) {
+ const d=[...deck];
+ for(let i=d.length-1;i>0;i--){
+   const j=Math.floor(Math.random()*(i+1));
+   [d[i],d[j]]=[d[j],d[i]];
+ }
+ return {hp:20,h:d.splice(0,4),d,b:[],trash:[],cost:host?1:0,capacity:host?1:0,pending:false,root:C.find(card=>card.id===deck[0]).r};
+}
+
+function applyMove(state,seat,action){
+ const opponent=seat==='host'?'guest':'host';
+ if(state.turn!==seat) throw new Error('相手のターンです。');
+ state=structuredClone(state);
+ const G={p:state[seat],c:state[opponent],round:state.round};
+ const index=(n)=>Number.isInteger(n)&&n>=0&&n<9?n:-1;
+ let handSel=index(action.hand),unitSel=index(action.unit),secondSel=index(action.second),targetSel=index(action.target);
+ const log=(s)=>{state.logs.unshift(s);state.logs.length=Math.min(12,state.logs.length);};
+ const alert=(s)=>{throw new Error(s);};
+
+
+ const draw=(p)=>{
+   if(!p.d.length){
+     const owner=p===G.p?seat:opponent;
+     const other=p===G.p?opponent:seat;
+     state.winner=p.root==='blue'?owner:other;
+     log(p.root==='blue'?'音海楽団のリーダーが山札切れで勝利！':'山札切れで対戦終了。');
+     G.over=true;
+     return [];
+   }
+   const id=p.d.shift();
+   if(p.h.length>=9)p.trash.push(id);else p.h.push(id);
+   return [id];
+ };
+ const patrol=(p)=>{p.pending=true;};
+ const winCheck=()=>{if(G.c.hp<=0)state.winner=seat;if(G.p.hp<=0)state.winner=opponent;};
+function makeUnit(c){return {n:c.n,id:c.id,r:c.r,a:c.a,hp:c.h,max:c.h,k:c.k||'',ready:c.k==='速攻',shield:c.k==='盾',edges:c.e?c.e.map(x=>({...x,used:false})):[],equip:null,mats:null,entered:G.round,growth:0,attacked:false}}
+function boardSlots(p){return p.b.reduce((n,u)=>n+(u.mats?.length??1),0)}
+function spendHand(){let id=G.p.h.splice(handSel,1)[0];handSel=-1;return C.find(x=>x.id===id)}
+function drawPieceToHand(player) {
+  if (player.h.length>=9) return;
+  const candidates=player.d.flatMap((id,i)=>C.find(card=>card.id===id)?.t==='piece'?[i]:[]);
+  if (candidates.length) {
+    player.h.push(player.d.splice(candidates[Math.floor(Math.random()*candidates.length)],1)[0]);
+    log('山札からピースを1枚手札に加えました。');
+  }
+}
+function summon() {
+  const player=G.p;
+  const card=C.find(entry=>entry.id===player.h[handSel]);
+  if(card?.t!=='piece')return;
+  if(boardSlots(player)>=3)alert('場は最大3枠。');
+  if(player.cost<card.c)alert('召喚コスト不足。');
+  player.cost-=card.c;
+  spendHand();
+  player.b.push(makeUnit(card));
+  log(card.n+'を召喚！');
+  if(card.id==='redp0'&&player.h.includes('redp1')&&boardSlots(player)<3)player.freeFirework=true;
+  if(card.id==='redp1')drawPieceToHand(player);
+  if(card.k==='活性'&&player.capacity<5&&!player.activated){
+    player.activated=true;
+    player.cost++;
+  }
+  if(card.k==='巡回'){
+    draw(player);
+    if(!G.over)patrol(player);
+  }
+}
+function fuse(){let p=G.p,c=C.find(x=>x.id===p.h[handSel]);if(!c||c.t!=='fusion')return;if(p.cost<c.cc)return alert('接続コスト不足。');if(p.b.length<2)return alert('融合素材2体が必要。');let a=unitSel,b=secondSel;if(a===b||!p.b[a]||!p.b[b])return;let u=p.b[a],v=p.b[b];if(u.mats||v.mats||u.equip||v.equip)return alert('装備中のピースは融合できません。');if(!c.m||u.id===v.id||![u.id,v.id].every(id=>c.m.includes(id)))return alert('この融合カードの指定素材ではありません。');p.cost-=c.cc;let indices=[a,b].sort((x,y)=>y-x);for(let i of indices){let m=p.b.splice(i,1)[0];toTrash(p,m,'融合素材')}let f=spendHand();let x=makeUnit(f);x.ready=false;x.shield=u.shield||v.shield;p.b.push(x);log(u.n+'＋'+v.n+' → '+f.n+'！接続コスト'+f.cc+'を使用。')}
+function edgePair(u,v) {
+  const star=u.k==='星導'||v.k==='星導';
+  let fallback;
+  for(let i=0;i<4;i++){
+    const j=(i+2)%4;
+    const a=u.edges?.[i],b=v.edges?.[j];
+    if(a?.used||b?.used)continue;
+    if(a?.s==='凸'&&b?.s==='凹')return {i,j,c:a.c};
+    if(a?.s==='凹'&&b?.s==='凸')return {i,j,c:b.c};
+    if(star)fallback??={i,j,c:a?.s==='凸'?a.c:b?.s==='凸'?b.c:1,star:true};
+  }
+  return fallback;
+}
+function connect(){
+  const p=G.p,u=p.b[unitSel],v=p.b[secondSel];
+  if(!u||!v||u===v)return;
+  if(u.equip||v.equip||[u,v].some(unit=>C.find(card=>card.id===unit.id)?.t==='fusion'))alert('装備中や一体化済みのピースは連結できません。');
+  const mats=[...(u.mats??[u]),...(v.mats??[v])];
+  if(mats.length>3||mats.length===3&&!mats.some(piece=>piece.id==='whitep6'))alert('3体連結にはジェミニが必要です。');
+  let pair;
+  for (const left of u.mats??[u]) {
+    for(const right of v.mats??[v]){
+      const candidate=edgePair(left,right);
+      if(candidate){pair={...candidate,left,right};break;}
+    }
+    if(pair)break;
+  }
+  if(!pair)alert('接続できる辺がありません。');
+  if(p.cost<pair.c)alert('接続コスト不足。');
+  p.cost-=pair.c;
+  if(pair.left.edges?.[pair.i])pair.left.edges[pair.i].used=true;
+  if(pair.right.edges?.[pair.j])pair.right.edges[pair.j].used=true;
+  const merged={id:'link',r:u.r,k:'連結',edges:[],mats,ready:u.ready&&v.ready,
+    attacked:u.attacked||v.attacked,entered:G.round};
+  updateLink(merged);
+  for(const i of [unitSel,secondSel].sort((a,b)=>b-a))p.b.splice(i,1);
+  p.b.push(merged);
+  log(merged.n+'が成立しました。');
+}
+function updateLink(unit){
+  const mats=unit.mats;
+  unit.n=mats.map(piece=>piece.n).join('＋')+' LINK';
+  unit.hp=mats.reduce((sum,piece)=>sum+piece.hp,0);
+  unit.max=mats.reduce((sum,piece)=>sum+piece.max,0);
+  unit.a=Math.max(0,mats.reduce((sum,piece)=>sum+piece.a+(C.find(card=>card.id===piece.id)?.linkBonus??0),0)+(unit.bonus??0));
+  unit.shield=mats.some(piece=>piece.shield||piece.k==='盾');
+}
+function toTrash(p,u,why){if(u.mats){u.mats.forEach(m=>{p.trash.push(m.id||'linked-material');if(m.k==='怨念')resent(p,m.n)})}else{p.trash.push(u.id);if(u.k==='怨念')resent(p,u.n)}if(u.equip)p.trash.push(u.equip.id);log(u.n+'はトラッシュへ（'+why+'）。');}
+function resent(p,n){p.b.forEach(u=>{if(u.k==='怨念'&&u.id!=='link'){u.a++;log(u.n+'の怨念！攻撃力+1。')}})}
+function damageUnit(player,index,damage){
+  const unit=player.b[index];
+  if(!unit)return;
+  if(!unit.mats){
+    if(unit.equip?.effect==='guard'&&damage>0){
+      removeEquipment(player,unit,false);
+      log(unit.n+'の装備がダメージを防ぎました。');
+      return;
+    }
+    unit.hp-=damage;
+    log(unit.n+'に'+damage+'ダメージ！');
+    if(unit.hp<=0){player.b.splice(index,1);toTrash(player,unit,'破壊');}
+    return;
+  }
+  unit.mats.sort((a,b)=>a.hp-b.hp);
+  for(const piece of unit.mats){
+    const dealt=Math.min(damage,piece.hp);
+    damage-=dealt;
+    piece.hp-=dealt;
+    if(piece.hp===0){player.trash.push(piece.id);if(piece.k==='怨念')resent(player,piece.n);log(piece.n+'がトラッシュへ。');}
+  }
+  unit.mats=unit.mats.filter(piece=>piece.hp>0);
+  if(!unit.mats.length)player.b.splice(index,1);
+  else if(unit.mats.length===1){
+    const [survivor]=unit.mats;
+    player.b[index]={...makeUnit(C.find(card=>card.id===survivor.id)),...survivor,
+      ready:unit.ready,attacked:unit.attacked};
+  } else updateLink(unit);
+}
+function attack(){let p=G.p,c=G.c,u=p.b[unitSel];if(!u||!u.ready||targetSel>=c.b.length)return;let shields=c.b.map((x,i)=>x.shield?i:-1).filter(i=>i>=0);let ti=targetSel;if(shields.length&& (ti<0||!shields.includes(ti)))return alert('相手に盾がいるため盾を選んでください。');if(ti>=0&&c.b[ti])damageUnit(c,ti,u.a);else{c.hp-=u.a;log(u.n+'が相手リーダーに'+u.a+'ダメージ！')}u.ready=false;u.attacked=true;unitSel=targetSel=-1;winCheck()}
+function equip(){let p=G.p,c=C.find(x=>x.id===p.h[handSel]),u=p.b[unitSel];if(c?.t!=='equipment'||!u||u.mats||u.equip||C.find(card=>card.id===u.id)?.t!=='piece')return alert('装備できるのは装備なしの単独ピースのみ。');let ep=u.edges.findIndex(e=>!e.used&&e.s!=='無'&&e.s!==c.e.s);if(ep<0)return alert('装備カードと凸凹が合う未使用辺がありません。');const cost=c.e.s==='凸'?c.e.c:u.edges[ep].c;if(p.cost<cost)return alert('接続コスト不足。');p.cost-=cost;u.edges[ep].used=true;u.equip={id:c.id,n:c.n,a:c.a,h:c.h,effect:c.effect};u.a+=c.a;u.hp+=c.h;u.max+=c.h;spendHand();log(c.n+'を'+u.n+'に装備。接続コスト'+cost+'。')}
+function removeEquipment(player,unit,allowReturn){
+  const equipment=unit.equip;
+  unit.a=Math.max(0,unit.a-equipment.a);
+  unit.max-=equipment.h;
+  unit.hp=Math.min(unit.hp,unit.max);
+  unit.equip=null;
+  if(allowReturn&&equipment.effect==='return'&&player.h.length<9){
+    player.h.push(equipment.id);
+    log(equipment.n+'を手札へ戻しました。');
+  }else{
+    player.trash.push(equipment.id);
+    log(equipment.n+'をトラッシュへ。');
+  }
+}
+function detach(){
+  const unit=G.p.b[unitSel];
+  if(unit?.equip)removeEquipment(G.p,unit,true);
+}
+function spell(){
+  const p=G.p, card=C.find(entry=>entry.id===p.h[handSel]);
+  const unit=p.b[unitSel], enemy=G.c.b[targetSel];
+  if(card?.t!=='spell'||!unit)return;
+  const edge=unit.edges.find(port=>!port.used&&port.s!=='無'&&port.s!==card.e.s);
+  if(!edge)alert('詠唱と凸凹が合う辺がありません。');
+  const cost=card.e.s==='凸'?card.e.c:edge.c;
+  if(p.cost<cost)alert('接続コスト不足。');
+  p.cost-=cost;
+  spendHand();
+  switch(card.effect??card.ef){
+    case 'draw':
+      draw(p);
+      if(!G.over)patrol(p);
+      break;
+    case 'break-equipment':
+      if(!enemy?.equip)alert('装備がある相手ピースを選んでください。');
+      removeEquipment(G.c,enemy,false);
+      break;
+    case 'sacrifice':
+      p.b.splice(unitSel,1);
+      toTrash(p,unit,'詠唱の効果');
+      G.c.hp-=3;
+      break;
+    case 'weaken':
+      if(!enemy)alert('相手のピースを選んでください。');
+      if(enemy.mats){
+        enemy.bonus=(enemy.bonus??0)-2;
+        updateLink(enemy);
+      }else enemy.a=Math.max(0,enemy.a-2);
+      break;
+    case 'bounce':
+      if(!enemy||enemy.mats||C.find(card=>card.id===enemy.id)?.t!=='piece')alert('相手の単独ピースを選んでください。');
+      G.c.b.splice(targetSel,1);
+      if(enemy.equip)removeEquipment(G.c,enemy,false);
+      if(G.c.h.length>=9)toTrash(G.c,enemy,'手札上限');
+      else G.c.h.push(enemy.id);
+      break;
+    case 0:
+      if(!enemy)alert('相手のピースを選んでください。');
+      damageUnit(G.c,targetSel,2);
+      break;
+    case 1: p.hp=Math.min(20,p.hp+2); break;
+    case 2:
+      if(unit.mats){unit.bonus=(unit.bonus??0)+1;unit.mats[0].hp++;unit.mats[0].max++;updateLink(unit);}
+      else{unit.a++;unit.hp++;unit.max++;}
+      break;
+    case 3: p.cost=Math.min(5,p.cost+1); break;
+    case 4: G.c.hp-=2; break;
+  }
+  log(card.n+'を使用（接続コスト'+cost+'）。');
+  winCheck();
+}
+function grow(p){let arr=p.b.filter(u=>u.k==='成長'&&!u.mats);for(let u of arr){if(p.cost>=1){p.cost--;u.a++;u.hp++;u.max++;u.growth++;log(u.n+'が成長！攻撃/最大HP+1（累計'+u.growth+'）。')}}}
+ const before=JSON.stringify(state);
+ const opponentTrash=G.c.trash.length;
+ if(G.p.pending&&action.kind!=='patrol') alert('巡回で戻す手札を選んでください。');
+ switch(action.kind){
+  case 'patrol':
+    if(!G.p.pending||!G.p.h[handSel])alert('戻す手札を選んでください。');
+    G.p.d.push(G.p.h.splice(handSel,1)[0]);
+    G.p.pending=false;
+    log('巡回で手札を1枚戻しました。');
+    break;
+  case 'summon': summon(); break;
+  case 'firework': {
+    if(!G.p.freeFirework||G.p.h[handSel]!=='redp1'||boardSlots(G.p)>=3)alert('火鉢バチを選んでください。');
+    G.p.freeFirework=false;
+    const card=spendHand();
+    G.p.b.push(makeUnit(card));
+    log(card.n+'をコストなしで召喚！');
+    drawPieceToHand(G.p);
+    break;
+  }
+  case 'fuse': fuse(); break;
+  case 'connect': connect(); break;
+  case 'attack': attack(); break;
+  case 'equip': equip(); break;
+  case 'spell': spell(); break;
+  case 'detach': detach(); break;
+  case 'end':
+    grow(G.p);
+    G.p.cost=0;
+    G.p.freeFirework=false;
+    G.p.activated=false;
+    G.c.capacity=Math.min(5,G.c.capacity+1);
+    G.c.cost=G.c.capacity;
+    for(const unit of G.c.b){unit.ready=true;unit.attacked=false;unit.tamayaTriggered=false;}
+    state.turn=opponent;
+    if(opponent==='host')state.round++;
+    draw(G.c);
+    break;
+  default: alert('操作が無効です。');
+ }
+ if(G.c.trash.length>opponentTrash&&action.kind!=='end'){
+   for(const tamaya of G.p.b.filter(unit=>unit.id==='redf0'&&!unit.tamayaTriggered)){
+     tamaya.tamayaTriggered=true;
+     G.c.hp-=5;
+     for(let i=G.c.b.length-1;i>=0;i--)damageUnit(G.c,i,5);
+     log('花火師 多摩屋の効果が発動！');
+   }
+   winCheck();
+ }
+ if(JSON.stringify(state)===before)alert('その操作はできません。');
+ return state;
+}
+
+function playCpuTurn(state) {
+  const seat='guest';
+  const tryMove=(move)=>{
+    try{state=applyMove(state,seat,move);return true;}catch{return false;}
+  };
+  if(state.turn!==seat||state.winner)return state;
+  const settlePatrol=()=>{
+    if(!state.guest.pending)return;
+    const index=state.guest.h.findIndex(id=>C.find(card=>card.id===id).t!=='piece');
+    tryMove({kind:'patrol',hand:Math.max(0,index)});
+  };
+  settlePatrol();
+  for(let step=0;step<8&&!state.winner;step++){
+    const {h,b}=state.guest;
+    if(b.length<3&&state.guest.freeFirework&&tryMove({kind:'firework',hand:h.indexOf('redp1')}))continue;
+    let played=false;
+    for(let hand=0;hand<h.length&&!played;hand++){
+      const card=C.find(entry=>entry.id===h[hand]);
+      if(card.t==='piece')played=tryMove({kind:'summon',hand});
+      if(card.t==='fusion'){
+        const unit=b.findIndex(piece=>piece.id===card.m[0]);
+        const second=b.findIndex(piece=>piece.id===card.m[1]);
+        if(unit>=0&&second>=0)played=tryMove({kind:'fuse',hand,unit,second});
+      }
+      if(card.t==='equipment'||card.t==='spell'){
+        for(let unit=0;unit<b.length&&!played;unit++){
+          const target=state.host.b.length?0:-1;
+          if(card.t==='spell'&&card.ef===1&&state.guest.hp===20)continue;
+          if(card.t==='spell'&&card.ef===3)continue;
+          played=tryMove({kind:card.t==='equipment'?'equip':'spell',hand,unit,target});
+        }
+      }
+    }
+    if(!played)break;
+    settlePatrol();
+  }
+  for(let unit=0;unit<state.guest.b.length&&!state.winner;unit++){
+    const opponent=state.host;
+    let target=opponent.b.findIndex(piece=>piece.shield);
+    if(target<0&&opponent.hp>state.guest.b[unit].a)target=opponent.b.findIndex(piece=>piece.hp<=state.guest.b[unit].a);
+    tryMove({kind:'attack',unit,target});
+  }
+  if(!state.winner)tryMove({kind:'end'});
+  return state;
+}
+/* END SHARED RULES */
 const $=x=>document.getElementById(x),rootName=r=>R.find(x=>x[0]===r)[1],typeName=t=>({piece:'ピース',fusion:'融合',equipment:'装備',spell:'詠唱'}[t]);let deck=[],G=null,handSel=-1,unitSel=-1,targetSel=-1,secondSel=-1;
 function esc(s){return String(s).replace(/[&<>"]/g,x=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[x]))}
 function opts(){for(let id of ['br','cr'])R.forEach(([r,n])=>$(id).add(new Option(n,r)))}
@@ -152,16 +620,27 @@ function edgeLabels(edges){
   return edges.map((edge,i)=>['↑','→','↓','←'][i]+
     (edge.s==='無'?'—':edge.s==='凸'?'凸'+edge.c:'凹')+(edge.used?'済':'')).join(' ');
 }
-function card(c){
+function card(c,showAdd=false){
   const frame=shapeStyle(c);
   const stats=c.t==='piece'?'召喚 '+c.c:c.t==='fusion'?'一体化 '+c.cc:typeName(c.t);
   return `<article class="card ${frame?'jigsaw':''}" style="${frame}" data-id="${c.id}">
     <h3>${rootName(c.r)} ${esc(c.n)}</h3><button type="button" class="card-detail" data-detail="${c.id}">詳細</button>
     <div class="stats">${stats}${c.t==='piece'||c.t==='fusion'?`　⚔${c.a} ♥${c.h}`:''}</div>
-    <p class="desc">${esc(c.d)}</p><div class="piece-ports">${edgeLabels(c.e)}</div></article>`;
+    <p class="desc">${esc(c.d)}</p><div class="piece-ports">${edgeLabels(c.e)}</div>${showAdd?`<button class="add-card" type="button" data-add="${c.id}">追加</button>`:''}</article>`;
 }
-function renderPool(){let a=list($('br').value,$('bt').value,$('bs').value);$('pool').innerHTML=a.map(card).join('')}
-function renderBook(){let a=list($('cr').value,$('ct').value,$('cs').value);$('book').innerHTML=a.map(card).join('');$('total').textContent=a.length+'種表示 / 全'+C.length+'種'}
+const initialPage=36;
+let poolLimit=initialPage,bookLimit=initialPage;
+function renderPool(){
+  const entries=list($('br').value,$('bt').value,$('bs').value);
+  $('pool').innerHTML=entries.slice(0,poolLimit).map(cardData=>card(cardData,true)).join('')||'<p>該当するカードはありません。</p>';
+  $('poolMore').hidden=entries.length<=poolLimit;
+}
+function renderBook(){
+  const entries=list($('cr').value,$('ct').value,$('cs').value);
+  $('book').innerHTML=entries.slice(0,bookLimit).map(cardData=>card(cardData)).join('')||'<p>該当するカードはありません。</p>';
+  $('bookMore').hidden=entries.length<=bookLimit;
+  $('total').textContent=entries.length+'種 / 全'+C.length+'種';
+}
 const deckStorageKey='roots-link.deck.v1';
 try {
   const saved=JSON.parse(localStorage.getItem(deckStorageKey));
@@ -176,8 +655,17 @@ function deckCanPlay(){
   return deck.length===30&&deck.some(id=>C.find(card=>card.id===id).t==='piece');
 }
 function renderDeck(){try{localStorage.setItem(deckStorageKey,JSON.stringify(deck))}catch{}$('count').textContent=deck.length+' / 30';$('start').disabled=!deckCanPlay();$('deck').innerHTML=deck.map((id,i)=>{let c=C.find(x=>x.id===id);return `<div class="item">${rootName(c.r)} ${esc(c.n)} <button data-del="${i}">外す</button></div>`}).join('')||'<p class="small">カードを追加してね。</p>'}
-function add(id){let c=C.find(x=>x.id===id);if(!c)return;if(deck.length&&C.find(x=>x.id===deck[0]).r!==c.r)return alert('デッキには同じルーツのカードだけを入れられます。');if(deck.length>=30)return alert('30枚まで！');if(deck.filter(x=>C.find(y=>y.id===x).n===c.n).length>=3)return alert('同名カードは3枚まで！');deck.push(id);renderDeck()}
-function randDeck(root=R[Math.floor(Math.random()*R.length)][0]){let p=C.filter(c=>c.t==='piece'&&c.r===root),d=[];while(d.length<30){let c=p[Math.random()*p.length|0];if(d.filter(x=>C.find(y=>y.id===x).n===c.n).length<3)d.push(c.id)}return d}
+function add(id){
+  const entry=C.find(card=>card.id===id);
+  if(!entry)return;
+  const setStatus=message=>{$('deckStatus').textContent=message;};
+  if(deck.length>=30)return setStatus('デッキは30枚までです。');
+  if(deck.length&&C.find(card=>card.id===deck[0]).r!==entry.r)return setStatus('マイデッキと同じルーツを選んでください。');
+  if(deck.filter(value=>C.find(card=>card.id===value).n===entry.n).length>=3)return setStatus('同名カードは3枚までです。');
+  deck.push(id);
+  renderDeck();
+  setStatus(entry.n+'を追加しました。');
+}
 function show(id){document.body.classList.toggle('playing',id==='battle'&&!!G);document.querySelectorAll('main>section').forEach(s=>s.classList.toggle('hidden',s.id!==id));document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.to===id))}
 function log(s){G.logs.unshift(s);$('log').innerHTML=G.logs.map(esc).join('<br>')}
 let cpuMatch=null;
@@ -189,11 +677,11 @@ function renderCpuMatch(){
   $('log').innerHTML=logs.map(esc).join('<br>');
   renderGame();
 }
-function startGame(){
-  if(!deckCanPlay())return;
+function startGame(useStarter=false){
+  if(!deckCanPlay()&&!useStarter)return;
   window.closeOnlineMatch?.();
   const rival=R[Math.floor(Math.random()*R.length)][0];
-  cpuMatch={host:prepare(deck,true),guest:prepare(deckFor(rival),false),
+  cpuMatch={host:prepare(deckCanPlay()?deck:deckFor('red'),true),guest:prepare(deckFor(rival),false),
     round:1,turn:'host',winner:null,logs:['対戦開始。あなたが先攻です。']};
   renderCpuMatch();
   show('battle');
@@ -227,7 +715,11 @@ function unitHTML(u,i,side){
 function selectHand(e){const detail=e.target.closest('[data-detail]');if(detail){openCard(detail.dataset.detail);return;}let b=e.target.closest('[data-hand]');if(b){handSel=+b.dataset.hand;renderGame()}}
 function selectOwn(e){let b=e.target.closest('[data-pu]');if(!b)return;let i=+b.dataset.pu;if(unitSel<0)unitSel=i;else if(secondSel<0&&i!==unitSel)secondSel=i;else{unitSel=i;secondSel=-1}targetSel=-1;renderGame()}
 opts();renderPool();renderBook();renderDeck();
-['br','bt','bs'].forEach(id=>$(id).addEventListener('input',renderPool));['cr','ct','cs'].forEach(id=>$(id).addEventListener('input',renderBook));
+['br','bt','bs'].forEach(id=>$(id).addEventListener('input',()=>{poolLimit=initialPage;renderPool();}));
+['cr','ct','cs'].forEach(id=>$(id).addEventListener('input',()=>{bookLimit=initialPage;renderBook();}));
+$('poolMore').onclick=()=>{poolLimit+=initialPage;renderPool();};
+$('bookMore').onclick=()=>{bookLimit+=initialPage;renderBook();};
+$('detailClose').onclick=()=>{const dialog=$('cardDialog');if(typeof dialog.close==='function')dialog.close();else dialog.removeAttribute('open');};
 function openCard(id){
   const card=C.find(entry=>entry.id===id);
   if(!card)return;
@@ -239,7 +731,8 @@ function openCard(id){
   const ports=Array.isArray(card.e)?card.e.map((edge,i)=>['上','右','下','左'][i]+' '+edge.s+
     (edge.s==='凸'?' ('+edge.c+')':'')):card.e?[card.e.s+(card.e.s==='凸'?' ('+card.e.c+')':'')]:[];
   $('detailEdges').textContent=ports.join(' / ');
-  $('cardDialog').showModal();
+  if(typeof $('cardDialog').showModal==='function')$('cardDialog').showModal();
+  else $('cardDialog').setAttribute('open','');
 }
 $('pool').onclick=e=>{
   const detail=e.target.closest('[data-detail]');
@@ -251,32 +744,63 @@ $('book').onclick=e=>{
   const card=e.target.closest('[data-id]');
   if(card)openCard(card.dataset.id);
 };
-$('deck').onclick=e=>{let b=e.target.closest('[data-del]');if(b){deck.splice(+b.dataset.del,1);renderDeck()}};$('fill').onclick=()=>{const selected=$('br').value;deck=randDeck(selected==='all'?C.find(x=>x.id===deck[0])?.r:selected);renderDeck()};$('clear').onclick=()=>{deck=[];renderDeck()};$('start').onclick=startGame;$('again').onclick=startGame;
-document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{if(b.dataset.to==='battle'&&!G){if(deckCanPlay())startGame();else show('builder');return;}show(b.dataset.to)});$('hand').onclick=selectHand;$('pboard').onclick=selectOwn;$('cboard').onclick=e=>{let b=e.target.closest('[data-cu]');if(b){targetSel=+b.dataset.cu;log('攻撃対象：'+G.c.b[targetSel].n);renderGame()}};
+$('deck').onclick=e=>{let b=e.target.closest('[data-del]');if(b){deck.splice(+b.dataset.del,1);renderDeck()}};$('fill').onclick=()=>{const selected=$('br').value;deck=deckFor(selected==='all'?(C.find(x=>x.id===deck[0])?.r??'red'):selected);renderDeck();$('deckStatus').textContent='固定デッキを作りました。'};$('clear').onclick=()=>{deck=[];renderDeck()};$('start').onclick=()=>startGame();$('again').onclick=()=>startGame(true);
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{if(b.dataset.to==='battle'&&!G){startGame(true);return;}show(b.dataset.to)});$('hand').onclick=selectHand;$('pboard').onclick=selectOwn;$('cboard').onclick=e=>{let b=e.target.closest('[data-cu]');if(b){targetSel=+b.dataset.cu;log('攻撃対象：'+G.c.b[targetSel].n);renderGame()}};
 
 (()=>{
- const $=id=>document.getElementById(id); let client=null, roomTimer=null, roomRequest=0;
+ const $=id=>document.getElementById(id); let roomTimer=null, roomRequest=0;
  const status=(msg,ok=false)=>{ $('sbStatus').textContent=msg; $('sbStatus').className=ok?'small good':'small warn'; };
  const u="https://akelbvwqbvlkjjufpoiw.supabase.co", k="sb_publishable_L7ZMaQ-jRMXbRsha3QdAgw_eaPmglQg";
- let connection=null;
+ const authKey='sb-akelbvwqbvlkjjufpoiw-auth-token';
+ let gameSession=null,authPending=null;
+ try{gameSession=JSON.parse(sessionStorage.getItem(authKey));}catch{}
  function storedRoom(){
    try{return JSON.parse(sessionStorage.getItem('roots-link.room'));}catch{return null;}
  }
- async function connectOnline(){
-   if(connection)return connection;
-   connection=(async()=>{
-     if(!window.supabase?.createClient)throw new Error('通信機能を読み込めません。ページを再読み込みしてください。');
-     client??=window.supabase.createClient(u,k,{auth:{storage:sessionStorage}});
-     status('接続中…');
-     const current=await client.auth.getSession();
-     if(current.error)throw current.error;
-     if(!current.data.session){
-       const response=await client.auth.signInAnonymously();
-       if(response.error)throw response.error;
+ async function request(path,body,token){
+   const controller=new AbortController();
+   const timer=setTimeout(()=>controller.abort(),12000);
+   try{
+     const headers={apikey:k};
+     if(token)headers.Authorization='Bearer '+token;
+     if(body!==undefined)headers['Content-Type']='application/json';
+     const response=await fetch(u+path,{method:body===undefined?'GET':'POST',headers,
+       body:body===undefined?undefined:JSON.stringify(body),signal:controller.signal});
+     const data=await response.json().catch(()=>null);
+     if(!response.ok){
+       const error=new Error(data?.error_description||data?.message||data?.msg||data?.error||'通信に失敗しました。');
+       error.status=response.status;
+       throw error;
      }
+     return data;
+   }catch(error){
+     if(error.name==='AbortError')throw new Error('接続がタイムアウトしました。もう一度お試しください。');
+     if(error instanceof TypeError)throw new Error('対戦サーバーに接続できません。通信状況を確認してください。');
+     throw error;
+   }finally{clearTimeout(timer);}
+ }
+ async function connectOnline(){
+   if(gameSession?.access_token&&gameSession.expires_at>Date.now()/1000+45)return gameSession.access_token;
+   if(authPending)return authPending;
+   authPending=(async()=>{
+     status('接続中…');
+     let session;
+     if(gameSession?.refresh_token){
+       try{session=await request('/auth/v1/token?grant_type=refresh_token',{refresh_token:gameSession.refresh_token});}
+       catch(error){if(![400,401,403].includes(error.status))throw error;}
+     }
+     session??=await request('/auth/v1/signup',{data:{}});
+     if(!session?.access_token||!session.refresh_token)throw new Error('匿名接続を開始できませんでした。');
+     gameSession={...session,expires_at:session.expires_at??Date.now()/1000+session.expires_in};
+     try{sessionStorage.setItem(authKey,JSON.stringify(gameSession));}catch{}
      status('接続済み',true);
+     return gameSession.access_token;
    })();
-   try{await connection;}catch(error){connection=null;throw error;}
+   try{return await authPending;}finally{authPending=null;}
+ }
+ async function gameRequest(path,body){
+   const auth=await connectOnline();
+   return request(path,body,auth);
  }
  async function resumeRoom(){
    const saved=storedRoom();
@@ -315,18 +839,18 @@ document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{if(b.dataset.to==='b
    const generation=matchGeneration;
    clearTimeout(matchTimer);
    try {
-     const reply=await client.functions.invoke('roots-match',{body:{room:matchRoom,revision:matchVersion,action}});
-     if(generation!==matchGeneration)return;
-     if(reply.error){
-       if(reply.error.context?.status===409&&action?.kind==='ready'&&!action.retry){
+     let match;
+     try {
+       match=await gameRequest('/functions/v1/roots-match',{room:matchRoom,revision:matchVersion,action});
+     } catch(error) {
+       if(error.status===409&&action?.kind==='ready'&&!action.retry){
          queuedAction={action:{...action,retry:true},version:matchVersion};
          refreshReady=true;
          return;
        }
-       const details=await reply.error.context?.json?.().catch(()=>null);
-       throw new Error(details?.error||reply.error.message);
+       throw error;
      }
-     const match=reply.data;
+     if(generation!==matchGeneration)return;
      const updated=matchVersion!==match.version;
      matchVersion=match.version;
      $('matchSetup').classList.toggle('hidden',!!match.p);
@@ -400,11 +924,11 @@ document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{if(b.dataset.to==='b
    output.textContent = '相手を待っています。招待コード：' + room.invite_code;
    roomTimer = setTimeout(async () => {
      try {
-       const {data, error} = await client.from('rooms').select('invite_code,status')
-         .eq('id', room.room_id).single();
-       if (request !== roomRequest) return;
-       if (error) throw error;
-       showRoom({...room, ...data}, host);
+       const query=new URLSearchParams({select:'invite_code,status',id:'eq.'+room.room_id});
+       const [data]=await gameRequest('/rest/v1/rooms?'+query);
+       if(request!==roomRequest)return;
+       if(!data)throw new Error('部屋が見つかりません。');
+       showRoom({...room,...data},host);
      } catch {
        if (request !== roomRequest) return;
        output.textContent = '部屋の状態を取得できません。招待コード：' + room.invite_code;
@@ -426,11 +950,9 @@ document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{if(b.dataset.to==='b
    $('copyStatus').textContent='';
    output.textContent = host ? '部屋を作成中…' : '参加中…';
    try {
-     await connectOnline();
-     const result = host ? await client.rpc('create_room')
-       : await client.rpc('join_room', {p_invite_code: code});
-     if (result.error) throw result.error;
-     showRoom(result.data, host);
+     const room=host?await gameRequest('/rest/v1/rpc/create_room',{})
+       :await gameRequest('/rest/v1/rpc/join_room',{p_invite_code:code});
+     showRoom(room,host);
      if(!host&&new URL(location.href).searchParams.has('join')){
        const clean=new URL(location.href);
        clean.searchParams.delete('join');
@@ -472,4 +994,5 @@ document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{if(b.dataset.to==='b
    resumeRoom();
  }
 })();
+$('startupStatus').hidden=true;
 </script></html>
