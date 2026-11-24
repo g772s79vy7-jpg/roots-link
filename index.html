@@ -34,7 +34,7 @@ dialog::backdrop{background:#050a12bb}
 <dialog id="cardDialog"><h2 id="detailTitle"></h2><p id="detailStats"></p><p id="detailText"></p><p id="detailEdges" class="piece-ports"></p><form method="dialog"><button>閉じる</button></form></dialog>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script type="module">
-import {cards as C,factions as R,leaderText,prepare,deckFor,applyMove,playCpuTurn} from './supabase/functions/roots-match/rules.js';
+import {cards as C,factions as R,leaderText,prepare,deckFor,applyMove,playCpuTurn} from './supabase/functions/roots-match/rules.js?v=5';
 const $=x=>document.getElementById(x),rootName=r=>R.find(x=>x[0]===r)[1],typeName=t=>({piece:'ピース',fusion:'融合',equipment:'装備',spell:'詠唱'}[t]);let deck=[],G=null,handSel=-1,unitSel=-1,targetSel=-1,secondSel=-1;
 function esc(s){return String(s).replace(/[&<>"]/g,x=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[x]))}
 function opts(){for(let id of ['br','cr'])R.forEach(([r,n])=>$(id).add(new Option(n,r)))}
