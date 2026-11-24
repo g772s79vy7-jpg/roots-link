@@ -1,5 +1,3 @@
-# roots-link
-ROOTS LINK browser game
 <!doctype html>
 <html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>ROOTS LINK v5 - Complete Local Battle</title>
@@ -8,14 +6,14 @@ ROOTS LINK browser game
 </style>
 <header><h1>ROOTS LINK <small>v5 LOCAL BATTLE</small></h1><div class="small">CPU対戦・デッキ編集・500種図鑑 / 通信対戦を除くローカルルール実装版</div>
 <nav><button class="tab active" data-to="builder">デッキ編集</button><button class="tab" data-to="catalog">カード図鑑</button><button class="tab" data-to="battle">CPU対戦</button><button class="tab" data-to="online">オンライン対戦</button></nav></header><main>
-<section id="builder"><div class="layout"><div class="panel"><h2>カードを選ぶ</h2><div class="tools"><select id="br"><option value="all">全ルーツ</option></select><select id="bt"><option value="all">全種類</option><option value="piece">ピース</option><option value="fusion">融合</option><option value="equipment">装備</option><option value="spell">呪文</option></select><input id="bs" placeholder="名前・効果を検索"></div><div id="pool" class="cards"></div></div><aside class="panel"><div class="row"><h2>マイデッキ</h2><b id="count">0 / 30</b></div><div class="tools"><button id="fill">ピースでランダム30枚</button><button id="clear">全て外す</button></div><div id="deck" class="decklist"></div><hr><button id="start" disabled>このデッキでCPU対戦！</button><p class="small">30枚ちょうど / 同名カード3枚まで / ルーツ混合可。融合・装備・呪文もデッキ30枚に含みます。</p></aside></div></section>
-<section id="catalog" class="hidden"><div class="panel"><h2>カード図鑑 <span id="total" class="small">500種</span></h2><div class="tools"><select id="cr"><option value="all">全ルーツ</option></select><select id="ct"><option value="all">全種類</option><option value="piece">ピース</option><option value="fusion">融合</option><option value="equipment">装備</option><option value="spell">呪文</option></select><input id="cs" placeholder="名前・効果を検索"></div><div id="book" class="cards"></div></div></section>
+<section id="builder"><div class="layout"><div class="panel"><h2>カードを選ぶ</h2><div class="tools"><select id="br"><option value="all">全ルーツ</option></select><select id="bt"><option value="all">全種類</option><option value="piece">ピース</option><option value="fusion">融合</option><option value="equipment">装備</option><option value="spell">詠唱</option></select><input id="bs" placeholder="名前・効果を検索"></div><div id="pool" class="cards"></div></div><aside class="panel"><div class="row"><h2>マイデッキ</h2><b id="count">0 / 30</b></div><div class="tools"><button id="fill">ピースでランダム30枚</button><button id="clear">全て外す</button></div><div id="deck" class="decklist"></div><hr><button id="start" disabled>このデッキでCPU対戦！</button><p class="small">30枚ちょうど / 同名カード3枚まで / 同じルーツのみ。融合・装備・詠唱もデッキ30枚に含みます。</p></aside></div></section>
+<section id="catalog" class="hidden"><div class="panel"><h2>カード図鑑 <span id="total" class="small">500種</span></h2><div class="tools"><select id="cr"><option value="all">全ルーツ</option></select><select id="ct"><option value="all">全種類</option><option value="piece">ピース</option><option value="fusion">融合</option><option value="equipment">装備</option><option value="spell">詠唱</option></select><input id="cs" placeholder="名前・効果を検索"></div><div id="book" class="cards"></div></div></section>
 <section id="battle" class="hidden"><div class="panel"><div class="row"><h2>CPU対戦</h2><button id="again">新しい対戦</button><b id="round">対戦準備中</b></div><div class="battle"><div class="zone"><b>CPU</b> <span id="chp" class="hp">20</span><div id="cboard" class="board"></div><div id="cinfo" class="small"></div></div><div class="zone"><b>あなた</b> <span id="php" class="hp">20</span><div id="pboard" class="board"></div><div id="pinfo" class="small"></div></div></div>
 <div class="zone"><b>あなたの手札</b><div id="hand" class="hand"></div></div>
-<div class="tools"><b id="cost">召喚 1 / 接続 1</b><button id="summon" disabled>ピース召喚</button><button id="fusion" disabled>融合</button><button id="equip" disabled>装備</button><button id="spell" disabled>呪文を使う</button><button id="connect" disabled>選択2体を連結</button><button id="attack" disabled>選択ピースで攻撃</button><button id="detach" disabled>装備を外す</button><button id="end">ターン終了</button></div>
-<div class="small">手順：手札を選択 → 必要なボタン。ピース2体を順に選択して連結。攻撃は自分ピース→相手ピース（または相手リーダー）を選んで実行。装備・呪文は対象ピースを選んでから使用。</div>
+<div class="tools"><b id="cost">召喚 1 / 接続 1</b><button id="summon" disabled>ピース召喚</button><button id="fusion" disabled>融合</button><button id="equip" disabled>装備</button><button id="spell" disabled>詠唱を使う</button><button id="connect" disabled>選択2体を連結</button><button id="attack" disabled>選択ピースで攻撃</button><button id="detach" disabled>装備を外す</button><button id="end">ターン終了</button></div>
+<div class="small">手順：手札を選択 → 必要なボタン。ピース2体を順に選択して連結。攻撃は自分ピース→相手ピース（または相手リーダー）を選んで実行。装備・詠唱は対象ピースを選んでから使用。</div>
 <div class="zone"><b>バトルログ</b><div id="log" class="log"></div></div></div></section>
-<section id="online" class="hidden"><div class="panel"><h2>オンライン対戦（接続テスト）</h2><p class="small">SupabaseのProject URLとPublishable keyを入力して接続します。キーはこのブラウザ内にのみ保存します。service_role / secret keyは絶対に入力しないでください。</p><div class="tools"><input id="sburl" style="min-width:240px;flex:1" placeholder="https://xxxx.supabase.co" autocomplete="off"><input id="sbkey" style="min-width:240px;flex:1" placeholder="sb_publishable_..." autocomplete="off"><button id="saveSb">設定を保存</button></div><div class="tools"><button id="sbConnect">匿名ログインして接続</button><span id="sbStatus" class="small">未接続</span></div><hr><h3>対戦部屋</h3><div class="tools"><button id="makeRoom" disabled>部屋を作る</button><input id="inviteInput" placeholder="招待コード"><button id="joinRoom" disabled>コードで参加</button></div><div id="roomStatus" class="small">接続後に部屋を作成・参加できます。</div></div></section>
+<section id="online" class="hidden"><div class="panel"><h2>オンライン対戦（接続テスト）</h2><p class="small">接続ボタンを押すと、招待コードで対戦部屋に参加できます。</p><div class="tools"></div><div class="tools"><button id="sbConnect">接続する</button><span id="sbStatus" class="small">未接続</span></div><hr><h3>対戦部屋</h3><div class="tools"><button id="makeRoom" disabled>部屋を作る</button><input id="inviteInput" placeholder="招待コード"><button id="joinRoom" disabled>コードで参加</button></div><div id="roomStatus" class="small">接続後に部屋を作成・参加できます。</div></div></section>
 </main>
 <script>
 const R=[['red','🔴十二市'],['blue','🔵音海楽団'],['green','🟢虹色学園'],['white','⚪天体衆'],['black','⚫怨墓侘屋']];
@@ -34,9 +32,9 @@ N[r].forEach((n,i)=>{let k=r==='blue'&&i%5===0?'巡回':r==='green'&&i%4===0?'�
 for(let i=0;i<50;i++){let k=r==='blue'&&i%9===0?'巡回':r==='green'&&i%8===0?'成長':r==='white'&&i%10===0?'星導':r==='black'&&i%7===0?'怨念':'';C.push({id:r+'x'+i,n:['若き','新米','見習い','古参','伝説の'][i%5]+root+' '+['守り手','奏者','学徒','騎士','人形'][i%5]+' '+(i+1),r,t:'piece',a:1+i%5,h:2+(i*2)%5,c:1+i%3,k,d:'生成カード。テスト用の仮ステータス。',e:Array.from({length:4},(_,j)=>({s:((i+j)%6===0?'無':edges[(i+j)%2]),c:1+((i+j)%2)}))})}
 F[r].forEach(([n,a,b],i)=>C.push({id:r+'f'+i,n,r,t:'fusion',a:6+i,h:7+i,c:0,cc:1+i%2,k:'融合',d:'指定された同ルーツの融合素材2体が必要。接続コストのみ。',m:[r+'p'+a,r+'p'+b]}));
 for(let i=0;i<20;i++)C.push({id:r+'e'+i,n:EQN[i%5]+' '+(i+1),r,t:'equipment',a:i%3===0?2:1,h:i%3===1?2:0,c:1+i%2,e:{s:i%2===0?'凸':'凹',c:1+i%2},k:'装備',d:'対象ピースに装備。攻撃力/HPを補正。装備中は接続・融合不可。'});
-S[r].forEach((n,i)=>C.push({id:r+'s'+i,n,r,t:'spell',a:0,h:0,c:0,e:{s:i%2===0?'凸':'凹',c:1+i%2},k:'呪文',d:['相手ピースに2ダメージ','自分リーダーを2回復','味方ピースを+1/+1強化','このターン召喚コスト+1','相手リーダーに2ダメージ'][i],ef:i}));
+S[r].forEach((n,i)=>C.push({id:r+'s'+i,n,r,t:'spell',a:0,h:0,c:0,e:{s:i%2===0?'凸':'凹',c:1+i%2},k:'詠唱',d:['相手ピースに2ダメージ','自分リーダーを2回復','味方ピースを+1/+1強化','このターン召喚コスト+1','相手リーダーに2ダメージ'][i],ef:i}));
 }
-const $=x=>document.getElementById(x),rootName=r=>R.find(x=>x[0]===r)[1],typeName=t=>({piece:'ピース',fusion:'融合',equipment:'装備',spell:'呪文'}[t]);let deck=[],G=null,handSel=-1,unitSel=-1,targetSel=-1,secondSel=-1;
+const $=x=>document.getElementById(x),rootName=r=>R.find(x=>x[0]===r)[1],typeName=t=>({piece:'ピース',fusion:'融合',equipment:'装備',spell:'詠唱'}[t]);let deck=[],G=null,handSel=-1,unitSel=-1,targetSel=-1,secondSel=-1;
 function esc(s){return String(s).replace(/[&<>"]/g,x=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[x]))}
 function opts(){for(let id of ['br','cr'])R.forEach(([r,n])=>$(id).add(new Option(n,r)))}
 function list(root,type,q){return C.filter(c=>(root==='all'||c.r===root)&&(type==='all'||c.t===type)&&(!q||(c.n+c.d+c.k).includes(q)))}
@@ -44,58 +42,109 @@ function card(c){return `<article class="card" data-id="${c.id}"><h3>${rootName(
 function renderPool(){let a=list($('br').value,$('bt').value,$('bs').value);$('pool').innerHTML=a.map(card).join('')}
 function renderBook(){let a=list($('cr').value,$('ct').value,$('cs').value);$('book').innerHTML=a.map(card).join('');$('total').textContent=a.length+'種表示 / 全500種'}
 function renderDeck(){$('count').textContent=deck.length+' / 30';$('start').disabled=deck.length!==30;$('deck').innerHTML=deck.map((id,i)=>{let c=C.find(x=>x.id===id);return `<div class="item">${rootName(c.r)} ${esc(c.n)} <button data-del="${i}">外す</button></div>`}).join('')||'<p class="small">カードを追加してね。</p>'}
-function add(id){let c=C.find(x=>x.id===id);if(deck.length>=30)return alert('30枚まで！');if(deck.filter(x=>C.find(y=>y.id===x).n===c.n).length>=3)return alert('同名カードは3枚まで！');deck.push(id);renderDeck()}
+function add(id){let c=C.find(x=>x.id===id);if(!c)return;if(deck.length&&C.find(x=>x.id===deck[0]).r!==c.r)return alert('デッキには同じルーツのカードだけを入れられます。');if(deck.length>=30)return alert('30枚まで！');if(deck.filter(x=>C.find(y=>y.id===x).n===c.n).length>=3)return alert('同名カードは3枚まで！');deck.push(id);renderDeck()}
 function shuffle(a){for(let i=a.length-1;i>0;i--){let j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a}
-function randDeck(){let p=C.filter(c=>c.t==='piece'),d=[];while(d.length<30){let c=p[Math.random()*p.length|0];if(d.filter(x=>C.find(y=>y.id===x).n===c.n).length<3)d.push(c.id)}return d}
+function randDeck(root=R[Math.floor(Math.random()*R.length)][0]){let p=C.filter(c=>c.t==='piece'&&c.r===root),d=[];while(d.length<30){let c=p[Math.random()*p.length|0];if(d.filter(x=>C.find(y=>y.id===x).n===c.n).length<3)d.push(c.id)}return d}
 function show(id){document.querySelectorAll('main>section').forEach(s=>s.classList.toggle('hidden',s.id!==id));document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.to===id))}
 function log(s){G.logs.unshift(s);$('log').innerHTML=G.logs.map(esc).join('<br>')}
 function makeUnit(c){return {n:c.n,id:c.id,r:c.r,a:c.a,hp:c.h,max:c.h,k:c.k||'',ready:c.k==='速攻',shield:c.k==='盾',edges:c.e?c.e.map(x=>({...x,used:false})):[],equip:null,mats:null,entered:G.round,growth:0,attacked:false}}
 function boardSlots(p){return p.b.reduce((n,u)=>n+(u.mats?2:1),0)}
-function startGame(){if(deck.length!==30)return;G={p:{hp:20,d:shuffle([...deck]),h:[],b:[],trash:[],sc:1,cc:1,patrol:false},c:{hp:20,d:shuffle(randDeck()),h:[],b:[],trash:[],sc:1,cc:1,patrol:false},turn:'p',round:1,over:false,logs:[]};G.p.h=G.p.d.splice(0,4);G.c.h=G.c.d.splice(0,4);handSel=unitSel=targetSel=secondSel=-1;G.logs=[];log('対戦開始！あなたが先攻。初期手札4枚。');renderGame();show('battle')}
-function draw(p,n=1){let drawn=[];for(let i=0;i<n;i++){if(!p.d.length){G.over=true;log((p===G.p?'あなた':'CPU')+'は山札切れ。'+(p===G.p?'CPU':'あなた')+'の勝利！');return}let id=p.d.shift();p.h.push(id);drawn.push(id)}return drawn}
+function startGame(){if(deck.length!==30)return;G={p:{hp:20,d:shuffle([...deck]),h:[],b:[],trash:[],cost:1,capacity:1,patrol:false},c:{hp:20,d:shuffle(randDeck()),h:[],b:[],trash:[],cost:1,capacity:0,patrol:false},turn:'p',round:1,over:false,logs:[]};G.p.h=G.p.d.splice(0,4);G.c.h=G.c.d.splice(0,4);handSel=unitSel=targetSel=secondSel=-1;G.logs=[];log('対戦開始！あなたが先攻。初期手札4枚。');renderGame();show('battle')}
+function draw(p,n=1){let drawn=[];for(let i=0;i<n;i++){if(!p.d.length){G.over=true;log((p===G.p?'あなた':'CPU')+'は山札切れ。'+(p===G.p?'CPU':'あなた')+'の勝利！');return}let id=p.d.shift();if(p.h.length>=9){p.trash.push(id);continue}p.h.push(id);drawn.push(id)}return drawn}
 function patrol(p,drawn){let blue=p.b.some(u=>u.k==='巡回');if(!blue||!drawn.length)return;let count=Math.min(drawn.length,p.h.length);if(p===G.p){for(let z=0;z<count;z++){let opts=p.h.map((id,i)=>i+': '+C.find(x=>x.id===id).n).join('\\n');let v=prompt('巡回：手札から山札の一番下に戻すカードを選択（番号）\\n'+opts,'0');let i=Math.max(0,Math.min(p.h.length-1,Number(v)||0));p.d.push(p.h.splice(i,1)[0]);log('巡回：手札1枚を山札の底へ戻した。')}}else{for(let z=0;z<count;z++){let i=p.h.map((id,i)=>({i,c:C.find(x=>x.id===id)})).sort((a,b)=>a.c.a-b.c.a)[0]?.i??0;p.d.push(p.h.splice(i,1)[0])}log('CPUが巡回を行った。')}p.patrol=true}
 function drawTurn(p,first=false){let d=[];if(!(first&&p===G.p&&G.round===1))d=draw(p,1);if(!G.over)patrol(p,d)}
-function renderGame(){if(!G)return;let p=G.p,c=G.c;$('php').textContent=p.hp;$('chp').textContent=c.hp;$('pinfo').textContent=`手札${p.h.length} / 山札${p.d.length} / トラッシュ${p.trash.length}`;$('cinfo').textContent=`手札${c.h.length} / 山札${c.d.length} / トラッシュ${c.trash.length}`;$('round').textContent=G.over?'対戦終了':`ラウンド ${G.round}・${G.turn==='p'?'あなたのターン':'CPUのターン'}`;$('cost').textContent=`召喚 ${p.sc} / 接続 ${p.cc}（未使用分はターン終了で消滅）`;$('hand').innerHTML=p.h.map((id,i)=>{let x=C.find(z=>z.id===id);return `<div class="card ${handSel===i?'selected':''}" data-hand="${i}"><h3>${esc(x.n)}</h3><div class="stats">${x.t==='piece'||x.t==='fusion'?`⚔${x.a} ♥${x.h}`:typeName(x.t)} / ${x.t==='piece'?'召喚 '+x.c:x.t==='equipment'?'召喚 '+x.c:x.t==='spell'?'接続 '+(1+x.ef%2):'接続 '+(x.cc||1)}</div><div class="desc">${esc(x.d)}</div><div class="meta">${rootName(x.r)} ${x.k||''}</div></div>`}).join('');$('pboard').innerHTML=p.b.map((u,i)=>unitHTML(u,i,'p')).join('');$('cboard').innerHTML=c.b.map((u,i)=>unitHTML(u,i,'c')).join('');let own=G.turn==='p'&&!G.over;$('summon').disabled=!own||handSel<0||C.find(x=>x.id===p.h[handSel])?.t!=='piece';$('fusion').disabled=!own||handSel<0||C.find(x=>x.id===p.h[handSel])?.t!=='fusion';$('equip').disabled=!own||handSel<0||C.find(x=>x.id===p.h[handSel])?.t!=='equipment'||unitSel<0;$('spell').disabled=!own||handSel<0||C.find(x=>x.id===p.h[handSel])?.t!=='spell'||unitSel<0;$('connect').disabled=!own||unitSel<0||secondSel<0||unitSel===secondSel;$('attack').disabled=!own||unitSel<0||!p.b[unitSel]?.ready;$('detach').disabled=!own||unitSel<0||!p.b[unitSel]?.equip;$('end').disabled=!own}
+function renderGame(){if(!G)return;let p=G.p,c=G.c;$('php').textContent=p.hp;$('chp').textContent=c.hp;$('pinfo').textContent=`手札${p.h.length} / 山札${p.d.length} / トラッシュ${p.trash.length}`;$('cinfo').textContent=`手札${c.h.length} / 山札${c.d.length} / トラッシュ${c.trash.length}`;$('round').textContent=G.over?'対戦終了':`ラウンド ${G.round}・${G.turn==='p'?'あなたのターン':'CPUのターン'}`;$('cost').textContent=`共通コスト ${p.cost} / ${p.capacity}（未使用分はターン終了で消滅）`;$('hand').innerHTML=p.h.map((id,i)=>{let x=C.find(z=>z.id===id);return `<div class="card ${handSel===i?'selected':''}" data-hand="${i}"><h3>${esc(x.n)}</h3><div class="stats">${x.t==='piece'||x.t==='fusion'?`⚔${x.a} ♥${x.h}`:typeName(x.t)} / ${x.t==='piece'?'召喚 '+x.c:(x.t==='equipment'||x.t==='spell')?'接続':'接続 '+(x.cc||1)}</div><div class="desc">${esc(x.d)}</div><div class="meta">${rootName(x.r)} ${x.k||''}</div></div>`}).join('');$('pboard').innerHTML=p.b.map((u,i)=>unitHTML(u,i,'p')).join('');$('cboard').innerHTML=c.b.map((u,i)=>unitHTML(u,i,'c')).join('');let own=G.turn==='p'&&!G.over;$('summon').disabled=!own||handSel<0||C.find(x=>x.id===p.h[handSel])?.t!=='piece';$('fusion').disabled=!own||handSel<0||C.find(x=>x.id===p.h[handSel])?.t!=='fusion';$('equip').disabled=!own||handSel<0||C.find(x=>x.id===p.h[handSel])?.t!=='equipment'||unitSel<0;$('spell').disabled=!own||handSel<0||C.find(x=>x.id===p.h[handSel])?.t!=='spell'||unitSel<0;$('connect').disabled=!own||unitSel<0||secondSel<0||unitSel===secondSel;$('attack').disabled=!own||unitSel<0||!p.b[unitSel]?.ready;$('detach').disabled=!own||unitSel<0||!p.b[unitSel]?.equip;$('end').disabled=!own}
 function unitHTML(u,i,side){let sel=side==='p'&& (i===unitSel||i===secondSel);let mats=u.mats?`<br><small>素材HP順: ${u.mats.map(m=>m.n+'('+m.hp+'/'+m.max+')').join(' → ')}</small>`:'';return `<div class="unit ${sel?'selected':''}" data-${side}u="${i}"><b>${esc(u.n)}</b><br>⚔${u.a} ♥${u.hp}/${u.max}<br><small>${u.k||''} ${u.ready?'攻撃可':'行動不可'} ${u.shield?'🛡盾':''}</small><br><small>辺 ${u.edges.map((e,j)=>' '+['↑','→','↓','←'][j]+e.s+(e.used?'×':'')+'('+e.c+')').join('')}</small>${u.equip?'<br><small>装備：'+esc(u.equip.n)+'</small>':''}${mats}</div>`}
 function spendHand(){let id=G.p.h.splice(handSel,1)[0];handSel=-1;return C.find(x=>x.id===id)}
-function summon(){let p=G.p,c=C.find(x=>x.id===p.h[handSel]);if(!c||c.t!=='piece')return;if(boardSlots(p)>=3)return alert('場は最大3枠。');if(p.sc<c.c)return alert('召喚コスト不足。');p.sc-=c.c;c=spendHand();p.b.push(makeUnit(c));log(c.n+'を召喚！');if(c.k==='巡回'){let d=draw(p);if(!G.over)patrol(p,d)}renderGame()}
-function fuse(){let p=G.p,c=C.find(x=>x.id===p.h[handSel]);if(!c||c.t!=='fusion')return;if(p.cc<c.cc)return alert('接続コスト不足。');if(p.b.length<2)return alert('融合素材2体が必要。');let a=Number(prompt('融合素材1の場番号（1〜'+p.b.length+'）','1'))-1,b=Number(prompt('融合素材2の場番号','2'))-1;if(a===b||!p.b[a]||!p.b[b])return;let u=p.b[a],v=p.b[b];if(u.equip||v.equip)return alert('装備中のピースは融合できません。');if(!c.m||![u.id,v.id].every(id=>c.m.includes(id)))return alert('この融合カードの指定素材ではありません。');p.cc-=c.cc;let indices=[a,b].sort((x,y)=>y-x);for(let i of indices){let m=p.b.splice(i,1)[0];toTrash(p,m,'融合素材')}let f=spendHand();let x=makeUnit(f);x.ready=false;p.b.push(x);log(u.n+'＋'+v.n+' → '+f.n+'！接続コスト'+f.cc+'を使用。');renderGame()}
-function edgePair(u,v,allowStar=true){for(let i=0;i<4;i++)for(let j=0;j<4;j++){let a=u.edges[i],b=v.edges[j];if(a&&!a.used&&b&&!b.used&&a.s!=='無'&&b.s!=='無'&&a.s!==b.s)return {i,j,c:a.c}}if(allowStar&&(u.k==='星導'||v.k==='星導'))return {i:-1,j:-1,c:1,star:true};return null}
-function connect(){let p=G.p,u=p.b[unitSel],v=p.b[secondSel];if(!u||!v)return;if(u.equip||v.equip)return alert('装備中のピースは連結できません。');let e=edgePair(u,v);if(!e)return alert('接続辺が合いません（星導があれば無視可能）。');if(p.cc<e.c)return alert('接続コスト不足。');p.cc-=e.c;if(!e.star){u.edges[e.i].used=true;v.edges[e.j].used=true}let mats=[];for(let x of [u,v]){if(x.mats)mats.push(...x.mats);else mats.push({n:x.n,hp:x.hp,max:x.max,a:x.a,id:x.id,k:x.k})}let max=mats.reduce((s,x)=>s+x.max,0),hp=mats.reduce((s,x)=>s+x.hp,0);let x={n:u.n+'＋'+v.n+' LINK',id:'link',r:u.r,a:u.a+v.a,hp,max,k:'連結',ready:u.ready||v.ready,shield:u.shield||v.shield,edges:[],equip:null,mats:mats,entered:G.round,attacked:false};for(let i of [unitSel,secondSel].sort((a,b)=>b-a))p.b.splice(i,1);p.b.push(x);log(u.n+'と'+v.n+'が連結！'+(e.star?'星導で辺条件を無視。':'接続辺を使用。')+'攻撃/HP合算。');unitSel=secondSel=-1;renderGame()}
+function summon(){let p=G.p,c=C.find(x=>x.id===p.h[handSel]);if(!c||c.t!=='piece')return;if(boardSlots(p)>=3)return alert('場は最大3枠。');if(p.cost<c.c)return alert('召喚コスト不足。');p.cost-=c.c;c=spendHand();p.b.push(makeUnit(c));log(c.n+'を召喚！');if(c.k==='巡回'){let d=draw(p);if(!G.over)patrol(p,d)}renderGame()}
+function fuse(){let p=G.p,c=C.find(x=>x.id===p.h[handSel]);if(!c||c.t!=='fusion')return;if(p.cost<c.cc)return alert('接続コスト不足。');if(p.b.length<2)return alert('融合素材2体が必要。');let a=Number(prompt('融合素材1の場番号（1〜'+p.b.length+'）','1'))-1,b=Number(prompt('融合素材2の場番号','2'))-1;if(a===b||!p.b[a]||!p.b[b])return;let u=p.b[a],v=p.b[b];if(u.equip||v.equip)return alert('装備中のピースは融合できません。');if(!c.m||![u.id,v.id].every(id=>c.m.includes(id)))return alert('この融合カードの指定素材ではありません。');p.cost-=c.cc;let indices=[a,b].sort((x,y)=>y-x);for(let i of indices){let m=p.b.splice(i,1)[0];toTrash(p,m,'融合素材')}let f=spendHand();let x=makeUnit(f);x.ready=false;p.b.push(x);log(u.n+'＋'+v.n+' → '+f.n+'！接続コスト'+f.cc+'を使用。');renderGame()}
+function edgePair(u,v,allowStar=true){for(let i=0;i<4;i++)for(let j=0;j<4;j++){let a=u.edges[i],b=v.edges[j];if(a&&!a.used&&b&&!b.used&&a.s!=='無'&&b.s!=='無'&&a.s!==b.s)return {i,j,c:a.s==='凸'?a.c:b.c}}if(allowStar&&(u.k==='星導'||v.k==='星導'))return {i:-1,j:-1,c:1,star:true};return null}
+function connect(){let p=G.p,u=p.b[unitSel],v=p.b[secondSel];if(!u||!v)return;if(u.equip||v.equip)return alert('装備中のピースは連結できません。');let e=edgePair(u,v);if(!e)return alert('接続辺が合いません（星導があれば無視可能）。');if(p.cost<e.c)return alert('接続コスト不足。');p.cost-=e.c;if(!e.star){u.edges[e.i].used=true;v.edges[e.j].used=true}let mats=[];for(let x of [u,v]){if(x.mats)mats.push(...x.mats);else mats.push({n:x.n,hp:x.hp,max:x.max,a:x.a,id:x.id,k:x.k})}let max=mats.reduce((s,x)=>s+x.max,0),hp=mats.reduce((s,x)=>s+x.hp,0);let x={n:u.n+'＋'+v.n+' LINK',id:'link',r:u.r,a:u.a+v.a,hp,max,k:'連結',ready:u.ready||v.ready,shield:u.shield||v.shield,edges:[],equip:null,mats:mats,entered:G.round,attacked:false};for(let i of [unitSel,secondSel].sort((a,b)=>b-a))p.b.splice(i,1);p.b.push(x);log(u.n+'と'+v.n+'が連結！'+(e.star?'星導で辺条件を無視。':'接続辺を使用。')+'攻撃/HP合算。');unitSel=secondSel=-1;renderGame()}
 function toTrash(p,u,why){if(u.mats){u.mats.forEach(m=>{p.trash.push(m.id||'linked-material');if(m.k==='怨念')resent(p,m.n)})}else{p.trash.push(u.id);if(u.k==='怨念')resent(p,u.n)}if(u.equip)p.trash.push(u.equip.id);log(u.n+'はトラッシュへ（'+why+'）。');}
 function resent(p,n){p.b.forEach(u=>{if(u.k==='怨念'&&u.id!=='link'){u.a++;log(u.n+'の怨念！攻撃力+1。')}})}
 function damageUnit(p,i,dmg){let u=p.b[i];if(!u)return;if(u.mats){let left=dmg;u.mats.sort((a,b)=>a.max-b.max);while(left>0&&u.mats.length){let m=u.mats[0],take=Math.min(left,m.hp);m.hp-=take;left-=take;if(m.hp<=0){p.trash.push(m.id||'material');if(m.k==='怨念')resent(p,m.n);log(m.n+'が連結体から脱落しトラッシュへ。');u.mats.shift()}}u.hp=u.mats.reduce((s,m)=>s+m.hp,0);u.max=u.mats.reduce((s,m)=>s+m.max,0);if(!u.mats.length){p.b.splice(i,1);log(u.n+'は消滅！')}else{u.a=u.mats.reduce((s,m)=>s+m.a,0);log(u.n+'に'+dmg+'ダメージ（残HP'+u.hp+'）。')}}else{u.hp-=dmg;log(u.n+'に'+dmg+'ダメージ！');if(u.hp<=0){p.b.splice(i,1);toTrash(p,u,'破壊')}}}
 function attack(){let p=G.p,c=G.c,u=p.b[unitSel];if(!u||!u.ready)return;let shields=c.b.map((x,i)=>x.shield?i:-1).filter(i=>i>=0);let ti=targetSel;if(shields.length&& (ti<0||!shields.includes(ti)))return alert('相手に盾がいるため盾を選んでください。');if(ti>=0&&c.b[ti])damageUnit(c,ti,u.a);else{c.hp-=u.a;log(u.n+'がCPUリーダーに'+u.a+'ダメージ！')}u.ready=false;u.attacked=true;unitSel=targetSel=-1;winCheck();renderGame()}
-function equip(){let p=G.p,c=C.find(x=>x.id===p.h[handSel]),u=p.b[unitSel];if(!c||!u||u.mats||u.equip)return alert('装備できるのは装備なしの単独ピースのみ。');if(p.sc<c.c)return alert('召喚コスト不足。');let ep=u.edges.findIndex(e=>!e.used&&e.s!=='無'&&e.s!==c.e.s);if(ep<0)return alert('装備カードと凸凹が合う未使用辺がありません。');if(p.sc<c.c)return alert('召喚コスト不足。');p.sc-=c.c;u.edges[ep].used=true;u.equip={id:c.id,n:c.n,a:c.a,h:c.h};u.a+=c.a;u.hp+=c.h;u.max+=c.h;spendHand();log(c.n+'を'+u.n+'に装備。召喚コスト'+c.c+'。');renderGame()}
-function detach(){let p=G.p,u=p.b[unitSel];if(!u?.equip)return;let e=u.equip;u.a-=e.a;u.hp=Math.min(u.hp,u.max-e.h);u.max-=e.h;u.equip=null;p.trash.push(e.id);let idx=u.edges.findIndex(x=>x.used);if(idx>=0)u.edges[idx].used=false;log(e.n+'を外してトラッシュへ。装備に使った辺を解放。');renderGame()}
-function spell(){let p=G.p,c=C.find(x=>x.id===p.h[handSel]),u=p.b[unitSel];if(!c||!u)return;let ep=u.edges.findIndex(e=>!e.used&&e.s!=='無'&&e.s!==c.e.s);let cost=c.e.c;if(ep<0)return alert('呪文と凸凹が合う辺がありません。');if(p.cc<cost)return alert('接続コスト不足。');p.cc-=cost;let f=spendHand();if(f.ef===0){let t=prompt('ダメージ対象：相手ピース番号（1〜）または0でリーダー','1');let i=Number(t)-1;if(i>=0&&G.c.b[i])damageUnit(G.c,i,2);else G.c.hp-=2}else if(f.ef===1)p.hp=Math.min(20,p.hp+2);else if(f.ef===2){u.a++;u.hp++;u.max++}else if(f.ef===3)p.sc++;else G.c.hp-=2;log(f.n+'を使用（接続コスト'+cost+'）。呪文使用辺は再利用可能。');winCheck();renderGame()}
-function winCheck(){if(G.p.hp<=0||G.c.hp<=0){G.over=true;log(G.c.hp<=0?'あなたの勝利！':'CPUの勝利！')}if(G.over)return;for(let [p,op] of [[G.p,G.c],[G.c,G.p]])if(!p.d.length&&p.h.length===0){G.over=true;log((p===G.p?'あなた':'CPU')+'は山札切れ。'+(p===G.p?'CPU':'あなた')+'の勝利！')}}
-function grow(p){let arr=p.b.filter(u=>u.k==='成長'&&!u.mats);for(let u of arr){while(p.sc>=1){p.sc--;u.a++;u.hp++;u.max++;u.growth++;log(u.n+'が成長！攻撃/最大HP+1（累計'+u.growth+'）。')}}}
-function turnStart(p,first=false){p.sc=Math.min(5,p.sc+1);p.cc=Math.min(5,p.cc+1);p.patrol=false;p.b.forEach(u=>{u.ready=true;u.attacked=false});drawTurn(p,first)}
-function endTurn(){if(G.over)return;grow(G.p);G.p.sc=0;G.p.cc=0;G.turn='c';renderGame();setTimeout(cpuTurn,450)}
+function equip(){let p=G.p,c=C.find(x=>x.id===p.h[handSel]),u=p.b[unitSel];if(c?.t!=='equipment'||!u||u.mats||u.equip)return alert('装備できるのは装備なしの単独ピースのみ。');let ep=u.edges.findIndex(e=>!e.used&&e.s!=='無'&&e.s!==c.e.s);if(ep<0)return alert('装備カードと凸凹が合う未使用辺がありません。');const cost=c.e.s==='凸'?c.e.c:u.edges[ep].c;if(p.cost<cost)return alert('接続コスト不足。');p.cost-=cost;u.edges[ep].used=true;u.equip={id:c.id,n:c.n,a:c.a,h:c.h};u.a+=c.a;u.hp+=c.h;u.max+=c.h;spendHand();log(c.n+'を'+u.n+'に装備。接続コスト'+cost+'。');renderGame()}
+function detach(){let p=G.p,u=p.b[unitSel];if(!u?.equip)return;let e=u.equip;u.a-=e.a;u.hp=Math.min(u.hp,u.max-e.h);u.max-=e.h;u.equip=null;p.trash.push(e.id);log(e.n+'を外してトラッシュへ。');renderGame()}
+function spell(){let p=G.p,c=C.find(x=>x.id===p.h[handSel]),u=p.b[unitSel];if(!c||!u)return;let ep=u.edges.findIndex(e=>!e.used&&e.s!=='無'&&e.s!==c.e.s);if(ep<0)return alert('詠唱と凸凹が合う辺がありません。');const cost=c.e.s==='凸'?c.e.c:u.edges[ep].c;if(p.cost<cost)return alert('接続コスト不足。');p.cost-=cost;let f=spendHand();if(f.ef===0){let t=prompt('ダメージ対象：相手ピース番号（1〜）または0でリーダー','1');let i=Number(t)-1;if(i>=0&&G.c.b[i])damageUnit(G.c,i,2);else G.c.hp-=2}else if(f.ef===1)p.hp=Math.min(20,p.hp+2);else if(f.ef===2){u.a++;u.hp++;u.max++}else if(f.ef===3)p.cost=Math.min(5,p.cost+1);else G.c.hp-=2;log(f.n+'を使用（接続コスト'+cost+'）。詠唱使用辺は再利用可能。');winCheck();renderGame()}
+function winCheck(){if(!G.over&&(G.p.hp<=0||G.c.hp<=0)){G.over=true;log(G.c.hp<=0?'あなたの勝利！':'CPUの勝利！')}}
+function grow(p){let arr=p.b.filter(u=>u.k==='成長'&&!u.mats);for(let u of arr){while(p.cost>=1){p.cost--;u.a++;u.hp++;u.max++;u.growth++;log(u.n+'が成長！攻撃/最大HP+1（累計'+u.growth+'）。')}}}
+function turnStart(p,first=false){p.capacity=Math.min(5,p.capacity+1);p.cost=p.capacity;p.patrol=false;p.b.forEach(u=>{u.ready=true;u.attacked=false});drawTurn(p,first)}
+function endTurn(){if(G.over)return;grow(G.p);G.p.cost=0;G.turn='c';renderGame();setTimeout(cpuTurn,450)}
 function cpuTurn(){if(G.over)return;let p=G.c;turnStart(p,false);if(G.over){renderGame();return}
-for(let z=0;z<3;z++){let opts=p.h.map((id,i)=>({c:C.find(x=>x.id===id),i})).filter(x=>x.c.t==='piece'&&x.c.c<=p.sc&&boardSlots(p)<3).sort((a,b)=>b.c.a-a.c.a);let q=opts[0];if(!q)break;p.sc-=q.c.c;let c=p.h.splice(q.i,1)[0];p.b.push(makeUnit(C.find(x=>x.id===c)));log('CPUは'+C.find(x=>x.id===c).n+'を召喚。')}
+for(let z=0;z<3;z++){let opts=p.h.map((id,i)=>({c:C.find(x=>x.id===id),i})).filter(x=>x.c.t==='piece'&&x.c.c<=p.cost&&boardSlots(p)<3).sort((a,b)=>b.c.a-a.c.a);let q=opts[0];if(!q)break;p.cost-=q.c.c;let c=p.h.splice(q.i,1)[0];p.b.push(makeUnit(C.find(x=>x.id===c)));log('CPUは'+C.find(x=>x.id===c).n+'を召喚。')}
 grow(p);
 for(let u of [...p.b]){if(!u.ready)continue;let shields=G.p.b.map((x,i)=>x.shield?i:-1).filter(i=>i>=0);let i=shields.length?shields[0]:(G.p.b.length?0:-1);if(i>=0)damageUnit(G.p,i,u.a);else{G.p.hp-=u.a;log('CPUがあなたに'+u.a+'ダメージ！')}u.ready=false;winCheck();if(G.over)break}
-if(!G.over){G.c.sc=0;G.c.cc=0;G.round++;G.turn='p';turnStart(G.p,G.round===2);log('あなたのターン！召喚/接続コスト回復。')}renderGame()}
+if(!G.over){G.c.cost=0;G.round++;G.turn='p';turnStart(G.p);log('あなたのターン！召喚/接続コスト回復。')}renderGame()}
 function selectHand(e){let b=e.target.closest('[data-hand]');if(b){handSel=+b.dataset.hand;renderGame()}}
 function selectOwn(e){let b=e.target.closest('[data-pu]');if(!b)return;let i=+b.dataset.pu;if(unitSel<0)unitSel=i;else if(secondSel<0&&i!==unitSel)secondSel=i;else{unitSel=i;secondSel=-1}targetSel=-1;renderGame()}
 opts();renderPool();renderBook();renderDeck();
 ['br','bt','bs'].forEach(id=>$(id).addEventListener('input',renderPool));['cr','ct','cs'].forEach(id=>$(id).addEventListener('input',renderBook));
 $('pool').onclick=e=>{let a=e.target.closest('[data-id]');if(a)add(a.dataset.id)};$('book').onclick=e=>{let a=e.target.closest('[data-id]');if(a){let c=C.find(x=>x.id===a.dataset.id);alert(`${c.n}\n${rootName(c.r)} / ${typeName(c.t)}\n${c.d}\n${c.t==='piece'?`攻撃${c.a} HP${c.h} 召喚コスト${c.c}\n接続辺：${c.e.map((x,i)=>['上','右','下','左'][i]+x.s+'('+x.c+')').join(' / ')}`:''}${c.t==='fusion'?'\\n素材：'+c.m.map(id=>C.find(x=>x.id===id).n).join('＋'):''}`)}};
-$('deck').onclick=e=>{let b=e.target.closest('[data-del]');if(b){deck.splice(+b.dataset.del,1);renderDeck()}};$('fill').onclick=()=>{deck=randDeck();renderDeck()};$('clear').onclick=()=>{deck=[];renderDeck()};$('start').onclick=startGame;$('again').onclick=startGame;
+$('deck').onclick=e=>{let b=e.target.closest('[data-del]');if(b){deck.splice(+b.dataset.del,1);renderDeck()}};$('fill').onclick=()=>{const selected=$('br').value;deck=randDeck(selected==='all'?C.find(x=>x.id===deck[0])?.r:selected);renderDeck()};$('clear').onclick=()=>{deck=[];renderDeck()};$('start').onclick=startGame;$('again').onclick=startGame;
 document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>show(b.dataset.to));$('hand').onclick=selectHand;$('pboard').onclick=selectOwn;$('cboard').onclick=e=>{let b=e.target.closest('[data-cu]');if(b){targetSel=+b.dataset.cu;log('攻撃対象：'+G.c.b[targetSel].n);renderGame()}};$('summon').onclick=summon;$('fusion').onclick=fuse;$('equip').onclick=equip;$('spell').onclick=spell;$('connect').onclick=connect;$('attack').onclick=attack;$('detach').onclick=detach;$('end').onclick=endTurn;
 
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 (()=>{
- const $=id=>document.getElementById(id); let client=null;
+ const $=id=>document.getElementById(id); let client=null, roomTimer=null, roomRequest=0;
  const status=(msg,ok=false)=>{ $('sbStatus').textContent=msg; $('sbStatus').className=ok?'small good':'small warn'; };
- try { $('sburl').value=localStorage.getItem('rootslink_sb_url')||''; $('sbkey').value=localStorage.getItem('rootslink_sb_key')||''; } catch(e){}
- $('saveSb').onclick=()=>{const u=$('sburl').value.trim().replace(/\/$/,''),k=$('sbkey').value.trim(); if(!/^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(u)){status('Project URLの形式を確認してね');return} if(!k){status('Publishable keyを入力してね');return} try{localStorage.setItem('rootslink_sb_url',u);localStorage.setItem('rootslink_sb_key',k);status('設定をこのブラウザに保存したよ',true)}catch(e){status('保存できません。ブラウザの設定を確認してね')}};
- $('sbConnect').onclick=async()=>{try{const u=$('sburl').value.trim().replace(/\/$/,''),k=$('sbkey').value.trim(); if(!u||!k){status('先にURLとPublishable keyを入力して「設定を保存」してね');return} if(!window.supabase?.createClient){status('接続ライブラリを読み込めません。インターネット接続を確認してね');return} client=window.supabase.createClient(u,k); status('匿名ログイン中…'); const {data,error}=await client.auth.signInAnonymously(); if(error)throw error; $('makeRoom').disabled=false;$('joinRoom').disabled=false; status('接続成功！匿名ログインできたよ',true); $('roomStatus').textContent='ログイン済み。部屋を作るか、招待コードで参加してね。';}catch(e){status('接続エラー：'+(e.message||String(e)));}};
- $('makeRoom').onclick=async()=>{try{if(!client)throw new Error('先に接続してね');$('roomStatus').textContent='部屋を作成中…';const {data,error}=await client.rpc('create_room');if(error)throw error; $('roomStatus').textContent='部屋を作成したよ！ 招待コード：'+data.invite_code+'（このコードを対戦相手に伝えてね）';$('inviteInput').value=data.invite_code;}catch(e){$('roomStatus').textContent='部屋作成エラー：'+(e.message||String(e));}};
- $('joinRoom').onclick=async()=>{try{if(!client)throw new Error('先に接続してね');const code=$('inviteInput').value.trim();if(!code)throw new Error('招待コードを入力してね');$('roomStatus').textContent='参加中…';const {data,error}=await client.rpc('join_room',{p_invite_code:code});if(error)throw error;$('roomStatus').textContent='部屋に参加できたよ！ 招待コード：'+data.invite_code+' / 状態：'+data.status;}catch(e){$('roomStatus').textContent='参加エラー：'+(e.message||String(e));}};
+ const u="https://akelbvwqbvlkjjufpoiw.supabase.co", k="sb_publishable_L7ZMaQ-jRMXbRsha3QdAgw_eaPmglQg";
+ $('sbConnect').onclick=async()=>{try{if(!window.supabase?.createClient){status('接続ライブラリを読み込めません。インターネット接続を確認してね');return} client=window.supabase.createClient(u,k); status('匿名ログイン中…'); const current = await client.auth.getSession();
+ if (current.error) throw current.error;
+ if (!current.data.session) {
+   const response = await client.auth.signInAnonymously();
+   if (response.error) throw response.error;
+ } $('makeRoom').disabled=false;$('joinRoom').disabled=false; status('接続成功！匿名ログインできたよ',true); $('roomStatus').textContent='ログイン済み。部屋を作るか、招待コードで参加してね。';}catch(e){status('接続エラー：'+(e.message||String(e)));}};
+ function showRoom(room, host) {
+   clearTimeout(roomTimer);
+   const request = roomRequest;
+   const output = $('roomStatus');
+   $('inviteInput').value = room.invite_code;
+   if (room.status === 'playing') {
+     output.textContent = '2人がそろいました。' + (host ? 'あなたが先攻です。' : '相手が先攻です。') + 'この版では対戦部屋への接続まで確認できます。';
+     return;
+   }
+   output.textContent = '相手を待っています。招待コード：' + room.invite_code;
+   roomTimer = setTimeout(async () => {
+     try {
+       const {data, error} = await client.from('rooms').select('invite_code,status')
+         .eq('id', room.room_id).single();
+       if (request !== roomRequest) return;
+       if (error) throw error;
+       showRoom({...room, ...data}, host);
+     } catch {
+       if (request !== roomRequest) return;
+       output.textContent = '部屋の状態を取得できません。招待コード：' + room.invite_code;
+     }
+   }, 2000);
+ }
+
+ async function enterRoom(host) {
+   const code = $('inviteInput').value.trim();
+   const output = $('roomStatus');
+   if (!client) return;
+   if (!host && !/^[a-f0-9]{8}$/i.test(code)) {
+     output.textContent = '招待コードを英数字8文字で入力してください。';
+     return;
+   }
+   clearTimeout(roomTimer);
+   roomRequest++;
+   $('makeRoom').disabled = $('joinRoom').disabled = true;
+   output.textContent = host ? '部屋を作成中…' : '参加中…';
+   try {
+     const result = host ? await client.rpc('create_room')
+       : await client.rpc('join_room', {p_invite_code: code});
+     if (result.error) throw result.error;
+     showRoom(result.data, host);
+   } catch (error) {
+     output.textContent = (host ? '部屋作成エラー：' : '参加エラー：') + error.message;
+   } finally {
+     $('makeRoom').disabled = $('joinRoom').disabled = false;
+   }
+ }
+ $('makeRoom').onclick = () => enterRoom(true);
+ $('joinRoom').onclick = () => enterRoom(false);
 })();
 </script></html>
