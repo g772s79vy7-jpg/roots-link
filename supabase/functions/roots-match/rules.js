@@ -429,7 +429,10 @@ function grow(player){
     break;
   default: alert('操作が無効です。');
  }
- if(G.c.trash.length>opponentTrash&&action.kind!=='end'){
+ if(action.kind!=='end'&&G.c.trash.slice(opponentTrash).some(id=>{
+   const type=C.find(card=>card.id===id)?.t;
+   return type==='piece'||type==='fusion';
+ })) {
    for(const tamaya of G.p.b.filter(unit=>unit.id==='redf0'&&!unit.tamayaTriggered)){
      tamaya.tamayaTriggered=true;
      G.c.hp-=5;
