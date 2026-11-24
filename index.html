@@ -338,6 +338,20 @@ button.primary:hover,.active:hover,#end:enabled:hover,#start:enabled:hover{backg
 .cost-track i{height:5px;border-radius:3px;background:#ffffff12}
 .cost-track .spent{background:#ffffff45}
 .cost-track .available{background:var(--meter-fill);box-shadow:0 0 5px color-mix(in srgb,var(--meter-fill),transparent 40%)}
+.cost-meters{gap:7px}
+#cost.cost-meter{flex:1.16;border-color:#ac89da}
+#linkCostHud.cost-meter{flex:1}
+.cost-meter{padding:6px 8px 8px}
+.cost-reading,.cost-cap{font-size:.87rem}
+.cost-now{font-size:1.75rem}
+#cost .cost-now{font-size:2rem}
+.cost-track i{height:7px}
+@media(max-width:370px){
+  .cost-meter{padding-inline:6px}
+  .cost-reading,.cost-cap{font-size:.78rem}
+}
+.fusion-effect-line{display:block;margin-top:5px;color:#ffe1a1;line-height:1.4}
+.fusion-effect-name{font-weight:800}
 </style>
 <header class="site-header"><h1>ROOTS <span>LINK</span></h1>
 <nav><button class="tab active" data-to="builder">デッキ編集</button><button class="tab" data-to="catalog">カード図鑑</button><button class="tab" data-to="battle">対戦</button><button class="tab" data-to="online">オンライン対戦</button></nav></header><main>
@@ -1281,8 +1295,30 @@ function handNameSize(name){
   const width=Array.from(name).reduce((sum,char)=>sum+(/[\x00-\x7f]/.test(char)?.58:1),0);
   return width>17?'name-xs':width>12?'name-sm':width>8?'name-md':'';
 }
+function fusionOptionsForHand(player){
+  return (player.fusion??[]).map(id=>C.find(card=>card.id===id)).filter(card=>card?.m);
+}
+function appendHandFusionEffects(effect,selectedCard,player){
+  for(const fusion of fusionOptionsForHand(player)){
+    if(!fusion.m.includes(selectedCard.id))continue;
+    const line=document.createElement('span');
+    line.className='fusion-effect-line';
+    const name=document.createElement('strong');
+    name.className='fusion-effect-name';
+    name.textContent=fusion.n;
+    const partners=fusion.m.filter(id=>id!==selectedCard.id).map(id=>{
+      const card=C.find(entry=>entry.id===id);
+      const locations=[];
+      if(player.b.some(piece=>piece.id===id))locations.push('盤面');
+      if(player.h.includes(id))locations.push('手札');
+      return (card?.n??id)+(locations.length?'（'+locations.join('・')+'）':'');
+    });
+    line.append('一体化先：',name,' ｜ 相方：'+partners.join(' ＋ ')+' ｜ 接続 '+fusion.cc);
+    effect.append(line);
+  }
+}
 function updateFusionSignal(player){
-  const hasMaterial=(player.fusion??[]).some(id=>C.find(card=>card.id===id)?.m.some(material=>player.h.includes(material)));
+  const hasMaterial=fusionOptionsForHand(player).some(card=>card.m.some(material=>player.h.includes(material)));
   const button=$('fusionTrayButton');
   button.classList.toggle('material-in-hand',hasMaterial);
   button.setAttribute('aria-label',hasMaterial?'一体化：手札に素材あり':'一体化');
@@ -1380,6 +1416,7 @@ function renderActions(){
   const effect=$('selectedEffect');
   effect.hidden=!picked;
   effect.textContent=picked?picked.n+'｜'+(picked.d||'固有効果なし'):'';
+  if(selectedCard===picked&&picked)appendHandFusionEffects(effect,selectedCard,G.p);
   const eligible=(G.p.fusion??[]).filter(id=>legalAction('fuse',undefined,targetSel,id));
   for(const [id,kind] of Object.entries(actionIds)){
     const possible=id==='fusion'&&G.p.fusion?eligible.length>0:legalAction(kind);
