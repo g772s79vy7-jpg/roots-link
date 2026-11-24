@@ -248,6 +248,16 @@ button.primary:hover,.active:hover,#end:enabled:hover,#start:enabled:hover{backg
 .field-atk,.field-hp{bottom:9px}.field-atk{left:11px}.field-hp{right:11px}
 .field-name{padding-inline:9px}.board-stage .field-piece{padding-bottom:25px}
 @media(max-width:630px){#fusionTrayButton{min-height:32px;padding-inline:4px}.arena-heading{gap:3px}.arena-heading #battleLogButton{margin-left:0}.mini-edges{display:none}.mini-name{font-size:.63rem}.field-atk,.field-hp{font-size:.72rem}}
+
+.hand .mini-card,.hand .mini-card.jigsaw{flex-basis:92px;width:92px;height:92px;min-height:92px;max-height:92px;padding:21px 9px}
+.hand .mini-name{line-height:1.19;-webkit-line-clamp:3;font-size:.74rem}
+.hand .mini-name.name-md{font-size:.69rem}.hand .mini-name.name-sm{font-size:.62rem}.hand .mini-name.name-xs{font-size:.55rem}
+#fusionTrayButton.material-in-hand{color:#152720;background:#abe3bd;border-color:#c6f3cc;font-weight:800}
+.fusion-material-in-hand{color:#b6f7c8;font-weight:800}
+@media(max-width:630px){
+ .hand .mini-card,.hand .mini-card.jigsaw{flex-basis:76px;width:76px;height:76px;min-height:76px;max-height:76px;padding:19px 8px}
+ .hand .mini-name{font-size:.68rem}.hand .mini-name.name-md{font-size:.62rem}.hand .mini-name.name-sm{font-size:.56rem}.hand .mini-name.name-xs{font-size:.51rem}
+}
 </style>
 <header class="site-header"><h1>ROOTS <span>LINK</span></h1>
 <nav><button class="tab active" data-to="builder">デッキ編集</button><button class="tab" data-to="catalog">カード図鑑</button><button class="tab" data-to="battle">対戦</button><button class="tab" data-to="online">オンライン対戦</button></nav></header><main>
@@ -1121,7 +1131,19 @@ function cpuMove(action){
     }
   }catch(error){$('log').textContent=error.message;}
 }
+function handNameSize(name){
+  const width=Array.from(name).reduce((sum,char)=>sum+(/[\x00-\x7f]/.test(char)?.58:1),0);
+  return width>17?'name-xs':width>12?'name-sm':width>8?'name-md':'';
+}
+function updateFusionSignal(player){
+  const hasMaterial=(player.fusion??[]).some(id=>C.find(card=>card.id===id)?.m.some(material=>player.h.includes(material)));
+  const button=$('fusionTrayButton');
+  button.classList.toggle('material-in-hand',hasMaterial);
+  button.setAttribute('aria-label',hasMaterial?'一体化：手札に素材あり':'一体化');
+  if($('fusionTray').open)renderFusionTray();
+}
 function renderHud(p,c){
+  updateFusionSignal(p);
   $('enemyHandCount').textContent='手札 '+c.h.length;
   $('enemyHand').innerHTML=Array.from({length:Math.min(9,c.h.length)},()=>'<span></span>').join('');
   $('handCount').textContent=p.h.length+' / 9';
@@ -1147,7 +1169,7 @@ function renderGame(){if(!G)return;let p=G.p,c=G.c;$('battleTitle').textContent=
  const cost=card.t==='piece'?card.c:card.t==='fusion'?card.cc:card.e?.s==='凸'?card.e.c:'';
  const unit=card.t==='piece'||card.t==='fusion';
  const frame=shapeStyle(card);
- return '<button type="button" class="mini-card'+selected+(frame?' jigsaw':'')+'" style="'+frame+';--mini-color:'+pieceColors[card.r]+'" data-hand="'+i+'" aria-pressed="'+(i===handSel)+'"><span class="mini-cost">'+cost+'</span><span class="mini-name">'+esc(card.n)+'</span><span class="mini-edges">'+esc(edgeLabels(card.e))+'</span><span class="mini-atk" aria-label="攻撃 '+card.a+'">'+(unit?card.a:'')+'</span><span class="mini-hp" aria-label="'+(unit?'体力 '+card.h:typeName(card.t))+'">'+(unit?card.h:typeName(card.t))+'</span></button>';
+ return '<button type="button" class="mini-card'+selected+(frame?' jigsaw':'')+'" style="'+frame+';--mini-color:'+pieceColors[card.r]+'" data-hand="'+i+'" aria-pressed="'+(i===handSel)+'"><span class="mini-cost">'+cost+'</span><span class="mini-name '+handNameSize(card.n)+'">'+esc(card.n)+'</span><span class="mini-edges">'+esc(edgeLabels(card.e))+'</span><span class="mini-atk" aria-label="攻撃 '+card.a+'">'+(unit?card.a:'')+'</span><span class="mini-hp" aria-label="'+(unit?'体力 '+card.h:typeName(card.t))+'">'+(unit?card.h:typeName(card.t))+'</span></button>';
 }).join('');
 renderField(p,'p');renderField(c,'c');renderActions();
 $('faceTarget').disabled=!canAttackTarget(-1);
@@ -1288,7 +1310,7 @@ $('battleSettings').onclick=()=>{
   optionsDialog.showModal();
 };
 $('showFlashes').onchange=$('simpleStage').onchange=updateBattleSettings;
-$('fusionTrayButton').onclick=()=>{
+function renderFusionTray(){
   if(!G)return;
   const list=$('fusionTrayList');
   list.replaceChildren();
@@ -1304,14 +1326,24 @@ $('fusionTrayButton').onclick=()=>{
     const stats=document.createElement('p');
     stats.textContent='接続 '+card.cc+' · 攻撃 '+card.a+' · 体力 '+card.h+' · '+(G.p.fusion?.includes(id)?'未使用':'使用済み');
     const materials=document.createElement('p');
-    materials.textContent='素材：'+card.m.map(id=>C.find(entry=>entry.id===id)?.n??id).join(' ＋ ');
+    materials.append('素材：');
+    card.m.forEach((id,index)=>{
+      if(index)materials.append(' ＋ ');
+      const materialName=document.createElement('span');
+      materialName.textContent=C.find(entry=>entry.id===id)?.n??id;
+      if(G.p.h.includes(id)){
+        materialName.className='fusion-material-in-hand';
+        materialName.title='手札にあります';
+      }
+      materials.append(materialName);
+    });
     const effect=document.createElement('p');
     effect.textContent=card.d;
     item.append(title,stats,materials,effect);
     list.append(item);
   }
-  $('fusionTray').showModal();
-};
+}
+$('fusionTrayButton').onclick=()=>{renderFusionTray();$('fusionTray').showModal();};
 $('battleLogButton').onclick=()=>$('battleLogDialog').showModal();
 $('showMatchLog').onclick=()=>{optionsDialog.close();$('battleLogDialog').showModal();};
 $('askConcede').onclick=()=>confirmView(true);
