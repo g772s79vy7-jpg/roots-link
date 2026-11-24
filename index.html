@@ -19,17 +19,109 @@ dialog::backdrop{background:#050a12bb}
 .jigsaw .piece-ports{grid-column:1/-1;color:#d4dce8;font-size:.78rem}
 .piece-stat{color:#ffd36a;font-weight:750}
 @media(max-width:540px){.card.jigsaw,.unit.jigsaw{padding:14px 16px}.jigsaw .piece-ports{font-size:.7rem}}
+:root{color-scheme:dark;--ink:#e9eef2;--muted:#a6b6c4;--gold:#e9c37a;--mint:#8ed7c2;--panel:#121e28;--line:#2e414e}
+body{background:radial-gradient(ellipse at 50% 0%,#22342e 0%,#0e171b 40%,#0a1218 100%);color:var(--ink);font:16px/1.45 system-ui,-apple-system,sans-serif;min-height:100vh}
+.site-header,main{width:min(100%,1170px);padding:12px clamp(10px,3vw,26px)}
+.site-header{display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid var(--line)}
+.site-header h1{color:var(--ink);font-family:Georgia,serif;font-size:clamp(1.6rem,4vw,2.35rem);letter-spacing:.09em;white-space:nowrap}
+.site-header h1 span{color:var(--gold)}
+.site-header nav{margin:0}
+.tab,.battle-actions button{font-weight:650}
+button,select,input{font:inherit;color:var(--ink);background:#172630;border-color:#3b5361;min-height:42px}
+button:enabled:hover{background:#2b4250}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--mint);outline-offset:2px}
+button.primary,.active,#end:enabled,#start:enabled{background:var(--gold);color:#161a1a;border-color:var(--gold);font-weight:750}
+button.primary:hover,.active:hover,#end:enabled:hover,#start:enabled:hover{background:#f8d994;color:#161a1a}
+.panel{background:var(--panel);border-color:var(--line);border-radius:18px;padding:clamp(12px,2.5vw,22px)}
+.zone{border-color:var(--line);background:#16242d}
+.small,.desc,.meta{color:var(--muted);font-size:.83rem}
+.card{background:#1c303b;border-color:#425863}
+.card h3{font-size:.9rem}
+.card.jigsaw::after,.unit.jigsaw::after{background:#1c303b}
+.card.jigsaw.selected::after,.unit.jigsaw.selected::after{background:#31483e}
+.lobby{max-width:900px;margin:16px auto}
+.lobby h2{margin:0 0 14px}
+.lobby-entries{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.lobby-option,.invite-share{background:#192c34;border:1px solid #355258;border-radius:14px;padding:16px}
+.lobby-option h3{margin:0 0 7px}
+.lobby-option p{margin:0 0 10px;color:var(--muted)}
+.lobby-option label,.invite-share label{display:block;font-weight:700}
+.invite-share{margin-top:12px;border-color:#679083}
+.invite-share .row,.lobby-option .row{margin-bottom:0}
+#inviteInput,#inviteUrl{min-width:0;flex:1}
+#inviteUrl{font-size:.85rem;color:var(--mint)}
+.room-status{min-height:24px;color:var(--mint);font-size:.95rem}
+.arena{margin:0 auto;max-width:1020px;background:linear-gradient(155deg,#14262b,#101c26)}
+.arena-heading{margin:0;justify-content:space-between}
+.arena-heading h2{margin:0;font-size:1.13rem}
+#round{background:#263641;border:1px solid #455a67;border-radius:999px;padding:5px 12px;font-size:.84rem}
+#round.your-turn{background:#263f37;color:#b0efce;border-color:#547f69}
+#leaderRules:empty{display:none}
+.battle{grid-template-columns:1fr;gap:0;border:1px solid #3d5660;border-radius:15px;overflow:hidden;margin-top:12px}
+.battlefield{display:grid;grid-template-columns:105px minmax(0,1fr);grid-template-areas:"leader cards" "info cards";gap:4px 10px;align-items:center;margin:0;padding:10px 12px;border-radius:0;border:0}
+.battlefield.enemy{background:linear-gradient(90deg,#372932,#24333d);border-bottom:1px solid #52606a}
+.battlefield.ally{background:linear-gradient(90deg,#233d34,#20313b)}
+.leader{grid-area:leader;display:flex;align-items:center;justify-content:space-between;gap:4px;background:#131e27;border:1px solid #5b6772;padding:6px 9px;border-radius:9px}
+.ally .hp{color:#a2e5bd}
+.field-info{grid-area:info;font-size:.72rem}
+.board{grid-area:cards;grid-template-columns:repeat(3,minmax(0,1fr));align-items:stretch;min-height:78px;background:repeating-linear-gradient(90deg,transparent 0 32.9%,#ffffff15 33% 33.3%);border-block:1px solid #ffffff18}
+.unit{min-width:0;min-height:74px;overflow-wrap:anywhere}
+.hand-zone{margin-bottom:0;background:#101b24}
+.hand{padding-bottom:5px;scroll-snap-type:x proximity}
+.hand .card{scroll-snap-align:start;flex:0 0 175px}
+.battle-actions{position:sticky;bottom:0;z-index:3;background:#121f29f5;border:1px solid var(--line);border-radius:11px;padding:8px;margin-bottom:6px}
+.battle-actions button{font-size:.85rem}
+#cost{margin-right:auto;font-size:.88rem;color:var(--mint)}
+.battle-actions #end{margin-left:auto}
+.battle-help,.log-zone{font-size:.84rem}
+.log{height:72px;background:#0d1720}
+@media(max-width:630px){
+ .site-header{display:block}.site-header nav{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;margin:5px 0 0}
+ .tab{padding:6px 3px;font-size:.75rem;min-height:40px}
+ .lobby-entries{grid-template-columns:1fr}
+ .arena{padding:8px}
+ .battlefield{padding:6px;grid-template-columns:1fr;grid-template-areas:"leader" "cards" "info";gap:3px}
+ .leader{justify-self:center;min-width:92px;min-height:34px;padding:1px 7px}
+ .leader .hp{font-size:1.2rem}
+ .field-info{text-align:center}
+ .board{min-height:53px;gap:3px}
+ .board .unit{min-height:55px;font-size:.69rem;padding:5px 7px}
+ .board .piece-ports{font-size:.57rem}
+ .hand-zone{padding:6px;margin-top:7px}
+ .hand .card{flex-basis:138px;min-width:138px;min-height:88px;padding:10px}
+ .hand .desc,.hand .meta{display:none}
+ .hand .card-detail{font-size:.68rem;padding:3px 5px;min-height:30px}
+ .battle-actions{gap:4px;padding:5px;bottom:env(safe-area-inset-bottom,0px)}
+ .battle-actions button{min-height:36px;padding:4px 6px;font-size:.72rem}
+ #cost{flex:1 1 70%;font-size:.75rem}
+}
 </style>
-<header><h1>ROOTS LINK <small></small></h1><div class="small">CPU対戦・デッキ編集・カード図鑑 / 招待コードで1対1対戦</div>
-<nav><button class="tab active" data-to="builder">デッキ編集</button><button class="tab" data-to="catalog">カード図鑑</button><button class="tab" data-to="battle">CPU対戦</button><button class="tab" data-to="online">オンライン対戦</button></nav></header><main>
+<header class="site-header"><h1>ROOTS <span>LINK</span></h1>
+<nav><button class="tab active" data-to="builder">デッキ編集</button><button class="tab" data-to="catalog">カード図鑑</button><button class="tab" data-to="battle">対戦</button><button class="tab" data-to="online">オンライン対戦</button></nav></header><main>
 <section id="builder"><div class="layout"><div class="panel"><h2>カードを選ぶ</h2><div class="tools"><select id="br"><option value="all">全ルーツ</option></select><select id="bt"><option value="all">全種類</option><option value="piece">ピース</option><option value="fusion">融合</option><option value="equipment">装備</option><option value="spell">詠唱</option></select><input id="bs" placeholder="名前・効果を検索"></div><div id="pool" class="cards"></div></div><aside class="panel"><div class="row"><h2>マイデッキ</h2><b id="count">0 / 30</b></div><div class="tools"><button id="fill">ピースでランダム30枚</button><button id="clear">全て外す</button></div><div id="deck" class="decklist"></div><hr><button id="start" disabled>このデッキでCPU対戦！</button><p class="small">30枚ちょうど / 同名カード3枚まで / 同じルーツのみ。融合・装備・詠唱もデッキ30枚に含みます。</p></aside></div></section>
 <section id="catalog" class="hidden"><div class="panel"><h2>カード図鑑 <span id="total" class="small">500種</span></h2><div class="tools"><select id="cr"><option value="all">全ルーツ</option></select><select id="ct"><option value="all">全種類</option><option value="piece">ピース</option><option value="fusion">融合</option><option value="equipment">装備</option><option value="spell">詠唱</option></select><input id="cs" placeholder="名前・効果を検索"></div><div id="book" class="cards"></div></div></section>
-<section id="battle" class="hidden"><div class="panel"><div class="row"><h2 id="battleTitle">CPU対戦</h2><button id="again">新しい対戦</button><b id="round">対戦準備中</b></div><p id="leaderRules" class="small"></p><div class="battle"><div class="zone"><b id="opponentName">CPU</b> <span id="chp" class="hp">20</span><div id="cboard" class="board"></div><div id="cinfo" class="small"></div></div><div class="zone"><b>あなた</b> <span id="php" class="hp">20</span><div id="pboard" class="board"></div><div id="pinfo" class="small"></div></div></div>
-<div class="zone"><b>あなたの手札</b><div id="hand" class="hand"></div></div>
-<div class="tools"><b id="cost">召喚 1 / 接続 1</b><button id="summon" disabled>ピース召喚</button><button id="fusion" disabled>融合</button><button id="equip" disabled>装備</button><button id="spell" disabled>詠唱を使う</button><button id="connect" disabled>選択2体を連結</button><button id="attack" disabled>選択ピースで攻撃</button><button id="detach" disabled>装備を外す</button><button id="firework" hidden>火鉢バチを無料召喚</button><button id="patrolReturn" hidden>巡回で手札を戻す</button><button id="faceTarget" hidden>相手リーダーを選ぶ</button><button id="end">ターン終了</button></div>
-<div class="small">手順：手札を選択 → 必要なボタン。ピース2体を順に選択して連結。攻撃は自分ピース→相手ピース（または相手リーダー）を選んで実行。装備・詠唱は対象ピースを選んでから使用。</div>
-<div class="zone"><b>バトルログ</b><div id="log" class="log"></div></div></div></section>
-<section id="online" class="hidden"><div class="panel"><h2>オンライン対戦</h2><p class="small">接続ボタンを押すと、招待コードで対戦部屋に参加できます。</p><div class="tools"></div><div class="tools"><button id="sbConnect">接続する</button><span id="sbStatus" class="small">未接続</span></div><hr><h3>対戦部屋</h3><div class="tools"><button id="makeRoom" disabled>部屋を作る</button><input id="inviteInput" placeholder="招待コード"><button id="joinRoom" disabled>コードで参加</button></div><div id="matchSetup" class="row hidden"><label>ルーツ <select id="matchRoot"></select></label><button id="matchReady">固定デッキで参加</button><button id="customReady">マイデッキで参加</button><span id="customStatus" class="small"></span></div><div id="roomStatus" class="small">接続後に部屋を作成・参加できます。</div></div></section>
+<section id="battle" class="hidden"><div class="panel arena"><div class="row arena-heading"><h2 id="battleTitle">CPU対戦</h2><button id="again">新しい対戦</button><b id="round">対戦準備中</b></div><p id="leaderRules" class="small"></p><div class="battle"><div class="zone battlefield enemy"><button id="faceTarget" class="leader" type="button" aria-label="相手リーダーを選ぶ"><b id="opponentName">CPU</b><span id="chp" class="hp">20</span></button><div id="cboard" class="board"></div><div id="cinfo" class="small field-info"></div></div><div class="zone battlefield ally"><div class="leader"><b>あなた</b><span id="php" class="hp">20</span></div><div id="pboard" class="board"></div><div id="pinfo" class="small field-info"></div></div></div>
+<div class="zone hand-zone"><b>手札</b><div id="hand" class="hand"></div></div>
+<div class="tools battle-actions"><b id="cost">召喚 1 / 接続 1</b><button id="summon" disabled>ピース召喚</button><button id="fusion" disabled>融合</button><button id="equip" disabled>装備</button><button id="spell" disabled>詠唱を使う</button><button id="connect" disabled>選択2体を連結</button><button id="attack" disabled>選択ピースで攻撃</button><button id="detach" disabled>装備を外す</button><button id="firework" hidden>火鉢バチを無料召喚</button><button id="patrolReturn" hidden>巡回で手札を戻す</button><button id="end">ターン終了</button></div>
+<details class="battle-help"><summary>操作方法</summary><p>手札や盤面のピースを選んでから操作ボタンを押します。連結は自分のピースを2体選択します。相手リーダーを攻撃するときは相手のHP表示を選べます。</p></details>
+<details class="zone log-zone" open><summary>バトルログ</summary><div id="log" class="log" aria-live="polite"></div></details></div></section>
+<section id="online" class="hidden">
+  <div class="panel lobby">
+    <h2>オンライン対戦</h2>
+    <div class="lobby-entries">
+      <div class="lobby-option"><h3>友達を招待</h3><p>部屋を作って、招待リンクを送ります。</p><button id="makeRoom" class="primary">部屋を作る</button></div>
+      <div class="lobby-option"><h3>部屋に参加</h3><label for="inviteInput">招待コード</label><div class="row"><input id="inviteInput" placeholder="英数字8文字" maxlength="8" autocomplete="off" autocapitalize="characters" spellcheck="false"><button id="joinRoom">参加</button></div></div>
+    </div>
+    <div id="inviteShare" class="invite-share" hidden>
+      <label for="inviteUrl">招待リンク</label>
+      <div class="row"><input id="inviteUrl" readonly><button id="copyInvite" class="primary">リンクをコピー</button><button id="nativeShare" hidden>共有</button></div>
+      <small id="copyStatus" aria-live="polite"></small>
+    </div>
+    <div class="row"><button id="sbConnect" hidden>対戦に戻る</button><span id="sbStatus" class="small" aria-live="polite"></span></div>
+    <div id="matchSetup" class="row hidden"><label>ルーツ <select id="matchRoot"></select></label><button id="matchReady" class="primary">固定デッキで参加</button><button id="customReady">マイデッキで参加</button><span id="customStatus" class="small"></span></div>
+    <div id="roomStatus" class="small room-status" aria-live="polite"></div>
+  </div>
+</section>
 </main>
 <dialog id="cardDialog"><h2 id="detailTitle"></h2><p id="detailStats"></p><p id="detailText"></p><p id="detailEdges" class="piece-ports"></p><form method="dialog"><button>閉じる</button></form></dialog>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -86,7 +178,7 @@ function deckCanPlay(){
 function renderDeck(){try{localStorage.setItem(deckStorageKey,JSON.stringify(deck))}catch{}$('count').textContent=deck.length+' / 30';$('start').disabled=!deckCanPlay();$('deck').innerHTML=deck.map((id,i)=>{let c=C.find(x=>x.id===id);return `<div class="item">${rootName(c.r)} ${esc(c.n)} <button data-del="${i}">外す</button></div>`}).join('')||'<p class="small">カードを追加してね。</p>'}
 function add(id){let c=C.find(x=>x.id===id);if(!c)return;if(deck.length&&C.find(x=>x.id===deck[0]).r!==c.r)return alert('デッキには同じルーツのカードだけを入れられます。');if(deck.length>=30)return alert('30枚まで！');if(deck.filter(x=>C.find(y=>y.id===x).n===c.n).length>=3)return alert('同名カードは3枚まで！');deck.push(id);renderDeck()}
 function randDeck(root=R[Math.floor(Math.random()*R.length)][0]){let p=C.filter(c=>c.t==='piece'&&c.r===root),d=[];while(d.length<30){let c=p[Math.random()*p.length|0];if(d.filter(x=>C.find(y=>y.id===x).n===c.n).length<3)d.push(c.id)}return d}
-function show(id){document.querySelectorAll('main>section').forEach(s=>s.classList.toggle('hidden',s.id!==id));document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.to===id))}
+function show(id){document.body.classList.toggle('playing',id==='battle'&&!!G);document.querySelectorAll('main>section').forEach(s=>s.classList.toggle('hidden',s.id!==id));document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.to===id))}
 function log(s){G.logs.unshift(s);$('log').innerHTML=G.logs.map(esc).join('<br>')}
 let cpuMatch=null;
 function renderCpuMatch(){
@@ -121,7 +213,7 @@ function cpuMove(action){
     }
   }catch(error){$('log').textContent=error.message;}
 }
-function renderGame(){if(!G)return;let p=G.p,c=G.c;$('battleTitle').textContent=G.online?'オンライン対戦':'CPU対戦';$('opponentName').textContent=G.online?'相手':'CPU';$('leaderRules').textContent=[leaderText[p.root]&&'自分：'+leaderText[p.root],leaderText[c.root]&&'相手：'+leaderText[c.root]].filter(Boolean).join(' / ');$('php').textContent=p.hp;$('chp').textContent=c.hp;$('pinfo').textContent=`手札${p.h.length} / 山札${p.d.length} / トラッシュ${p.trash.length}`;$('cinfo').textContent=`手札${c.h.length} / 山札${c.d.length} / トラッシュ${c.trash.length}`;$('round').textContent=G.over?(G.won?'勝利！':'敗北'):`ラウンド ${G.round}・${G.turn==='p'?'あなたのターン':G.online?'相手のターン':'CPUのターン'}`;$('cost').textContent=`共通コスト ${p.cost} / ${p.capacity}（未使用分はターン終了で消滅）`;$('hand').innerHTML=p.h.map((id,i)=>{let x=C.find(z=>z.id===id);return `<div style="${shapeStyle(x)}" class="card ${x.t==='piece'?'jigsaw':''} ${handSel===i?'selected':''}" data-hand="${i}"><h3>${esc(x.n)}</h3><button type="button" class="card-detail" data-detail="${x.id}">詳細</button><div class="stats">${x.t==='piece'||x.t==='fusion'?`⚔${x.a} ♥${x.h}`:typeName(x.t)} / ${x.t==='piece'?'召喚 '+x.c:(x.t==='equipment'||x.t==='spell')?'接続':'接続 '+(x.cc||1)}</div><div class="desc">${esc(x.d)}</div><div class="meta">${rootName(x.r)} ${x.k||''}</div><div class="piece-ports">${edgeLabels(x.e)}</div></div>`}).join('');$('pboard').innerHTML=p.b.map((u,i)=>unitHTML(u,i,'p')).join('');$('cboard').innerHTML=c.b.map((u,i)=>unitHTML(u,i,'c')).join('');let own=G.turn==='p'&&!G.over&&!G.p.pending;$('summon').disabled=!own||handSel<0||C.find(x=>x.id===p.h[handSel])?.t!=='piece';$('fusion').disabled=!own||handSel<0||C.find(x=>x.id===p.h[handSel])?.t!=='fusion';$('equip').disabled=!own||handSel<0||C.find(x=>x.id===p.h[handSel])?.t!=='equipment'||unitSel<0;$('spell').disabled=!own||handSel<0||C.find(x=>x.id===p.h[handSel])?.t!=='spell'||unitSel<0;$('connect').disabled=!own||unitSel<0||secondSel<0||unitSel===secondSel;$('attack').disabled=!own||unitSel<0||!p.b[unitSel]?.ready;$('detach').disabled=!own||unitSel<0||!p.b[unitSel]?.equip;$('end').disabled=!own;$('patrolReturn').hidden=!G.p.pending||G.turn!=='p'||G.over;$('patrolReturn').disabled=handSel<0;$('firework').hidden=!G.p.freeFirework||!own;$('firework').disabled=G.p.h[handSel]!=='redp1';$('faceTarget').hidden=G.over;$('again').hidden=!!G.online}
+function renderGame(){if(!G)return;let p=G.p,c=G.c;$('battleTitle').textContent=G.online?'オンライン対戦':'CPU対戦';$('opponentName').textContent=G.online?'相手':'CPU';$('leaderRules').textContent=[leaderText[p.root]&&'自分：'+leaderText[p.root],leaderText[c.root]&&'相手：'+leaderText[c.root]].filter(Boolean).join(' / ');$('php').textContent=p.hp;$('chp').textContent=c.hp;$('pinfo').textContent=`手札${p.h.length} / 山札${p.d.length} / トラッシュ${p.trash.length}`;$('cinfo').textContent=`手札${c.h.length} / 山札${c.d.length} / トラッシュ${c.trash.length}`;$('round').classList.toggle('your-turn',G.turn==='p'&&!G.over);$('round').textContent=G.over?(G.won?'勝利！':'敗北'):`ラウンド ${G.round}・${G.turn==='p'?'あなたのターン':G.online?'相手のターン':'CPUのターン'}`;$('cost').textContent=`共通コスト ${p.cost} / ${p.capacity}（未使用分はターン終了で消滅）`;$('hand').innerHTML=p.h.map((id,i)=>{let x=C.find(z=>z.id===id);return `<div style="${shapeStyle(x)}" class="card ${x.t==='piece'?'jigsaw':''} ${handSel===i?'selected':''}" data-hand="${i}"><h3>${esc(x.n)}</h3><button type="button" class="card-detail" data-detail="${x.id}">詳細</button><div class="stats">${x.t==='piece'||x.t==='fusion'?`⚔${x.a} ♥${x.h}`:typeName(x.t)} / ${x.t==='piece'?'召喚 '+x.c:(x.t==='equipment'||x.t==='spell')?'接続':'接続 '+(x.cc||1)}</div><div class="desc">${esc(x.d)}</div><div class="meta">${rootName(x.r)} ${x.k||''}</div><div class="piece-ports">${edgeLabels(x.e)}</div></div>`}).join('');$('pboard').innerHTML=p.b.map((u,i)=>unitHTML(u,i,'p')).join('');$('cboard').innerHTML=c.b.map((u,i)=>unitHTML(u,i,'c')).join('');let own=G.turn==='p'&&!G.over&&!G.p.pending;$('summon').disabled=!own||handSel<0||C.find(x=>x.id===p.h[handSel])?.t!=='piece';$('fusion').disabled=!own||handSel<0||C.find(x=>x.id===p.h[handSel])?.t!=='fusion';$('equip').disabled=!own||handSel<0||C.find(x=>x.id===p.h[handSel])?.t!=='equipment'||unitSel<0;$('spell').disabled=!own||handSel<0||C.find(x=>x.id===p.h[handSel])?.t!=='spell'||unitSel<0;$('connect').disabled=!own||unitSel<0||secondSel<0||unitSel===secondSel;$('attack').disabled=!own||unitSel<0||!p.b[unitSel]?.ready;$('detach').disabled=!own||unitSel<0||!p.b[unitSel]?.equip;$('end').disabled=!own;$('patrolReturn').hidden=!G.p.pending||G.turn!=='p'||G.over;$('patrolReturn').disabled=handSel<0;$('firework').hidden=!G.p.freeFirework||!own;$('firework').disabled=G.p.h[handSel]!=='redp1';$('faceTarget').disabled=G.over;$('again').hidden=!!G.online}
 function unitHTML(u,i,side){
   const selected=side==='p'?(i===unitSel||i===secondSel):i===targetSel;
   const frame=shapeStyle(u);
@@ -160,22 +252,40 @@ $('book').onclick=e=>{
   if(card)openCard(card.dataset.id);
 };
 $('deck').onclick=e=>{let b=e.target.closest('[data-del]');if(b){deck.splice(+b.dataset.del,1);renderDeck()}};$('fill').onclick=()=>{const selected=$('br').value;deck=randDeck(selected==='all'?C.find(x=>x.id===deck[0])?.r:selected);renderDeck()};$('clear').onclick=()=>{deck=[];renderDeck()};$('start').onclick=startGame;$('again').onclick=startGame;
-document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>show(b.dataset.to));$('hand').onclick=selectHand;$('pboard').onclick=selectOwn;$('cboard').onclick=e=>{let b=e.target.closest('[data-cu]');if(b){targetSel=+b.dataset.cu;log('攻撃対象：'+G.c.b[targetSel].n);renderGame()}};
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{if(b.dataset.to==='battle'&&!G){if(deckCanPlay())startGame();else show('builder');return;}show(b.dataset.to)});$('hand').onclick=selectHand;$('pboard').onclick=selectOwn;$('cboard').onclick=e=>{let b=e.target.closest('[data-cu]');if(b){targetSel=+b.dataset.cu;log('攻撃対象：'+G.c.b[targetSel].n);renderGame()}};
 
 (()=>{
  const $=id=>document.getElementById(id); let client=null, roomTimer=null, roomRequest=0;
  const status=(msg,ok=false)=>{ $('sbStatus').textContent=msg; $('sbStatus').className=ok?'small good':'small warn'; };
  const u="https://akelbvwqbvlkjjufpoiw.supabase.co", k="sb_publishable_L7ZMaQ-jRMXbRsha3QdAgw_eaPmglQg";
- $('sbConnect').onclick=async()=>{try{if(!window.supabase?.createClient){status('接続ライブラリを読み込めません。インターネット接続を確認してね');return} client=window.supabase.createClient(u,k,{auth:{storage:sessionStorage}}); status('匿名ログイン中…'); const current = await client.auth.getSession();
- if (current.error) throw current.error;
- if (!current.data.session) {
-   const response = await client.auth.signInAnonymously();
-   if (response.error) throw response.error;
- } $('makeRoom').disabled=false;$('joinRoom').disabled=false; status('接続成功！匿名ログインできたよ',true); $('roomStatus').textContent='ログイン済み。部屋を作るか、招待コードで参加してね。';
- try {
-   const saved=JSON.parse(sessionStorage.getItem('roots-link.room'));
-   if(saved?.room)showRoom(saved.room,saved.host);
- } catch {}}catch(e){status('接続エラー：'+(e.message||String(e)));}};
+ let connection=null;
+ function storedRoom(){
+   try{return JSON.parse(sessionStorage.getItem('roots-link.room'));}catch{return null;}
+ }
+ async function connectOnline(){
+   if(connection)return connection;
+   connection=(async()=>{
+     if(!window.supabase?.createClient)throw new Error('通信機能を読み込めません。ページを再読み込みしてください。');
+     client??=window.supabase.createClient(u,k,{auth:{storage:sessionStorage}});
+     status('接続中…');
+     const current=await client.auth.getSession();
+     if(current.error)throw current.error;
+     if(!current.data.session){
+       const response=await client.auth.signInAnonymously();
+       if(response.error)throw response.error;
+     }
+     status('接続済み',true);
+   })();
+   try{await connection;}catch(error){connection=null;throw error;}
+ }
+ async function resumeRoom(){
+   const saved=storedRoom();
+   if(!saved?.room)return;
+   try{await connectOnline();showRoom(saved.room,saved.host);}
+   catch(error){matchError(error.message);}
+ }
+ $('sbConnect').hidden=!storedRoom()?.room;
+ $('sbConnect').onclick=resumeRoom;
  let matchRoom=null, matchVersion=null, matchTimer=null, movePending=false, matchGeneration=0, queuedAction=null, posting=false;
  for(const [root,name] of R) $('matchRoot').add(new Option(name,root));
  window.closeOnlineMatch=()=>{
@@ -186,6 +296,8 @@ document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>show(b.dataset.to));$
    clearTimeout(roomTimer);
    try { sessionStorage.removeItem('roots-link.room'); } catch {}
    $('matchSetup').classList.add('hidden');
+   $('inviteShare').hidden=true;
+   $('sbConnect').hidden=true;
  };
  function matchError(message) {
    $('roomStatus').textContent=message;
@@ -255,6 +367,17 @@ document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>show(b.dataset.to));$
    const request = roomRequest;
    const output = $('roomStatus');
    $('inviteInput').value = room.invite_code;
+   $('sbConnect').hidden=true;
+   if(location.hash!=='#online')history.replaceState(null,'',location.pathname+location.search+'#online');
+   $('inviteShare').hidden=!host||room.status==='playing';
+   if(host&&room.status==='waiting'){
+     const link=new URL(location.href);
+     link.search='';
+     link.hash='';
+     link.searchParams.set('join',room.invite_code);
+     $('inviteUrl').value=link.href;
+     $('nativeShare').hidden=typeof navigator.share!=='function';
+   }
    if (room.status === 'playing') {
      output.textContent = '2人がそろいました。';
      matchGeneration++;
@@ -282,7 +405,6 @@ document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>show(b.dataset.to));$
  async function enterRoom(host) {
    const code = $('inviteInput').value.trim();
    const output = $('roomStatus');
-   if (!client) return;
    if (!host && !/^[a-f0-9]{8}$/i.test(code)) {
      output.textContent = '招待コードを英数字8文字で入力してください。';
      return;
@@ -291,12 +413,19 @@ document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>show(b.dataset.to));$
    roomRequest++;
    window.closeOnlineMatch();
    $('makeRoom').disabled = $('joinRoom').disabled = true;
+   $('copyStatus').textContent='';
    output.textContent = host ? '部屋を作成中…' : '参加中…';
    try {
+     await connectOnline();
      const result = host ? await client.rpc('create_room')
        : await client.rpc('join_room', {p_invite_code: code});
      if (result.error) throw result.error;
      showRoom(result.data, host);
+     if(!host&&new URL(location.href).searchParams.has('join')){
+       const clean=new URL(location.href);
+       clean.searchParams.delete('join');
+       history.replaceState(null,'',clean);
+     }
    } catch (error) {
      output.textContent = (host ? '部屋作成エラー：' : '参加エラー：') + error.message;
    } finally {
@@ -305,5 +434,32 @@ document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>show(b.dataset.to));$
  }
  $('makeRoom').onclick = () => enterRoom(true);
  $('joinRoom').onclick = () => enterRoom(false);
+ $('inviteInput').addEventListener('keydown',event=>{
+   if(event.key==='Enter'&&!$('joinRoom').disabled)enterRoom(false);
+ });
+ $('copyInvite').onclick=async()=>{
+   const field=$('inviteUrl');
+   try{
+     await navigator.clipboard.writeText(field.value);
+     $('copyStatus').textContent='コピーしました';
+   }catch{
+     field.focus();field.select();
+     $('copyStatus').textContent='選択したリンクをコピーしてください。';
+   }
+ };
+ $('nativeShare').onclick=async()=>{
+   try{await navigator.share({title:'ROOTS LINK 対戦招待',url:$('inviteUrl').value});}
+   catch(error){if(error.name!=='AbortError')$('copyStatus').textContent='リンクをコピーしてください。';}
+ };
+ const invite=new URL(location.href).searchParams.get('join')?.trim().toUpperCase();
+ if(invite){
+   show('online');
+   $('inviteInput').value=invite;
+   if(storedRoom()?.room?.invite_code===invite)resumeRoom();
+   else enterRoom(false);
+ }else if(storedRoom()?.room&&location.hash==='#online'){
+   show('online');
+   resumeRoom();
+ }
 })();
 </script></html>
