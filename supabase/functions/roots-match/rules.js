@@ -67,6 +67,7 @@ for(const [r] of R){
 
 const overrides = {
   redp3:{a:3,h:4,c:2},
+  redp5:{a:2,h:3,c:3,k:'',attackLimit:2,d:'1ターンに2回まで攻撃できる。'},
   redp0:{a:3,h:3,c:2,d:'召喚時、手札の火鉢バチ1体をコストなしで出せる。'},
   redp1:{a:3,h:8,c:4,d:'場に出た時、山札からピースをランダムに1枚手札に加える。'},
   redf0:{n:'花火師 多摩屋',a:8,h:10,cc:5,d:'相手のピースがトラッシュに送られた時、相手リーダーと全ピースに5ダメージ。各自分ターンに1回。'},
@@ -150,6 +151,10 @@ export function prepare(deck,host) {
 
 export function applyMove(state,seat,action){
  const opponent=seat==='host'?'guest':'host';
+ if(state.winner)throw new Error('対戦は終了しています。');
+ if(action.kind==='concede'){
+   return {...state,winner:opponent,logs:['降参により対戦が終了しました。',...state.logs].slice(0,12)};
+ }
  if(state.turn!==seat) throw new Error('相手のターンです。');
  state=structuredClone(state);
  const G={p:state[seat],c:state[opponent],round:state.round};
@@ -174,7 +179,7 @@ export function applyMove(state,seat,action){
  };
  const patrol=(p)=>{p.pending=true;};
  const winCheck=()=>{if(G.c.hp<=0)state.winner=seat;if(G.p.hp<=0)state.winner=opponent;};
-function makeUnit(c){return {n:c.n,id:c.id,r:c.r,a:c.a,hp:c.h,max:c.h,k:c.k||'',ready:c.k==='速攻',shield:c.k==='盾',edges:c.e?c.e.map(x=>({...x,used:false})):[],equip:null,mats:null,entered:G.round,growth:0,attacked:false}}
+function makeUnit(c){return {n:c.n,id:c.id,r:c.r,a:c.a,hp:c.h,max:c.h,k:c.k||'',ready:c.k==='速攻',shield:c.k==='盾',edges:c.e?c.e.map(x=>({...x,used:false})):[],equip:null,mats:null,entered:G.round,growth:0,attacks:0,attackLimit:c.attackLimit??1,attacked:false}}
 function boardSlots(p){return p.b.reduce((n,u)=>n+(u.mats?.length??1),0)}
 function spendHand(){let id=G.p.h.splice(handSel,1)[0];handSel=-1;return C.find(x=>x.id===id)}
 function drawPieceToHand(player) {
@@ -282,10 +287,10 @@ function damageUnit(player,index,damage){
   else if(unit.mats.length===1){
     const [survivor]=unit.mats;
     player.b[index]={...makeUnit(C.find(card=>card.id===survivor.id)),...survivor,
-      ready:unit.ready,attacked:unit.attacked};
+      ready:unit.ready,attacked:unit.attacked,attacks:unit.attacks??0};
   } else updateLink(unit);
 }
-function attack(){let p=G.p,c=G.c,u=p.b[unitSel];if(!u||!u.ready||targetSel>=c.b.length)return;let shields=c.b.map((x,i)=>x.shield?i:-1).filter(i=>i>=0);let ti=targetSel;if(shields.length&& (ti<0||!shields.includes(ti)))return alert('相手に盾がいるため盾を選んでください。');if(ti>=0&&c.b[ti])damageUnit(c,ti,u.a);else{c.hp-=u.a;log(u.n+'が相手リーダーに'+u.a+'ダメージ！')}u.ready=false;u.attacked=true;unitSel=targetSel=-1;winCheck()}
+function attack(){let p=G.p,c=G.c,u=p.b[unitSel];if(!u||!u.ready||targetSel>=c.b.length)return;let shields=c.b.map((x,i)=>x.shield?i:-1).filter(i=>i>=0);let ti=targetSel;if(shields.length&& (ti<0||!shields.includes(ti)))return alert('相手に盾がいるため盾を選んでください。');if(ti>=0&&c.b[ti])damageUnit(c,ti,u.a);else{c.hp-=u.a;log(u.n+'が相手リーダーに'+u.a+'ダメージ！')}u.attacks=(u.attacks??0)+1;u.ready=u.attacks<(u.attackLimit??1);u.attacked=true;unitSel=targetSel=-1;winCheck()}
 function attachment(unit,card){
   const choices=attachmentChoices(unit,card).filter(item=>action.direction===undefined||action.direction===item.direction);
   return choices.reduce((best,item)=>!best||item.cost<best.cost?item:best,null);
@@ -422,7 +427,7 @@ function grow(player){
     G.p.activated=false;
     G.c.capacity=Math.min(5,G.c.capacity+1);
     G.c.cost=G.c.capacity;
-    for(const unit of G.c.b){unit.ready=true;unit.attacked=false;unit.tamayaTriggered=false;}
+    for(const unit of G.c.b){unit.ready=true;unit.attacked=false;unit.attacks=0;unit.tamayaTriggered=false;}
     state.turn=opponent;
     if(opponent==='host')state.round++;
     draw(G.c);
@@ -485,7 +490,9 @@ export function playCpuTurn(state) {
     const opponent=state.host;
     let target=opponent.b.findIndex(piece=>piece.shield);
     if(target<0&&opponent.hp>state.guest.b[unit].a)target=opponent.b.findIndex(piece=>piece.hp<=state.guest.b[unit].a);
-    tryMove({kind:'attack',unit,target});
+    if(tryMove({kind:'attack',unit,target})&&state.guest.b[unit]?.ready&&!state.winner){
+      unit--;
+    }
   }
   if(!state.winner)tryMove({kind:'end'});
   return state;

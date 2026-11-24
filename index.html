@@ -199,12 +199,18 @@ button.primary:hover,.active:hover,#end:enabled:hover,#start:enabled:hover{backg
 .edge-pick button{min-height:40px}
 .field-piece[aria-pressed="true"] .field-name,.mini-card[aria-pressed="true"] .mini-name{color:#fff1ba}
 @media(max-width:630px){.selection-strip{font-size:.68rem}.battle-actions>button,.edge-pick button{min-height:40px}.battle-actions #end{min-width:71px}}
+
+.arena-heading #battleSettings{order:5;margin-left:auto;padding:4px 9px;min-height:34px;font-size:.77rem}
+.settings-item{display:flex;align-items:center;gap:9px;min-height:44px}.settings-item input{width:19px;height:19px;min-height:0}
+#settingsDialog h2{margin-top:0}button.danger{background:#492936;border-color:#b66d80;color:#ffdfdf}
+.simple-stage .board-stage{background:#221e30;box-shadow:none}.simple-stage .field-piece,.simple-stage .portrait{box-shadow:none}
+@media(max-width:630px){.arena-heading #battleSettings{min-height:32px;padding-inline:7px}}
 </style>
 <header class="site-header"><h1>ROOTS <span>LINK</span></h1>
 <nav><button class="tab active" data-to="builder">デッキ編集</button><button class="tab" data-to="catalog">カード図鑑</button><button class="tab" data-to="battle">対戦</button><button class="tab" data-to="online">オンライン対戦</button></nav></header><main>
 <p id="startupStatus" class="room-status">カードデータを読み込んでいます…</p><section id="builder"><div class="layout"><div class="panel"><h2>カードを選ぶ</h2><div class="tools"><select id="br"><option value="all">全ルーツ</option></select><select id="bt"><option value="all">全種類</option><option value="piece">ピース</option><option value="fusion">融合</option><option value="equipment">装備</option><option value="spell">詠唱</option></select><input id="bs" placeholder="名前・効果を検索"></div><div id="pool" class="cards"></div><button id="poolMore" type="button" hidden>次のカードを表示</button></div><aside class="panel deck-panel"><div class="row"><h2>マイデッキ</h2><b id="count">0 / 30</b></div><div class="tools"><button id="fill">固定デッキ30枚を作る</button><button id="clear">全て外す</button></div><details id="deckDetails"><summary>デッキの中身を見る</summary><div id="deck" class="decklist"></div></details><hr><button id="start" disabled>このデッキでCPU対戦！</button><p id="deckStatus" class="small" role="status"></p><p class="small">30枚ちょうど / 同名カード3枚まで / 同じルーツのみ。融合・装備・詠唱もデッキ30枚に含みます。</p></aside></div></section>
 <section id="catalog" class="hidden"><div class="panel"><h2>カード図鑑 <span id="total" class="small">500種</span></h2><div class="tools"><select id="cr"><option value="all">全ルーツ</option></select><select id="ct"><option value="all">全種類</option><option value="piece">ピース</option><option value="fusion">融合</option><option value="equipment">装備</option><option value="spell">詠唱</option></select><input id="cs" placeholder="名前・効果を検索"></div><div id="book" class="cards"></div><button id="bookMore" type="button" hidden>次のカードを表示</button></div></section>
-<section id="battle" class="hidden"><div class="panel arena"><div class="row arena-heading"><h2 id="battleTitle">CPU対戦</h2><button id="battleBack" type="button" hidden>対戦を出る</button><button id="again" hidden>再戦</button><b id="round">対戦準備中</b></div><p id="leaderRules" class="small"></p><div class="battle board-stage">
+<section id="battle" class="hidden"><div class="panel arena"><div class="row arena-heading"><h2 id="battleTitle">CPU対戦</h2><button id="battleBack" type="button" hidden>対戦を出る</button><button id="again" hidden>再戦</button><b id="round">対戦準備中</b><button id="battleSettings" type="button" aria-label="対戦設定" title="対戦設定">⚙ 設定</button></div><p id="leaderRules" class="small"></p><div class="battle board-stage">
  <div class="leader-bar rival-bar">
   <div class="reserve opponent-reserve"><div id="enemyHand" class="card-backs" aria-hidden="true"></div><span id="enemyHandCount"></span></div>
   <button id="faceTarget" class="leader portrait" type="button" aria-label="相手リーダーを選ぶ"><b id="opponentName">CPU</b><span id="chp" class="hp">20</span></button>
@@ -242,6 +248,19 @@ button.primary:hover,.active:hover,#end:enabled:hover,#start:enabled:hover{backg
   </div>
 </section>
 </main>
+<dialog id="settingsDialog" aria-labelledby="settingsTitle">
+<h2 id="settingsTitle">対戦設定</h2>
+<div id="settingsOptions">
+<label class="settings-item"><input id="showFlashes" type="checkbox" checked> 召喚・ダメージの通知</label>
+<label class="settings-item"><input id="simpleStage" type="checkbox"> シンプルな盤面</label>
+<div class="row"><button type="button" id="showMatchLog">バトルログを見る</button><button type="button" id="askConcede" class="danger">降参する</button></div>
+</div>
+<div id="concedePrompt" hidden>
+<p>降参すると、この対戦はあなたの敗北になります。</p>
+<div class="row"><button type="button" id="cancelConcede">戻る</button><button type="button" id="confirmConcede" class="danger">降参を確定</button></div>
+</div>
+<form method="dialog"><button>対戦に戻る</button></form>
+</dialog>
 <dialog id="cardDialog"><h2 id="detailTitle"></h2><p id="detailStats"></p><p id="detailText"></p><div id="detailShape" class="detail-shape jigsaw" hidden></div><p id="detailEdges" class="piece-ports"></p><button id="detailClose" type="button">閉じる</button></dialog>
 <script>
 (() => {
@@ -322,6 +341,7 @@ for(const [r] of R){
 
 const overrides = {
   redp3:{a:3,h:4,c:2},
+  redp5:{a:2,h:3,c:3,k:'',attackLimit:2,d:'1ターンに2回まで攻撃できる。'},
   redp0:{a:3,h:3,c:2,d:'召喚時、手札の火鉢バチ1体をコストなしで出せる。'},
   redp1:{a:3,h:8,c:4,d:'場に出た時、山札からピースをランダムに1枚手札に加える。'},
   redf0:{n:'花火師 多摩屋',a:8,h:10,cc:5,d:'相手のピースがトラッシュに送られた時、相手リーダーと全ピースに5ダメージ。各自分ターンに1回。'},
@@ -404,6 +424,10 @@ function prepare(deck,host) {
 
 function applyMove(state,seat,action){
  const opponent=seat==='host'?'guest':'host';
+ if(state.winner)throw new Error('対戦は終了しています。');
+ if(action.kind==='concede'){
+   return {...state,winner:opponent,logs:['降参により対戦が終了しました。',...state.logs].slice(0,12)};
+ }
  if(state.turn!==seat) throw new Error('相手のターンです。');
  state=structuredClone(state);
  const G={p:state[seat],c:state[opponent],round:state.round};
@@ -428,7 +452,7 @@ function applyMove(state,seat,action){
  };
  const patrol=(p)=>{p.pending=true;};
  const winCheck=()=>{if(G.c.hp<=0)state.winner=seat;if(G.p.hp<=0)state.winner=opponent;};
-function makeUnit(c){return {n:c.n,id:c.id,r:c.r,a:c.a,hp:c.h,max:c.h,k:c.k||'',ready:c.k==='速攻',shield:c.k==='盾',edges:c.e?c.e.map(x=>({...x,used:false})):[],equip:null,mats:null,entered:G.round,growth:0,attacked:false}}
+function makeUnit(c){return {n:c.n,id:c.id,r:c.r,a:c.a,hp:c.h,max:c.h,k:c.k||'',ready:c.k==='速攻',shield:c.k==='盾',edges:c.e?c.e.map(x=>({...x,used:false})):[],equip:null,mats:null,entered:G.round,growth:0,attacks:0,attackLimit:c.attackLimit??1,attacked:false}}
 function boardSlots(p){return p.b.reduce((n,u)=>n+(u.mats?.length??1),0)}
 function spendHand(){let id=G.p.h.splice(handSel,1)[0];handSel=-1;return C.find(x=>x.id===id)}
 function drawPieceToHand(player) {
@@ -536,10 +560,10 @@ function damageUnit(player,index,damage){
   else if(unit.mats.length===1){
     const [survivor]=unit.mats;
     player.b[index]={...makeUnit(C.find(card=>card.id===survivor.id)),...survivor,
-      ready:unit.ready,attacked:unit.attacked};
+      ready:unit.ready,attacked:unit.attacked,attacks:unit.attacks??0};
   } else updateLink(unit);
 }
-function attack(){let p=G.p,c=G.c,u=p.b[unitSel];if(!u||!u.ready||targetSel>=c.b.length)return;let shields=c.b.map((x,i)=>x.shield?i:-1).filter(i=>i>=0);let ti=targetSel;if(shields.length&& (ti<0||!shields.includes(ti)))return alert('相手に盾がいるため盾を選んでください。');if(ti>=0&&c.b[ti])damageUnit(c,ti,u.a);else{c.hp-=u.a;log(u.n+'が相手リーダーに'+u.a+'ダメージ！')}u.ready=false;u.attacked=true;unitSel=targetSel=-1;winCheck()}
+function attack(){let p=G.p,c=G.c,u=p.b[unitSel];if(!u||!u.ready||targetSel>=c.b.length)return;let shields=c.b.map((x,i)=>x.shield?i:-1).filter(i=>i>=0);let ti=targetSel;if(shields.length&& (ti<0||!shields.includes(ti)))return alert('相手に盾がいるため盾を選んでください。');if(ti>=0&&c.b[ti])damageUnit(c,ti,u.a);else{c.hp-=u.a;log(u.n+'が相手リーダーに'+u.a+'ダメージ！')}u.attacks=(u.attacks??0)+1;u.ready=u.attacks<(u.attackLimit??1);u.attacked=true;unitSel=targetSel=-1;winCheck()}
 function attachment(unit,card){
   const choices=attachmentChoices(unit,card).filter(item=>action.direction===undefined||action.direction===item.direction);
   return choices.reduce((best,item)=>!best||item.cost<best.cost?item:best,null);
@@ -676,7 +700,7 @@ function grow(player){
     G.p.activated=false;
     G.c.capacity=Math.min(5,G.c.capacity+1);
     G.c.cost=G.c.capacity;
-    for(const unit of G.c.b){unit.ready=true;unit.attacked=false;unit.tamayaTriggered=false;}
+    for(const unit of G.c.b){unit.ready=true;unit.attacked=false;unit.attacks=0;unit.tamayaTriggered=false;}
     state.turn=opponent;
     if(opponent==='host')state.round++;
     draw(G.c);
@@ -739,7 +763,9 @@ function playCpuTurn(state) {
     const opponent=state.host;
     let target=opponent.b.findIndex(piece=>piece.shield);
     if(target<0&&opponent.hp>state.guest.b[unit].a)target=opponent.b.findIndex(piece=>piece.hp<=state.guest.b[unit].a);
-    tryMove({kind:'attack',unit,target});
+    if(tryMove({kind:'attack',unit,target})&&state.guest.b[unit]?.ready&&!state.winner){
+      unit--;
+    }
   }
   if(!state.winner)tryMove({kind:'end'});
   return state;
@@ -767,10 +793,9 @@ function shapeStyle(piece){
   return '--piece-shape:polygon('+border.join(',')+');--root-color:'+(pieceColors[piece.r]??'#8293b1');
 }
 function edgeLabels(edges){
-  if(edges&&!Array.isArray(edges))return edges.s+(edges.s==='凸'?' '+edges.c:'');
-  if(!Array.isArray(edges)||!edges.length)return '';
-  return edges.map((edge,i)=>['↑','→','↓','←'][i]+
-    (edge.s==='無'?'—':edge.s==='凸'?'凸'+edge.c:'凹')+(edge.used?'済':'')).join(' ');
+  if(edges&&!Array.isArray(edges))return edges.s==='凸'?String(edges.c):'';
+  if(!Array.isArray(edges))return '';
+  return edges.map((edge,i)=>edge.used?['↑','→','↓','←'][i]+'済':edge.s==='凸'?['↑','→','↓','←'][i]+edge.c:'').filter(Boolean).join(' ');
 }
 function card(c,showAdd=false){
   const frame=shapeStyle(c);
@@ -841,7 +866,7 @@ function startGame(useStarter=false){
   show('battle');
 }
 function cpuMove(action){
-  if(!cpuMatch||cpuMatch.winner||cpuMatch.turn!=='host')return;
+  if(!cpuMatch||cpuMatch.winner||(cpuMatch.turn!=='host'&&action.kind!=='concede'))return;
   try{
     cpuMatch=applyMove(cpuMatch,'host',action);
     renderCpuMatch();
@@ -876,7 +901,7 @@ function renderField(player,side){
 function renderGame(){if(!G)return;let p=G.p,c=G.c;$('battleTitle').textContent=G.online?'オンライン対戦':'CPU対戦';$('opponentName').textContent=G.online?'相手':'CPU';$('leaderRules').textContent=[leaderText[p.root]&&'自分：'+leaderText[p.root],leaderText[c.root]&&'相手：'+leaderText[c.root]].filter(Boolean).join(' / ');$('php').textContent=p.hp;$('chp').textContent=c.hp;renderHud(p,c);$('round').classList.toggle('your-turn',G.turn==='p'&&!G.over);$('round').textContent=G.over?(G.won?'勝利！':'敗北'):`ラウンド ${G.round}・${G.turn==='p'?'あなたのターン':G.online?'相手のターン':'CPUのターン'}`;$('hand').innerHTML=p.h.map((id,i)=>{
  const card=C.find(entry=>entry.id===id);
  const selected=i===handSel?' selected':'';
- const cost=card.t==='piece'?card.c:card.t==='fusion'?card.cc:card.e?.s==='凸'?card.e.c:'◇';
+ const cost=card.t==='piece'?card.c:card.t==='fusion'?card.cc:card.e?.s==='凸'?card.e.c:'';
  const unit=card.t==='piece'||card.t==='fusion';
  const frame=shapeStyle(card);
  return '<button type="button" class="mini-card'+selected+(frame?' jigsaw':'')+'" style="'+frame+';--mini-color:'+pieceColors[card.r]+'" data-hand="'+i+'" aria-pressed="'+(i===handSel)+'"><span class="mini-cost">'+cost+'</span><span class="mini-name">'+esc(card.n)+'</span><span class="mini-edges">'+esc(edgeLabels(card.e))+'</span><span class="mini-atk">'+(unit?'⚔'+card.a:'')+'</span><span class="mini-hp">'+(unit?'♥'+card.h:typeName(card.t))+'</span></button>';
@@ -973,8 +998,43 @@ function selectOwn(e){
   renderGame();
 }
 let flashTimer;
+const settingsKey='roots-link.battle-settings';
+const optionsDialog=$('settingsDialog');
+try{
+  const settings=JSON.parse(localStorage.getItem(settingsKey));
+  if(settings){$('showFlashes').checked=settings.flashes!==false;$('simpleStage').checked=settings.simple===true;}
+}catch{}
+function updateBattleSettings(){
+  document.body.classList.toggle('simple-stage',$('simpleStage').checked);
+  if(!$('showFlashes').checked)$('battleFlash').hidden=true;
+  try{localStorage.setItem(settingsKey,JSON.stringify({flashes:$('showFlashes').checked,simple:$('simpleStage').checked}));}catch{}
+}
+function confirmView(active){
+  $('settingsOptions').hidden=active;
+  $('concedePrompt').hidden=!active;
+}
+$('battleSettings').onclick=()=>{
+  confirmView(false);
+  $('askConcede').disabled=!G||G.over;
+  optionsDialog.showModal();
+};
+$('showFlashes').onchange=$('simpleStage').onchange=updateBattleSettings;
+$('showMatchLog').onclick=()=>{
+  optionsDialog.close();
+  const log=document.querySelector('.log-zone');
+  log.open=true;
+  log.scrollIntoView({block:'nearest'});
+};
+$('askConcede').onclick=()=>confirmView(true);
+$('cancelConcede').onclick=()=>confirmView(false);
+$('confirmConcede').onclick=()=>{
+  if(!G||G.over)return;
+  optionsDialog.close();
+  window.applyBattleMove('concede');
+};
+updateBattleSettings();
 function showBattleEvent(previous,next){
-  if(!previous||previous.online!==next.online)return;
+  if(!$('showFlashes').checked||!previous||previous.online!==next.online)return;
   const recent=next.logs?.[0];
   const hp=Math.max(0,previous.p.hp-next.p.hp,previous.c.hp-next.c.hp);
   const boardChanged=previous.p.b.length!==next.p.b.length||previous.c.b.length!==next.c.b.length;
@@ -1000,9 +1060,7 @@ function openCard(id){
   $('detailStats').textContent=rootName(card.r)+' · '+combat+typeName(card.t)+
     (card.t==='piece'?' · 召喚 '+card.c:card.t==='fusion'?' · 接続 '+card.cc:'');
   $('detailText').textContent=card.d||'固有効果なし';
-  const ports=Array.isArray(card.e)?card.e.map((edge,i)=>['上','右','下','左'][i]+' '+edge.s+
-    (edge.s==='凸'?' ('+edge.c+')':'')):card.e?[card.e.s+(card.e.s==='凸'?' ('+card.e.c+')':'')]:[];
-  $('detailEdges').textContent=ports.join(' / ');
+  $('detailEdges').textContent='';
   const frame=shapeStyle(card);
   $('detailShape').hidden=!frame;
   $('detailShape').style.cssText=frame;
@@ -1107,7 +1165,7 @@ document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{if(b.dataset.to==='b
    let refreshReady=false;
    if(!matchRoom)return;
    if(movePending){
-     if(action&&!posting&&!queuedAction)queuedAction={action,version:matchVersion};
+     if(action&&((!posting&&!queuedAction)||action.kind==='concede'))queuedAction={action,version:matchVersion};
      return;
    }
    movePending=true;
@@ -1119,7 +1177,7 @@ document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{if(b.dataset.to==='b
      try {
        match=await gameRequest('/functions/v1/roots-match',{room:matchRoom,revision:matchVersion,action});
      } catch(error) {
-       if(error.status===409&&action?.kind==='ready'&&!action.retry){
+       if(error.status===409&&['ready','concede'].includes(action?.kind)&&!action.retry){
          queuedAction={action:{...action,retry:true},version:matchVersion};
          refreshReady=true;
          return;
@@ -1154,7 +1212,7 @@ document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{if(b.dataset.to==='b
      }
      const pending=queuedAction;
      queuedAction=null;
-     if(pending&&(pending.version===matchVersion||pending.action.kind==='ready'))matchUpdate(pending.action);
+     if(pending&&!G?.over&&(pending.version===matchVersion||['ready','concede'].includes(pending.action.kind)))matchUpdate(pending.action);
      else if(matchRoom&&!G?.over)matchTimer=setTimeout(()=>matchUpdate(),1600);
    }
  }
