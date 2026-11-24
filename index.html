@@ -177,15 +177,30 @@ button.primary:hover,.active:hover,#end:enabled:hover,#start:enabled:hover{backg
  .hand{min-height:60px}.hand .mini-card{flex-basis:75px;min-height:62px;padding:15px 5px 13px}.mini-name{font-size:.65rem}
  .battle-actions{margin:4px 0;bottom:env(safe-area-inset-bottom,0px)}.battle-actions #end{min-width:69px}.log-zone{margin:4px 0}
 }
+
+.playing .site-header{display:none}
+.playing main{padding-top:max(5px,env(safe-area-inset-top,0px))}
+.field-piece.attack-target,.portrait.targetable{outline:2px solid #ffd465;outline-offset:-2px;box-shadow:0 0 13px #e5a94d66}
+.field-piece.spell-target{outline:2px solid #9cebd3;outline-offset:-2px}
+.field-piece.attack-target.jigsaw::before{background:#ffd465}
+.field-piece.attack-target.selected,.portrait.target-selected{outline:3px solid #fff1b0;outline-offset:-1px;box-shadow:0 0 15px #ffe18faa}
+.board-stage .field-piece:disabled,.board-stage .portrait:disabled{opacity:1;cursor:default}
+.hand .mini-card.jigsaw{isolation:isolate;border-color:transparent;background:transparent;min-height:79px;padding:19px 5px 16px}
+.hand .mini-card.jigsaw::after{background:#282139}
+.hand .mini-card.jigsaw.selected::after{background:#514164}
+.mini-edges{display:block;font-size:.54rem;color:#f8dbc2;margin-top:2px;line-height:1}
+.detail-shape{position:relative;isolation:isolate;width:150px;min-height:70px;display:grid;place-items:center;font-size:.9rem;color:#ffe6bf}
+.board-stage .field-ports{color:#ffe0af;font-weight:700}
+@media(max-width:630px){.playing main{padding-inline:4px}.hand .mini-card.jigsaw{min-height:71px}.field-ports{font-size:.64rem}.mini-name{font-size:.68rem}}
 </style>
 <header class="site-header"><h1>ROOTS <span>LINK</span></h1>
 <nav><button class="tab active" data-to="builder">デッキ編集</button><button class="tab" data-to="catalog">カード図鑑</button><button class="tab" data-to="battle">対戦</button><button class="tab" data-to="online">オンライン対戦</button></nav></header><main>
 <p id="startupStatus" class="room-status">カードデータを読み込んでいます…</p><section id="builder"><div class="layout"><div class="panel"><h2>カードを選ぶ</h2><div class="tools"><select id="br"><option value="all">全ルーツ</option></select><select id="bt"><option value="all">全種類</option><option value="piece">ピース</option><option value="fusion">融合</option><option value="equipment">装備</option><option value="spell">詠唱</option></select><input id="bs" placeholder="名前・効果を検索"></div><div id="pool" class="cards"></div><button id="poolMore" type="button" hidden>次のカードを表示</button></div><aside class="panel deck-panel"><div class="row"><h2>マイデッキ</h2><b id="count">0 / 30</b></div><div class="tools"><button id="fill">固定デッキ30枚を作る</button><button id="clear">全て外す</button></div><details id="deckDetails"><summary>デッキの中身を見る</summary><div id="deck" class="decklist"></div></details><hr><button id="start" disabled>このデッキでCPU対戦！</button><p id="deckStatus" class="small" role="status"></p><p class="small">30枚ちょうど / 同名カード3枚まで / 同じルーツのみ。融合・装備・詠唱もデッキ30枚に含みます。</p></aside></div></section>
 <section id="catalog" class="hidden"><div class="panel"><h2>カード図鑑 <span id="total" class="small">500種</span></h2><div class="tools"><select id="cr"><option value="all">全ルーツ</option></select><select id="ct"><option value="all">全種類</option><option value="piece">ピース</option><option value="fusion">融合</option><option value="equipment">装備</option><option value="spell">詠唱</option></select><input id="cs" placeholder="名前・効果を検索"></div><div id="book" class="cards"></div><button id="bookMore" type="button" hidden>次のカードを表示</button></div></section>
-<section id="battle" class="hidden"><div class="panel arena"><div class="row arena-heading"><h2 id="battleTitle">CPU対戦</h2><button id="again">新しい対戦</button><b id="round">対戦準備中</b></div><p id="leaderRules" class="small"></p><div class="battle board-stage">
+<section id="battle" class="hidden"><div class="panel arena"><div class="row arena-heading"><h2 id="battleTitle">CPU対戦</h2><button id="battleBack" type="button" hidden>対戦を出る</button><button id="again" hidden>再戦</button><b id="round">対戦準備中</b></div><p id="leaderRules" class="small"></p><div class="battle board-stage">
  <div class="leader-bar rival-bar">
   <div class="reserve opponent-reserve"><div id="enemyHand" class="card-backs" aria-hidden="true"></div><span id="enemyHandCount"></span></div>
-  <button id="faceTarget" class="leader portrait" type="button" aria-label="相手リーダーを選ぶ"><span class="leader-mark" id="enemyMark" aria-hidden="true">◆</span><b id="opponentName">CPU</b><span id="chp" class="hp">20</span></button>
+  <button id="faceTarget" class="leader portrait" type="button" aria-label="相手リーダーを選ぶ"><b id="opponentName">CPU</b><span id="chp" class="hp">20</span></button>
   <div id="cinfo" class="reserve"></div>
  </div>
  <div class="field enemy-field"><div id="cboard" class="board"></div></div>
@@ -194,7 +209,7 @@ button.primary:hover,.active:hover,#end:enabled:hover,#start:enabled:hover{backg
  <div class="field ally-field"><div id="pboard" class="board"></div></div>
  <div class="leader-bar own-bar">
   <div class="energy"><div id="cost" aria-live="polite"></div><div id="energyDots" class="energy-dots" aria-hidden="true"></div></div>
-  <div class="leader portrait"><span class="leader-mark" id="ownMark" aria-hidden="true">◆</span><b>あなた</b><span id="php" class="hp">20</span></div>
+  <div class="leader portrait"><b>あなた</b><span id="php" class="hp">20</span></div>
   <div id="pinfo" class="reserve"></div>
  </div>
 </div>
@@ -220,7 +235,7 @@ button.primary:hover,.active:hover,#end:enabled:hover,#start:enabled:hover{backg
   </div>
 </section>
 </main>
-<dialog id="cardDialog"><h2 id="detailTitle"></h2><p id="detailStats"></p><p id="detailText"></p><p id="detailEdges" class="piece-ports"></p><button id="detailClose" type="button">閉じる</button></dialog>
+<dialog id="cardDialog"><h2 id="detailTitle"></h2><p id="detailStats"></p><p id="detailText"></p><div id="detailShape" class="detail-shape jigsaw" hidden></div><p id="detailEdges" class="piece-ports"></p><button id="detailClose" type="button">閉じる</button></dialog>
 <script>
 (() => {
   const notice=document.getElementById('startupStatus');
@@ -616,7 +631,10 @@ function grow(player){
   }
   case 'fuse': fuse(); break;
   case 'connect': connect(); break;
-  case 'attack': attack(); break;
+  case 'attack':
+    if(action.target!==-1&&(!Number.isInteger(action.target)||action.target<0||action.target>=G.c.b.length))alert('攻撃対象を選んでください。');
+    attack();
+    break;
   case 'equip': equip(); break;
   case 'spell': spell(); break;
   case 'detach': detach(); break;
@@ -693,27 +711,29 @@ function playCpuTurn(state) {
   return state;
 }
 /* END SHARED RULES */
-const $=x=>document.getElementById(x),rootName=r=>R.find(x=>x[0]===r)[1],typeName=t=>({piece:'ピース',fusion:'融合',equipment:'装備',spell:'詠唱'}[t]);let deck=[],G=null,handSel=-1,unitSel=-1,targetSel=-1,secondSel=-1;
+const $=x=>document.getElementById(x),rootName=r=>R.find(x=>x[0]===r)[1],typeName=t=>({piece:'ピース',fusion:'融合',equipment:'装備',spell:'詠唱'}[t]);let deck=[],G=null,handSel=-1,unitSel=-1,targetSel=null,secondSel=-1;
 function esc(s){return String(s).replace(/[&<>"]/g,x=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[x]))}
 function opts(){for(let id of ['br','cr'])R.forEach(([r,n])=>$(id).add(new Option(n,r)))}
 function list(root,type,q){return C.filter(c=>(root==='all'||c.r===root)&&(type==='all'||c.t===type)&&(!q||(c.n+c.d+c.k).includes(q)))}
 const pieceColors={red:'#d97876',blue:'#70afd8',green:'#86bc91',white:'#e8dba4',black:'#aa8eca'};
 function shapeStyle(piece){
-  const edges=piece.edges??piece.e;
+  const original=piece.edges??piece.e;
+  const edges=original&&!Array.isArray(original)?[original,{s:'無'},{s:'無'},{s:'無'}]:original;
   if(!Array.isArray(edges)||edges.length!==4)return '';
   const border=[];
   const transform=[
     (x,y)=>[x,y],(x,y)=>[100-y,x],(x,y)=>[100-x,100-y],(x,y)=>[y,100-x],
   ];
   for(let side=0;side<4;side++){
-    const drop=edges[side].s==='凸'?1:edges[side].s==='凹'?13:7;
-    for(const [x,y] of [[7,7],[39,7],[41,drop],[45,drop],[55,drop],[59,drop],[61,7],[93,7]]){
+    const drop=edges[side].s==='凸'?0:edges[side].s==='凹'?19:8;
+    for(const [x,y] of [[8,8],[34,8],[37,drop],[44,drop],[56,drop],[63,drop],[66,8],[92,8]]){
       border.push(transform[side](x,y).map(n=>n+'%').join(' '));
     }
   }
   return '--piece-shape:polygon('+border.join(',')+');--root-color:'+(pieceColors[piece.r]??'#8293b1');
 }
 function edgeLabels(edges){
+  if(edges&&!Array.isArray(edges))return edges.s+(edges.s==='凸'?' '+edges.c:'');
   if(!Array.isArray(edges)||!edges.length)return '';
   return edges.map((edge,i)=>['↑','→','↓','←'][i]+
     (edge.s==='無'?'—':edge.s==='凸'?'凸'+edge.c:'凹')+(edge.used?'済':'')).join(' ');
@@ -772,7 +792,7 @@ function renderCpuMatch(){
   const previous=G;
   G={p:{...host,capacity:Math.min(5,host.capacity+(host.activated?1:0))},
     c:guest,round,turn:turn==='host'?'p':'c',over:!!winner,won:winner==='host',logs:[...logs]};
-  handSel=unitSel=targetSel=secondSel=-1;
+  handSel=unitSel=secondSel=-1;targetSel=null;
   $('log').innerHTML=logs.map(esc).join('<br>');
   renderGame();
   showBattleEvent(previous,G);
@@ -801,19 +821,18 @@ function cpuMove(action){
     }
   }catch(error){$('log').textContent=error.message;}
 }
-const factionMarks={red:'火',blue:'潮',green:'花',white:'星',black:'影'};
 function renderHud(p,c){
   $('enemyHandCount').textContent='手札 '+c.h.length;
   $('enemyHand').innerHTML=Array.from({length:Math.min(9,c.h.length)},()=>'<span></span>').join('');
   $('handCount').textContent=p.h.length+' / 9';
   for(const [player,mark,info] of [[p,'ownMark','pinfo'],[c,'enemyMark','cinfo']]){
-    $(mark).textContent=factionMarks[player.root]??'◆';
-    $(mark).style.setProperty('--leader-tone',pieceColors[player.root]??'#b4a6ca');
     $(info).innerHTML='<span>山札 <b>'+player.d.length+'</b></span><span>トラッシュ <b>'+player.trash.length+'</b></span>';
   }
   $('cost').textContent='コスト '+p.cost+' / '+p.capacity;
   $('energyDots').innerHTML=Array.from({length:5},(_,i)=>'<i class="'+(i<p.cost?'filled':i<p.capacity?'spent':'')+'"></i>').join('');
-  $('faceTarget').classList.toggle('targetable',G.turn==='p'&&unitSel>=0&&targetSel<0&&secondSel<0&&legalAction('attack'));
+  $('faceTarget').classList.toggle('targetable',canAttackTarget(-1));
+  $('faceTarget').classList.toggle('target-selected',targetSel===-1);
+  $('faceTarget').setAttribute('aria-pressed',String(targetSel===-1));
 }
 function renderField(player,side){
   const occupied=player.b.reduce((total,u)=>total+(u.mats?.length??1),0);
@@ -825,19 +844,23 @@ function renderGame(){if(!G)return;let p=G.p,c=G.c;$('battleTitle').textContent=
  const selected=i===handSel?' selected':'';
  const cost=card.t==='piece'?card.c:card.t==='fusion'?card.cc:card.e?.s==='凸'?card.e.c:'◇';
  const unit=card.t==='piece'||card.t==='fusion';
- return '<button type="button" class="mini-card'+selected+'" style="--mini-color:'+pieceColors[card.r]+'" data-hand="'+i+'" aria-pressed="'+(i===handSel)+'"><span class="mini-cost">'+cost+'</span><span class="mini-name">'+esc(card.n)+'</span><span class="mini-atk">'+(unit?'⚔'+card.a:'')+'</span><span class="mini-hp">'+(unit?'♥'+card.h:typeName(card.t))+'</span></button>';
+ const frame=shapeStyle(card);
+ return '<button type="button" class="mini-card'+selected+(frame?' jigsaw':'')+'" style="'+frame+';--mini-color:'+pieceColors[card.r]+'" data-hand="'+i+'" aria-pressed="'+(i===handSel)+'"><span class="mini-cost">'+cost+'</span><span class="mini-name">'+esc(card.n)+'</span><span class="mini-edges">'+esc(edgeLabels(card.e))+'</span><span class="mini-atk">'+(unit?'⚔'+card.a:'')+'</span><span class="mini-hp">'+(unit?'♥'+card.h:typeName(card.t))+'</span></button>';
 }).join('');
 renderField(p,'p');renderField(c,'c');renderActions();
-$('faceTarget').disabled=G.over;
-$('again').hidden=!!G.online;
+$('faceTarget').disabled=!canAttackTarget(-1);
+$('again').hidden=!!G.online||!G.over;
+$('battleBack').hidden=!G.over;
 }
 function unitHTML(u,i,side){
   const selected=side==='p'?(i===unitSel||i===secondSel):i===targetSel;
   const frame=shapeStyle(u);
-  const classes=['unit','field-piece',frame?'jigsaw':'',selected?'selected':'',side==='p'&&u.ready?'ready-piece':''].join(' ');
+  const attackable=side==='c'&&canAttackTarget(i);
+  const spellTarget=side==='c'&&!attackable&&canSpellTarget(i);
+  const classes=['unit','field-piece',frame?'jigsaw':'',selected?'selected':'',attackable?'attack-target':'',spellTarget?'spell-target':'',side==='p'&&u.ready?'ready-piece':''].join(' ');
   const ports=edgeLabels(u.edges);
   const detail=[u.shield?'盾':'',u.equip?'装備：'+u.equip.n:'',u.mats?u.mats.length+'体連結':''].filter(Boolean).join(' · ');
-  return '<button type="button" class="'+classes+'" style="'+frame+';--root-color:'+pieceColors[u.r]+';grid-column:span '+(u.mats?.length??1)+'" data-'+side+'u="'+i+'" aria-pressed="'+selected+'">'+
+  return '<button type="button" class="'+classes+'" style="'+frame+';--root-color:'+pieceColors[u.r]+';grid-column:span '+(u.mats?.length??1)+'" data-'+side+'u="'+i+'" aria-pressed="'+selected+'"'+(side==='c'&&!attackable&&!spellTarget?' disabled':'')+'>'+
     '<span class="field-name">'+esc(u.n)+'</span><span class="field-condition">'+esc(detail||u.k||'')+'</span>'+
     '<span class="field-ports">'+ports+'</span><span class="field-atk" aria-label="攻撃 '+u.a+'">'+u.a+'</span><span class="field-hp" aria-label="体力 '+u.hp+'">'+u.hp+'</span></button>';
 }
@@ -846,12 +869,18 @@ let chooseEdge=false;
 function currentAction(kind,direction){
   return {kind,hand:handSel,unit:unitSel,second:secondSel,target:targetSel,direction};
 }
-function legalAction(kind,direction){
+function legalAction(kind,direction,target=targetSel){
   if(!G||G.over||G.turn!=='p')return false;
+  if(kind==='attack'&&(target===null||secondSel>=0))return false;
   try{
-    applyMove({host:G.p,guest:G.c,round:G.round,turn:'host',winner:null,logs:[]},'host',currentAction(kind,direction));
+    applyMove({host:G.p,guest:G.c,round:G.round,turn:'host',winner:null,logs:[]},'host',{...currentAction(kind,direction),target});
     return true;
   }catch{return false;}
+}
+function canAttackTarget(index){return legalAction('attack',undefined,index);}
+function canSpellTarget(index){
+  const card=C.find(entry=>entry.id===G.p.h[handSel]);
+  return [0,'break-equipment','weaken','bounce'].includes(card?.effect??card?.ef)&&legalAction('spell',undefined,index);
 }
 function renderActions(){
   const edgeList=$('edgePick');
@@ -867,7 +896,7 @@ function renderActions(){
   }
   const own=G.turn==='p'&&!G.over;
   $('end').disabled=!own||!!G.p.pending;
-  $('actionHint').textContent=G.over?'':G.p.pending&&own?'巡回で山札の底に戻す手札を選んでください。':!own?'相手の操作を待っています。':handSel<0&&unitSel<0?'手札か盤面のピースを選択':!Object.keys(actionIds).some(id=>!$(id).hidden)?'対象を選ぶか、別のピースを選んでください。':'';
+  $('actionHint').textContent=G.over?'':G.p.pending&&own?'巡回で山札の底に戻す手札を選んでください。':!own?'相手の操作を待っています。':handSel<0&&unitSel<0?'手札か盤面のピースを選択':targetSel===null&&G.p.b[unitSel]?.ready&&secondSel<0?'黄色い枠から攻撃対象を選択':!Object.keys(actionIds).some(id=>!$(id).hidden)?'対象を選ぶか、別のピースを選んでください。':'';
   if(chooseEdge&&!$('connect').hidden){
     const labels=['上 ↔ 下','右 ↔ 左','下 ↔ 上','左 ↔ 右'];
     labels.forEach((label,direction)=>{
@@ -897,7 +926,7 @@ function selectOwn(e){
   if(unitSel<0){unitSel=index;secondSel=-1;}
   else if(index===unitSel){unitSel=-1;secondSel=-1;}
   else secondSel=secondSel===index?-1:index;
-  targetSel=-1;
+  targetSel=null;
   chooseEdge=false;
   renderGame();
 }
@@ -932,6 +961,10 @@ function openCard(id){
   const ports=Array.isArray(card.e)?card.e.map((edge,i)=>['上','右','下','左'][i]+' '+edge.s+
     (edge.s==='凸'?' ('+edge.c+')':'')):card.e?[card.e.s+(card.e.s==='凸'?' ('+card.e.c+')':'')]:[];
   $('detailEdges').textContent=ports.join(' / ');
+  const frame=shapeStyle(card);
+  $('detailShape').hidden=!frame;
+  $('detailShape').style.cssText=frame;
+  $('detailShape').textContent=edgeLabels(card.e);
   if(typeof $('cardDialog').showModal==='function')$('cardDialog').showModal();
   else $('cardDialog').setAttribute('open','');
 }
@@ -946,7 +979,7 @@ $('book').onclick=e=>{
   if(card)openCard(card.dataset.id);
 };
 $('deck').onclick=e=>{let b=e.target.closest('[data-del]');if(b){deck.splice(+b.dataset.del,1);renderDeck()}};$('fill').onclick=()=>{const selected=$('br').value;deck=deckFor(selected==='all'?(C.find(x=>x.id===deck[0])?.r??'red'):selected);renderDeck();$('deckStatus').textContent='固定デッキを作りました。'};$('clear').onclick=()=>{deck=[];renderDeck()};$('start').onclick=()=>startGame();$('again').onclick=()=>startGame(true);
-document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{if(b.dataset.to==='battle'&&!G){startGame(true);return;}show(b.dataset.to)});$('hand').onclick=selectHand;$('pboard').onclick=selectOwn;$('cboard').onclick=e=>{let b=e.target.closest('[data-cu]');if(b){targetSel=+b.dataset.cu;secondSel=-1;chooseEdge=false;renderGame()}};
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{if(b.dataset.to==='battle'&&!G){startGame(true);return;}show(b.dataset.to)});$('hand').onclick=selectHand;$('pboard').onclick=selectOwn;$('cboard').onclick=e=>{let b=e.target.closest('[data-cu]');if(b&&(canAttackTarget(+b.dataset.cu)||canSpellTarget(+b.dataset.cu))){targetSel=+b.dataset.cu;secondSel=-1;chooseEdge=false;renderGame()}};
 
 (()=>{
  const $=id=>document.getElementById(id); let roomTimer=null, roomRequest=0;
@@ -1062,7 +1095,7 @@ document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{if(b.dataset.to==='b
        const first=!G?.online;
        const previous=G;
        G={...match,online:true};
-       handSel=unitSel=targetSel=secondSel=-1;
+       handSel=unitSel=secondSel=-1;targetSel=null;
        $('log').innerHTML=G.logs.map(esc).join('<br>');
        renderGame();
        showBattleEvent(previous,G);
@@ -1086,6 +1119,7 @@ document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{if(b.dataset.to==='b
  $('customReady').onclick=()=>{if(deckCanPlay())matchUpdate({kind:'ready',deck:[...deck]})};
  $('matchReady').onclick=()=>matchUpdate({kind:'ready',root:$('matchRoot').value});
  function move(kind,direction) {
+   if(kind==='attack'&&!legalAction('attack'))return;
    const action=currentAction(kind,direction);
    chooseEdge=false;
    if(G?.online)matchUpdate(action);
@@ -1099,7 +1133,8 @@ document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{if(b.dataset.to==='b
  ]) $(id).onclick=()=>{if(kind==='connect'){chooseEdge=!chooseEdge;renderActions();}else move(kind);};
  $('firework').onclick=()=>move('firework');
  $('patrolReturn').onclick=()=>move('patrol');
- $('faceTarget').onclick=()=>{targetSel=-1;$('log').textContent='攻撃対象：相手リーダー';renderGame()};
+ $('faceTarget').onclick=()=>{if(canAttackTarget(-1)){targetSel=-1;renderGame();}};
+ $('battleBack').onclick=()=>{const online=G?.online;window.closeOnlineMatch();G=null;show(online?'online':'builder');};
  function showRoom(room, host) {
    clearTimeout(roomTimer);
    try { sessionStorage.setItem('roots-link.room',JSON.stringify({room,host})); } catch {}

@@ -384,7 +384,10 @@ function grow(player){
   }
   case 'fuse': fuse(); break;
   case 'connect': connect(); break;
-  case 'attack': attack(); break;
+  case 'attack':
+    if(action.target!==-1&&(!Number.isInteger(action.target)||action.target<0||action.target>=G.c.b.length))alert('攻撃対象を選んでください。');
+    attack();
+    break;
   case 'equip': equip(); break;
   case 'spell': spell(); break;
   case 'detach': detach(); break;
