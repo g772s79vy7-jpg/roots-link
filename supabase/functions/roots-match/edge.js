@@ -53,9 +53,9 @@ Deno.serve(async request => {
     const ready=!!(state.host&&state.guest);
     function view(player,own) {
       if(!player)return null;
-      return {hp:player.hp,cost:player.cost,capacity:player.capacity,b:player.b,
+      return {hp:player.hp,cost:player.cost,capacity:Math.min(5,player.capacity+(player.activated?1:0)),b:player.b,
         h:own?player.h:Array(player.h.length).fill(null),d:Array(player.d.length).fill(null),
-        trash:Array(player.trash.length).fill(null),pending:own&&player.pending};
+        trash:Array(player.trash.length).fill(null),pending:own&&player.pending,freeFirework:own&&player.freeFirework};
     }
     return answer({version,ready,p:view(state[seat],true),c:view(state[other],false),
       turn:state.turn===seat?'p':'c',round:state.round,over:!!state.winner,

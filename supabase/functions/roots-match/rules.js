@@ -18,11 +18,12 @@ S[r].forEach((n,i)=>C.push({id:r+'s'+i,n,r,t:'spell',a:0,h:0,c:0,e:{s:i%2===0?'�
 }
 
 const overrides = {
-  redp0:{a:3,h:3,c:2},
-  redp1:{a:3,h:8,c:4},
-  redf0:{a:8,h:10,cc:5},
-  whitep7:{k:'盾'},
-  greenp1:{k:'活性',a:2,h:3},
+  redp0:{a:3,h:3,c:2,d:'召喚時、手札の火鉢バチ1体をコストなしで出せる。'},
+  redp1:{a:3,h:8,c:4,d:'場に出た時、山札からピースをランダムに1枚手札に加える。'},
+  redf0:{n:'花火師 多摩屋',a:8,h:10,cc:5,d:'相手のピースがトラッシュに送られた時、相手リーダーと全ピースに5ダメージ。各自分ターンに1回。'},
+  whitep6:{d:'このピースを含む連結体に、場の3体目を接続できる。'},
+  whitep7:{k:'盾',d:'相手の通常攻撃をこのピースに引きつける。'},
+  greenp1:{k:'活性',a:2,h:3,d:'召喚したターンだけ最大コストと残りコストを1増やす。上限5。'},
 };
 for(const card of C) Object.assign(card,overrides[card.id]);
 
@@ -60,6 +61,7 @@ export function prepare(deck,host) {
 export function applyMove(state,seat,action){
  const opponent=seat==='host'?'guest':'host';
  if(state.turn!==seat) throw new Error('相手のターンです。');
+ state=structuredClone(state);
  const G={p:state[seat],c:state[opponent],round:state.round};
  const index=(n)=>Number.isInteger(n)&&n>=0&&n<9?n:-1;
  let handSel=index(action.hand),unitSel=index(action.unit),secondSel=index(action.second),targetSel=index(action.target);
@@ -77,21 +79,118 @@ export function applyMove(state,seat,action){
  const patrol=(p)=>{p.pending=true;};
  const winCheck=()=>{if(G.c.hp<=0)state.winner=seat;if(G.p.hp<=0)state.winner=opponent;};
 function makeUnit(c){return {n:c.n,id:c.id,r:c.r,a:c.a,hp:c.h,max:c.h,k:c.k||'',ready:c.k==='速攻',shield:c.k==='盾',edges:c.e?c.e.map(x=>({...x,used:false})):[],equip:null,mats:null,entered:G.round,growth:0,attacked:false}}
-function boardSlots(p){return p.b.reduce((n,u)=>n+(u.mats?2:1),0)}
+function boardSlots(p){return p.b.reduce((n,u)=>n+(u.mats?.length??1),0)}
 function spendHand(){let id=G.p.h.splice(handSel,1)[0];handSel=-1;return C.find(x=>x.id===id)}
-function summon(){let p=G.p,c=C.find(x=>x.id===p.h[handSel]);if(!c||c.t!=='piece')return;if(boardSlots(p)>=3)return alert('場は最大3枠。');if(p.cost<c.c)return alert('召喚コスト不足。');p.cost-=c.c;c=spendHand();p.b.push(makeUnit(c));log(c.n+'を召喚！');if(c.k==='巡回'){let d=draw(p);if(!G.over)patrol(p,d)}renderGame()}
+function drawPieceToHand(player) {
+  if (player.h.length>=9) return;
+  const candidates=player.d.flatMap((id,i)=>C.find(card=>card.id===id)?.t==='piece'?[i]:[]);
+  if (candidates.length) {
+    player.h.push(player.d.splice(candidates[Math.floor(Math.random()*candidates.length)],1)[0]);
+    log('山札からピースを1枚手札に加えました。');
+  }
+}
+function summon() {
+  const player=G.p;
+  const card=C.find(entry=>entry.id===player.h[handSel]);
+  if(card?.t!=='piece')return;
+  if(boardSlots(player)>=3)alert('場は最大3枠。');
+  if(player.cost<card.c)alert('召喚コスト不足。');
+  player.cost-=card.c;
+  spendHand();
+  player.b.push(makeUnit(card));
+  log(card.n+'を召喚！');
+  if(card.id==='redp0'&&player.h.includes('redp1')&&boardSlots(player)<3)player.freeFirework=true;
+  if(card.id==='redp1')drawPieceToHand(player);
+  if(card.k==='活性'&&player.capacity<5&&!player.activated){
+    player.activated=true;
+    player.cost++;
+  }
+  if(card.k==='巡回'){
+    draw(player);
+    if(!G.over)patrol(player);
+  }
+}
 function fuse(){let p=G.p,c=C.find(x=>x.id===p.h[handSel]);if(!c||c.t!=='fusion')return;if(p.cost<c.cc)return alert('接続コスト不足。');if(p.b.length<2)return alert('融合素材2体が必要。');let a=Number(prompt('融合素材1の場番号（1〜'+p.b.length+'）','1'))-1,b=Number(prompt('融合素材2の場番号','2'))-1;if(a===b||!p.b[a]||!p.b[b])return;let u=p.b[a],v=p.b[b];if(u.mats||v.mats||u.equip||v.equip)return alert('装備中のピースは融合できません。');if(!c.m||u.id===v.id||![u.id,v.id].every(id=>c.m.includes(id)))return alert('この融合カードの指定素材ではありません。');p.cost-=c.cc;let indices=[a,b].sort((x,y)=>y-x);for(let i of indices){let m=p.b.splice(i,1)[0];toTrash(p,m,'融合素材')}let f=spendHand();let x=makeUnit(f);x.ready=false;p.b.push(x);log(u.n+'＋'+v.n+' → '+f.n+'！接続コスト'+f.cc+'を使用。');renderGame()}
-function edgePair(u,v,allowStar=true){for(let i=0;i<4;i++)for(let j=(i+2)%4, stop=j+1;j<stop;j++){let a=u.edges[i],b=v.edges[j];if(a&&!a.used&&b&&!b.used&&a.s!=='無'&&b.s!=='無'&&a.s!==b.s)return {i,j,c:a.s==='凸'?a.c:b.c}}if(allowStar&&(u.k==='星導'||v.k==='星導'))return {i:-1,j:-1,c:1,star:true};return null}
-function connect(){let p=G.p,u=p.b[unitSel],v=p.b[secondSel];if(!u||!v||u===v)return;if(u.mats||v.mats||u.equip||v.equip)return alert('装備中のピースは連結できません。');let e=edgePair(u,v);if(!e)return alert('接続辺が合いません（星導があれば無視可能）。');if(p.cost<e.c)return alert('接続コスト不足。');p.cost-=e.c;if(!e.star){u.edges[e.i].used=true;v.edges[e.j].used=true}let mats=[];for(let x of [u,v]){if(x.mats)mats.push(...x.mats);else mats.push({n:x.n,hp:x.hp,max:x.max,a:x.a,id:x.id,k:x.k})}let max=mats.reduce((s,x)=>s+x.max,0),hp=mats.reduce((s,x)=>s+x.hp,0);let x={n:u.n+'＋'+v.n+' LINK',id:'link',r:u.r,a:u.a+v.a,hp,max,k:'連結',ready:u.ready&&v.ready,shield:u.shield||v.shield,edges:[],equip:null,mats:mats,entered:G.round,attacked:false};for(let i of [unitSel,secondSel].sort((a,b)=>b-a))p.b.splice(i,1);p.b.push(x);log(u.n+'と'+v.n+'が連結！'+(e.star?'星導で辺条件を無視。':'接続辺を使用。')+'攻撃/HP合算。');unitSel=secondSel=-1;renderGame()}
+function edgePair(u,v) {
+  const star=u.k==='星導'||v.k==='星導';
+  let fallback;
+  for(let i=0;i<4;i++){
+    const j=(i+2)%4;
+    const a=u.edges?.[i],b=v.edges?.[j];
+    if(a?.used||b?.used)continue;
+    if(a?.s==='凸'&&b?.s==='凹')return {i,j,c:a.c};
+    if(a?.s==='凹'&&b?.s==='凸')return {i,j,c:b.c};
+    if(star)fallback??={i,j,c:a?.s==='凸'?a.c:b?.s==='凸'?b.c:1,star:true};
+  }
+  return fallback;
+}
+function connect(){
+  const p=G.p,u=p.b[unitSel],v=p.b[secondSel];
+  if(!u||!v||u===v)return;
+  if(u.equip||v.equip||[u,v].some(unit=>C.find(card=>card.id===unit.id)?.t==='fusion'))alert('装備中や一体化済みのピースは連結できません。');
+  const mats=[...(u.mats??[u]),...(v.mats??[v])];
+  if(mats.length>3||mats.length===3&&!mats.some(piece=>piece.id==='whitep6'))alert('3体連結にはジェミニが必要です。');
+  let pair;
+  for (const left of u.mats??[u]) {
+    for(const right of v.mats??[v]){
+      const candidate=edgePair(left,right);
+      if(candidate){pair={...candidate,left,right};break;}
+    }
+    if(pair)break;
+  }
+  if(!pair)alert('接続できる辺がありません。');
+  if(p.cost<pair.c)alert('接続コスト不足。');
+  p.cost-=pair.c;
+  if(pair.left.edges?.[pair.i])pair.left.edges[pair.i].used=true;
+  if(pair.right.edges?.[pair.j])pair.right.edges[pair.j].used=true;
+  const merged={id:'link',r:u.r,k:'連結',edges:[],mats,ready:u.ready&&v.ready,
+    attacked:u.attacked||v.attacked,entered:G.round};
+  updateLink(merged);
+  for(const i of [unitSel,secondSel].sort((a,b)=>b-a))p.b.splice(i,1);
+  p.b.push(merged);
+  log(merged.n+'が成立しました。');
+}
+function updateLink(unit){
+  const mats=unit.mats;
+  unit.n=mats.map(piece=>piece.n).join('＋')+' LINK';
+  unit.hp=mats.reduce((sum,piece)=>sum+piece.hp,0);
+  unit.max=mats.reduce((sum,piece)=>sum+piece.max,0);
+  unit.a=mats.reduce((sum,piece)=>sum+piece.a,0)+(unit.bonus??0);
+  unit.shield=mats.some(piece=>piece.shield||piece.k==='盾');
+}
 function toTrash(p,u,why){if(u.mats){u.mats.forEach(m=>{p.trash.push(m.id||'linked-material');if(m.k==='怨念')resent(p,m.n)})}else{p.trash.push(u.id);if(u.k==='怨念')resent(p,u.n)}if(u.equip)p.trash.push(u.equip.id);log(u.n+'はトラッシュへ（'+why+'）。');}
 function resent(p,n){p.b.forEach(u=>{if(u.k==='怨念'&&u.id!=='link'){u.a++;log(u.n+'の怨念！攻撃力+1。')}})}
-function damageUnit(p,i,dmg){let u=p.b[i];if(!u)return;if(u.mats){let left=dmg;u.mats.sort((a,b)=>a.hp-b.hp);while(left>0&&u.mats.length){let m=u.mats[0],take=Math.min(left,m.hp);m.hp-=take;left-=take;if(m.hp<=0){p.trash.push(m.id||'material');if(m.k==='怨念')resent(p,m.n);log(m.n+'が連結体から脱落しトラッシュへ。');u.mats.shift()}}u.hp=u.mats.reduce((s,m)=>s+m.hp,0);u.max=u.mats.reduce((s,m)=>s+m.max,0);if(!u.mats.length){p.b.splice(i,1);log(u.n+'は消滅！')}else{u.a=u.mats.reduce((s,m)=>s+m.a,0);log(u.n+'に'+dmg+'ダメージ（残HP'+u.hp+'）。')}}else{u.hp-=dmg;log(u.n+'に'+dmg+'ダメージ！');if(u.hp<=0){p.b.splice(i,1);toTrash(p,u,'破壊')}}}
+function damageUnit(player,index,damage){
+  const unit=player.b[index];
+  if(!unit)return;
+  if(!unit.mats){
+    unit.hp-=damage;
+    log(unit.n+'に'+damage+'ダメージ！');
+    if(unit.hp<=0){player.b.splice(index,1);toTrash(player,unit,'破壊');}
+    return;
+  }
+  unit.mats.sort((a,b)=>a.hp-b.hp);
+  for(const piece of unit.mats){
+    const dealt=Math.min(damage,piece.hp);
+    damage-=dealt;
+    piece.hp-=dealt;
+    if(piece.hp===0){player.trash.push(piece.id);if(piece.k==='怨念')resent(player,piece.n);log(piece.n+'がトラッシュへ。');}
+  }
+  unit.mats=unit.mats.filter(piece=>piece.hp>0);
+  if(!unit.mats.length)player.b.splice(index,1);
+  else if(unit.mats.length===1){
+    const [survivor]=unit.mats;
+    player.b[index]={...makeUnit(C.find(card=>card.id===survivor.id)),...survivor,
+      ready:unit.ready,attacked:unit.attacked};
+  } else updateLink(unit);
+}
 function attack(){let p=G.p,c=G.c,u=p.b[unitSel];if(!u||!u.ready||targetSel>=c.b.length)return;let shields=c.b.map((x,i)=>x.shield?i:-1).filter(i=>i>=0);let ti=targetSel;if(shields.length&& (ti<0||!shields.includes(ti)))return alert('相手に盾がいるため盾を選んでください。');if(ti>=0&&c.b[ti])damageUnit(c,ti,u.a);else{c.hp-=u.a;log(u.n+'が相手リーダーに'+u.a+'ダメージ！')}u.ready=false;u.attacked=true;unitSel=targetSel=-1;winCheck();renderGame()}
-function equip(){let p=G.p,c=C.find(x=>x.id===p.h[handSel]),u=p.b[unitSel];if(c?.t!=='equipment'||!u||u.mats||u.equip)return alert('装備できるのは装備なしの単独ピースのみ。');let ep=u.edges.findIndex(e=>!e.used&&e.s!=='無'&&e.s!==c.e.s);if(ep<0)return alert('装備カードと凸凹が合う未使用辺がありません。');const cost=c.e.s==='凸'?c.e.c:u.edges[ep].c;if(p.cost<cost)return alert('接続コスト不足。');p.cost-=cost;u.edges[ep].used=true;u.equip={id:c.id,n:c.n,a:c.a,h:c.h};u.a+=c.a;u.hp+=c.h;u.max+=c.h;spendHand();log(c.n+'を'+u.n+'に装備。接続コスト'+cost+'。');renderGame()}
+function equip(){let p=G.p,c=C.find(x=>x.id===p.h[handSel]),u=p.b[unitSel];if(c?.t!=='equipment'||!u||u.mats||u.equip||C.find(card=>card.id===u.id)?.t!=='piece')return alert('装備できるのは装備なしの単独ピースのみ。');let ep=u.edges.findIndex(e=>!e.used&&e.s!=='無'&&e.s!==c.e.s);if(ep<0)return alert('装備カードと凸凹が合う未使用辺がありません。');const cost=c.e.s==='凸'?c.e.c:u.edges[ep].c;if(p.cost<cost)return alert('接続コスト不足。');p.cost-=cost;u.edges[ep].used=true;u.equip={id:c.id,n:c.n,a:c.a,h:c.h};u.a+=c.a;u.hp+=c.h;u.max+=c.h;spendHand();log(c.n+'を'+u.n+'に装備。接続コスト'+cost+'。');renderGame()}
 function detach(){let p=G.p,u=p.b[unitSel];if(!u?.equip)return;let e=u.equip;u.a-=e.a;u.hp=Math.min(u.hp,u.max-e.h);u.max-=e.h;u.equip=null;p.trash.push(e.id);log(e.n+'を外してトラッシュへ。');renderGame()}
-function spell(){let p=G.p,c=C.find(x=>x.id===p.h[handSel]),u=p.b[unitSel];if(c?.t!=='spell'||!u)return;let ep=u.edges.findIndex(e=>!e.used&&e.s!=='無'&&e.s!==c.e.s);if(ep<0)return alert('詠唱と凸凹が合う辺がありません。');const cost=c.e.s==='凸'?c.e.c:u.edges[ep].c;if(p.cost<cost)return alert('接続コスト不足。');p.cost-=cost;let f=spendHand();if(f.ef===0){if(!G.c.b[targetSel])return alert('相手のピースを選んでください。');damageUnit(G.c,targetSel,2)}else if(f.ef===1)p.hp=Math.min(20,p.hp+2);else if(f.ef===2){u.a++;u.hp++;u.max++}else if(f.ef===3)p.cost=Math.min(5,p.cost+1);else G.c.hp-=2;log(f.n+'を使用（接続コスト'+cost+'）。詠唱使用辺は再利用可能。');winCheck();renderGame()}
+function spell(){let p=G.p,c=C.find(x=>x.id===p.h[handSel]),u=p.b[unitSel];if(c?.t!=='spell'||!u)return;let ep=u.edges.findIndex(e=>!e.used&&e.s!=='無'&&e.s!==c.e.s);if(ep<0)return alert('詠唱と凸凹が合う辺がありません。');const cost=c.e.s==='凸'?c.e.c:u.edges[ep].c;if(p.cost<cost)return alert('接続コスト不足。');p.cost-=cost;let f=spendHand();if(f.ef===0){if(!G.c.b[targetSel])return alert('相手のピースを選んでください。');damageUnit(G.c,targetSel,2)}else if(f.ef===1)p.hp=Math.min(20,p.hp+2);else if(f.ef===2){if(u.mats){u.bonus=(u.bonus??0)+1;u.mats[0].hp++;u.mats[0].max++;updateLink(u)}else{u.a++;u.hp++;u.max++}}else if(f.ef===3)p.cost=Math.min(5,p.cost+1);else G.c.hp-=2;log(f.n+'を使用（接続コスト'+cost+'）。詠唱使用辺は再利用可能。');winCheck();renderGame()}
 function grow(p){let arr=p.b.filter(u=>u.k==='成長'&&!u.mats);for(let u of arr){if(p.cost>=1){p.cost--;u.a++;u.hp++;u.max++;u.growth++;log(u.n+'が成長！攻撃/最大HP+1（累計'+u.growth+'）。')}}}
  const before=JSON.stringify(state);
+ const opponentTrash=G.c.trash.length;
  if(G.p.pending&&action.kind!=='patrol') alert('巡回で戻す手札を選んでください。');
  switch(action.kind){
   case 'patrol':
@@ -100,44 +199,44 @@ function grow(p){let arr=p.b.filter(u=>u.k==='成長'&&!u.mats);for(let u of arr
     G.p.pending=false;
     log('巡回で手札を1枚戻しました。');
     break;
-  case 'summon':{
-    const id=G.p.h[handSel];
-    summon();
-    if(id==='greenp1')G.p.cost=Math.min(5,G.p.cost+1);
-    if(id==='redp1'&&G.p.h.length<9){
-      const candidates=G.p.d.flatMap((card,i)=>C.find(x=>x.id===card)?.t==='piece'?[i]:[]);
-      if(candidates.length)G.p.h.push(G.p.d.splice(candidates[Math.floor(Math.random()*candidates.length)],1)[0]);
-    }
+  case 'summon': summon(); break;
+  case 'firework': {
+    if(!G.p.freeFirework||G.p.h[handSel]!=='redp1'||boardSlots(G.p)>=3)alert('火鉢バチを選んでください。');
+    G.p.freeFirework=false;
+    const card=spendHand();
+    G.p.b.push(makeUnit(card));
+    log(card.n+'をコストなしで召喚！');
+    drawPieceToHand(G.p);
     break;
   }
   case 'fuse': fuse(); break;
   case 'connect': connect(); break;
-  case 'attack':{
-    const tamaya=G.p.b[unitSel]?.id==='redf0';
-    const defender=G.c.b[targetSel];
-    const changes=G.c.trash.length;
-    attack();
-    if(tamaya&&defender&&G.c.trash.length>changes){
-      G.c.hp-=5;
-      for(let i=G.c.b.length-1;i>=0;i--)damageUnit(G.c,i,5);
-      winCheck();
-    }
-    break;
-  }
+  case 'attack': attack(); break;
   case 'equip': equip(); break;
   case 'spell': spell(); break;
   case 'detach': detach(); break;
   case 'end':
     grow(G.p);
     G.p.cost=0;
+    G.p.freeFirework=false;
+    G.p.activated=false;
     G.c.capacity=Math.min(5,G.c.capacity+1);
     G.c.cost=G.c.capacity;
-    for(const unit of G.c.b){unit.ready=true;unit.attacked=false;}
+    for(const unit of G.c.b){unit.ready=true;unit.attacked=false;unit.tamayaTriggered=false;}
     state.turn=opponent;
     if(opponent==='host')state.round++;
     draw(G.c);
     break;
   default: alert('操作が無効です。');
+ }
+ if(G.c.trash.length>opponentTrash&&action.kind!=='end'){
+   for(const tamaya of G.p.b.filter(unit=>unit.id==='redf0'&&!unit.tamayaTriggered)){
+     tamaya.tamayaTriggered=true;
+     G.c.hp-=5;
+     for(let i=G.c.b.length-1;i>=0;i--)damageUnit(G.c,i,5);
+     log('花火師 多摩屋の効果が発動！');
+   }
+   winCheck();
  }
  if(JSON.stringify(state)===before)alert('その操作はできません。');
  return state;
