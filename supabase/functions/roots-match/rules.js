@@ -315,7 +315,27 @@ function damageUnit(player,index,damage){
       ready:unit.ready,attacked:unit.attacked,attacks:unit.attacks??0};
   } else updateLink(unit);
 }
-function attack(){let p=G.p,c=G.c,u=p.b[unitSel];if(!u||!u.ready||targetSel>=c.b.length)return;let shields=c.b.map((x,i)=>x.shield?i:-1).filter(i=>i>=0);let ti=targetSel;if(shields.length&& (ti<0||!shields.includes(ti)))return alert('相手に盾がいるため盾を選んでください。');if(ti>=0&&c.b[ti])damageUnit(c,ti,u.a);else{c.hp-=u.a;log(u.n+'が相手リーダーに'+u.a+'ダメージ！')}u.attacks=(u.attacks??0)+1;u.ready=u.attacks<(u.attackLimit??1);u.attacked=true;unitSel=targetSel=-1;winCheck()}
+function attack(){
+  const {p,c}=G;
+  const attacker=p.b[unitSel];
+  if(!attacker||!attacker.ready||targetSel>=c.b.length)return;
+  const defender=c.b[targetSel];
+  if(c.b.some(unit=>unit.shield)&&!defender?.shield)alert('相手に盾がいるため盾を選んでください。');
+  const attackPower=attacker.a;
+  attacker.attacks=(attacker.attacks??0)+1;
+  attacker.ready=attacker.attacks<(attacker.attackLimit??1);
+  attacker.attacked=true;
+  if(defender){
+    const retaliation=defender.a;
+    if(attackPower>0)damageUnit(c,targetSel,attackPower);
+    if(retaliation>0)damageUnit(p,unitSel,retaliation);
+  }else{
+    c.hp-=attackPower;
+    log(attacker.n+'が相手リーダーに'+attackPower+'ダメージ！');
+  }
+  unitSel=targetSel=-1;
+  winCheck();
+}
 function attachment(unit,card){
   const choices=attachmentChoices(unit,card).filter(item=>action.direction===undefined||action.direction===item.direction);
   return choices.reduce((best,item)=>!best||item.cost<best.cost?item:best,null);
@@ -521,10 +541,11 @@ export function playCpuTurn(state) {
     settlePatrol();
   }
   for(let unit=0;unit<state.guest.b.length&&!state.winner;unit++){
+    const fieldCount=state.guest.b.length;
     const opponent=state.host;
     let target=opponent.b.findIndex(piece=>piece.shield);
     if(target<0&&opponent.hp>state.guest.b[unit].a)target=opponent.b.findIndex(piece=>piece.hp<=state.guest.b[unit].a);
-    if(tryMove({kind:'attack',unit,target})&&state.guest.b[unit]?.ready&&!state.winner){
+    if(tryMove({kind:'attack',unit,target})&&!state.winner&&(state.guest.b.length<fieldCount||state.guest.b[unit]?.ready)){
       unit--;
     }
   }

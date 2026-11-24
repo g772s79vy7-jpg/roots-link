@@ -258,6 +258,33 @@ button.primary:hover,.active:hover,#end:enabled:hover,#start:enabled:hover{backg
  .hand .mini-card,.hand .mini-card.jigsaw{flex-basis:76px;width:76px;height:76px;min-height:76px;max-height:76px;padding:19px 8px}
  .hand .mini-name{font-size:.68rem}.hand .mini-name.name-md{font-size:.62rem}.hand .mini-name.name-sm{font-size:.56rem}.hand .mini-name.name-xs{font-size:.51rem}
 }
+
+.hand .mini-card,.hand .mini-card.jigsaw{
+  --hand-piece-size:98px;
+  flex-basis:var(--hand-piece-size);width:var(--hand-piece-size);height:var(--hand-piece-size);
+  min-height:var(--hand-piece-size);max-height:var(--hand-piece-size);
+  display:flex;flex-direction:column;justify-content:center;align-items:center;
+  padding-inline:0;
+  padding-block:calc(var(--hand-piece-size) * .215);
+}
+.hand .mini-name,.hand .mini-edges,.board-stage .field-piece > :is(.field-name,.field-condition,.field-ports){
+  width:60%;max-width:60%;padding-inline:0;overflow-wrap:anywhere;
+}
+.hand .mini-name{line-height:1.1}
+.hand .mini-edges{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hand :is(.mini-cost,.mini-atk,.mini-hp){left:13%;right:auto}
+.hand .mini-hp{left:auto;right:13%;max-width:54%;white-space:nowrap}
+.hand .mini-cost{top:12%}
+.hand :is(.mini-atk,.mini-hp){bottom:12%}
+.board-stage .field{padding-inline:0}
+.board-stage .field-piece{width:100%;padding:6.5cqw 0 8.5cqw}
+.board-stage :is(.field-atk,.field-hp){bottom:12%}
+.board-stage .field-atk{left:13%}
+.board-stage .field-hp{right:13%}
+@media(max-width:630px){
+  .hand .mini-card,.hand .mini-card.jigsaw{--hand-piece-size:82px}
+  .hand .mini-edges{display:none}
+}
 </style>
 <header class="site-header"><h1>ROOTS <span>LINK</span></h1>
 <nav><button class="tab active" data-to="builder">デッキ編集</button><button class="tab" data-to="catalog">カード図鑑</button><button class="tab" data-to="battle">対戦</button><button class="tab" data-to="online">オンライン対戦</button></nav></header><main>
@@ -651,7 +678,27 @@ function damageUnit(player,index,damage){
       ready:unit.ready,attacked:unit.attacked,attacks:unit.attacks??0};
   } else updateLink(unit);
 }
-function attack(){let p=G.p,c=G.c,u=p.b[unitSel];if(!u||!u.ready||targetSel>=c.b.length)return;let shields=c.b.map((x,i)=>x.shield?i:-1).filter(i=>i>=0);let ti=targetSel;if(shields.length&& (ti<0||!shields.includes(ti)))return alert('相手に盾がいるため盾を選んでください。');if(ti>=0&&c.b[ti])damageUnit(c,ti,u.a);else{c.hp-=u.a;log(u.n+'が相手リーダーに'+u.a+'ダメージ！')}u.attacks=(u.attacks??0)+1;u.ready=u.attacks<(u.attackLimit??1);u.attacked=true;unitSel=targetSel=-1;winCheck()}
+function attack(){
+  const {p,c}=G;
+  const attacker=p.b[unitSel];
+  if(!attacker||!attacker.ready||targetSel>=c.b.length)return;
+  const defender=c.b[targetSel];
+  if(c.b.some(unit=>unit.shield)&&!defender?.shield)alert('相手に盾がいるため盾を選んでください。');
+  const attackPower=attacker.a;
+  attacker.attacks=(attacker.attacks??0)+1;
+  attacker.ready=attacker.attacks<(attacker.attackLimit??1);
+  attacker.attacked=true;
+  if(defender){
+    const retaliation=defender.a;
+    if(attackPower>0)damageUnit(c,targetSel,attackPower);
+    if(retaliation>0)damageUnit(p,unitSel,retaliation);
+  }else{
+    c.hp-=attackPower;
+    log(attacker.n+'が相手リーダーに'+attackPower+'ダメージ！');
+  }
+  unitSel=targetSel=-1;
+  winCheck();
+}
 function attachment(unit,card){
   const choices=attachmentChoices(unit,card).filter(item=>action.direction===undefined||action.direction===item.direction);
   return choices.reduce((best,item)=>!best||item.cost<best.cost?item:best,null);
@@ -857,10 +904,11 @@ function playCpuTurn(state) {
     settlePatrol();
   }
   for(let unit=0;unit<state.guest.b.length&&!state.winner;unit++){
+    const fieldCount=state.guest.b.length;
     const opponent=state.host;
     let target=opponent.b.findIndex(piece=>piece.shield);
     if(target<0&&opponent.hp>state.guest.b[unit].a)target=opponent.b.findIndex(piece=>piece.hp<=state.guest.b[unit].a);
-    if(tryMove({kind:'attack',unit,target})&&state.guest.b[unit]?.ready&&!state.winner){
+    if(tryMove({kind:'attack',unit,target})&&!state.winner&&(state.guest.b.length<fieldCount||state.guest.b[unit]?.ready)){
       unit--;
     }
   }
