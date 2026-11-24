@@ -140,13 +140,24 @@ export function deckFor(root) {
   const ids=[0,1,2,3,4,5,6,7,8,9,10,11].map(i=>root+'p'+i);
   return [...ids,...ids,...[0,2,4].map(i=>root+'s'+i),root+'f0',root+'e0',root+'x0'];
 }
+export function cpuDeckFor(root){
+  const deck=deckFor(root);
+  const deckCatalog=C.filter(card=>card.r===root&&card.t==='piece'&&card.id.startsWith(root+'x'));
+  for(let i=16;i<22;i++){
+    const cost=C.find(card=>card.id===deck[i]).c;
+    const candidates=deckCatalog.filter(card=>card.c===cost&&!deck.includes(card.id));
+    if(candidates.length)deck[i]=candidates[Math.floor(Math.random()*candidates.length)].id;
+  }
+  return deck;
+}
+
 export function prepare(deck,host) {
  const d=[...deck];
  for(let i=d.length-1;i>0;i--){
    const j=Math.floor(Math.random()*(i+1));
    [d[i],d[j]]=[d[j],d[i]];
  }
- return {hp:20,h:d.splice(0,4),d,b:[],trash:[],cost:host?1:0,capacity:host?1:0,pending:false,root:C.find(card=>card.id===deck[0]).r};
+ return {hp:20,h:d.splice(0,4),d,b:[],trash:[],cost:host?1:0,linkCost:host?1:0,capacity:host?1:0,pending:false,root:C.find(card=>card.id===deck[0]).r};
 }
 
 export function applyMove(state,seat,action){
@@ -162,6 +173,12 @@ export function applyMove(state,seat,action){
  let handSel=index(action.hand),unitSel=index(action.unit),secondSel=index(action.second),targetSel=index(action.target);
  const log=(s)=>{state.logs.unshift(s);state.logs.length=Math.min(12,state.logs.length);};
  const alert=(s)=>{throw new Error(s);};
+ const connectionCost=player=>player.linkCost??player.cost;
+ const spendConnection=(player,amount)=>{
+   if(connectionCost(player)<amount)alert('接続コスト不足。');
+   if(player.linkCost===undefined)player.cost-=amount;
+   else player.linkCost-=amount;
+ };
 
 
  const draw=(p)=>{
@@ -211,7 +228,7 @@ function summon() {
     if(!G.over)patrol(player);
   }
 }
-function fuse(){let p=G.p,c=C.find(x=>x.id===p.h[handSel]);if(!c||c.t!=='fusion')return;if(p.cost<c.cc)return alert('接続コスト不足。');if(p.b.length<2)return alert('融合素材2体が必要。');let a=unitSel,b=secondSel;if(a===b||!p.b[a]||!p.b[b])return;let u=p.b[a],v=p.b[b];if(u.mats||v.mats||u.equip||v.equip)return alert('装備中のピースは融合できません。');if(!c.m||u.id===v.id||![u.id,v.id].every(id=>c.m.includes(id)))return alert('この融合カードの指定素材ではありません。');p.cost-=c.cc;let indices=[a,b].sort((x,y)=>y-x);for(let i of indices){let m=p.b.splice(i,1)[0];toTrash(p,m,'融合素材')}let f=spendHand();let x=makeUnit(f);x.ready=false;x.shield=u.shield||v.shield;x.grows=u.k==='成長'||v.k==='成長';p.b.push(x);log(u.n+'＋'+v.n+' → '+f.n+'！接続コスト'+f.cc+'を使用。')}
+function fuse(){let p=G.p,c=C.find(x=>x.id===p.h[handSel]);if(!c||c.t!=='fusion')return;if(connectionCost(p)<c.cc)return alert('接続コスト不足。');if(p.b.length<2)return alert('融合素材2体が必要。');let a=unitSel,b=secondSel;if(a===b||!p.b[a]||!p.b[b])return;let u=p.b[a],v=p.b[b];if(u.mats||v.mats||u.equip||v.equip)return alert('装備中のピースは融合できません。');if(!c.m||u.id===v.id||![u.id,v.id].every(id=>c.m.includes(id)))return alert('この融合カードの指定素材ではありません。');spendConnection(p,c.cc);let indices=[a,b].sort((x,y)=>y-x);for(let i of indices){let m=p.b.splice(i,1)[0];toTrash(p,m,'融合素材')}let f=spendHand();let x=makeUnit(f);x.ready=false;x.shield=u.shield||v.shield;x.grows=u.k==='成長'||v.k==='成長';p.b.push(x);log(u.n+'＋'+v.n+' → '+f.n+'！接続コスト'+f.cc+'を使用。')}
 function edgePair(u,v,direction) {
   const star=u.k==='星導'||v.k==='星導';
   let fallback;
@@ -240,8 +257,7 @@ function connect(){
     }
   }
   if(!pair)alert('接続できる辺がありません。');
-  if(p.cost<pair.c)alert('接続コスト不足。');
-  p.cost-=pair.c;
+  spendConnection(p,pair.c);
   if(pair.left.edges?.[pair.i])pair.left.edges[pair.i].used=true;
   if(pair.right.edges?.[pair.j])pair.right.edges[pair.j].used=true;
   const merged={id:'link',r:u.r,k:'連結',edges:[],mats,ready:u.ready&&v.ready,
@@ -300,10 +316,9 @@ function equip(){
   if(card?.t!=='equipment'||!unit||unit.mats||unit.equip||C.find(entry=>entry.id===unit.id)?.t!=='piece')alert('装備できるのは装備なしの単独ピースのみ。');
   const join=attachment(unit,card);
   if(!join)alert('装備カードと凸凹が合う未使用辺がありません。');
-  if(p.cost<join.cost)alert('接続コスト不足。');
-  p.cost-=join.cost;
+  spendConnection(p,join.cost);
   unit.edges[join.direction].used=true;
-  unit.equip={id:card.id,n:card.n,a:card.a,h:card.h,effect:card.effect};
+  unit.equip={id:card.id,n:card.n,a:card.a,h:card.h,effect:card.effect,direction:join.direction};
   unit.a+=card.a;unit.hp+=card.h;unit.max+=card.h;
   spendHand();
   log(card.n+'を'+unit.n+'に装備。接続コスト'+join.cost+'。');
@@ -314,6 +329,9 @@ function removeEquipment(player,unit,allowReturn){
   unit.max-=equipment.h;
   unit.hp=Math.min(unit.hp,unit.max);
   unit.equip=null;
+  if(Number.isInteger(equipment.direction)&&unit.edges?.[equipment.direction]){
+    unit.edges[equipment.direction].used=false;
+  }
   if(allowReturn&&equipment.effect==='return'&&player.h.length<9){
     player.h.push(equipment.id);
     log(equipment.n+'を手札へ戻しました。');
@@ -333,8 +351,7 @@ function spell(){
   const join=attachment(unit,card);
   if(!join)alert('詠唱と凸凹が合う辺がありません。');
   const cost=join.cost;
-  if(p.cost<cost)alert('接続コスト不足。');
-  p.cost-=cost;
+  spendConnection(p,cost);
   spendHand();
   switch(card.effect??card.ef){
     case 'draw':
@@ -423,10 +440,12 @@ function grow(player){
   case 'end':
     grow(G.p);
     G.p.cost=0;
+    if(G.p.linkCost!==undefined)G.p.linkCost=0;
     G.p.freeFirework=false;
     G.p.activated=false;
     G.c.capacity=Math.min(5,G.c.capacity+1);
     G.c.cost=G.c.capacity;
+    if(G.c.linkCost!==undefined)G.c.linkCost=G.c.capacity;
     for(const unit of G.c.b){unit.ready=true;unit.attacked=false;unit.attacks=0;unit.tamayaTriggered=false;}
     state.turn=opponent;
     if(opponent==='host')state.round++;
