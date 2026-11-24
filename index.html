@@ -192,6 +192,13 @@ button.primary:hover,.active:hover,#end:enabled:hover,#start:enabled:hover{backg
 .detail-shape{position:relative;isolation:isolate;width:150px;min-height:70px;display:grid;place-items:center;font-size:.9rem;color:#ffe6bf}
 .board-stage .field-ports{color:#ffe0af;font-weight:700}
 @media(max-width:630px){.playing main{padding-inline:4px}.hand .mini-card.jigsaw{min-height:71px}.field-ports{font-size:.64rem}.mini-name{font-size:.68rem}}
+
+.selection-strip{grid-column:1 / 3;grid-row:1;min-width:0;padding:4px 8px;border-left:3px solid #e0bb78;border-radius:4px;background:#2d2540;color:#f6e7c7;font-size:.76rem;overflow-wrap:anywhere}
+.battle-actions #end{grid-row:1 / span 4}
+.edge-pick{padding:3px;border-radius:7px;background:#352b46}
+.edge-pick button{min-height:40px}
+.field-piece[aria-pressed="true"] .field-name,.mini-card[aria-pressed="true"] .mini-name{color:#fff1ba}
+@media(max-width:630px){.selection-strip{font-size:.68rem}.battle-actions>button,.edge-pick button{min-height:40px}.battle-actions #end{min-width:71px}}
 </style>
 <header class="site-header"><h1>ROOTS <span>LINK</span></h1>
 <nav><button class="tab active" data-to="builder">デッキ編集</button><button class="tab" data-to="catalog">カード図鑑</button><button class="tab" data-to="battle">対戦</button><button class="tab" data-to="online">オンライン対戦</button></nav></header><main>
@@ -214,7 +221,7 @@ button.primary:hover,.active:hover,#end:enabled:hover,#start:enabled:hover{backg
  </div>
 </div>
 <div class="zone hand-zone"><div class="hand-heading"><b>手札</b><span id="handCount"></span></div><div id="hand" class="hand"></div></div>
-<div class="tools battle-actions"><button id="summon" disabled>ピース召喚</button><button id="fusion" disabled>融合</button><button id="equip" disabled>装備</button><button id="spell" disabled>詠唱を使う</button><button id="connect" disabled>選択2体を連結</button><button id="attack" disabled>選択ピースで攻撃</button><button id="detach" disabled>装備を外す</button><button id="firework" hidden>火鉢バチを無料召喚</button><button id="patrolReturn" hidden>巡回で手札を戻す</button><button id="selectionDetail" type="button" hidden>カード詳細</button><div id="edgePick" class="edge-pick" hidden></div><p id="actionHint" class="action-hint"></p><button id="end">ターン終了</button></div>
+<div class="tools battle-actions"><button id="summon" disabled>ピース召喚</button><button id="fusion" disabled>融合</button><button id="equip" disabled>装備</button><button id="spell" disabled>詠唱を使う</button><button id="connect" disabled>選択2体を連結</button><button id="attack" disabled>選択ピースで攻撃</button><button id="detach" disabled>装備を外す</button><button id="firework" hidden>火鉢バチを無料召喚</button><button id="patrolReturn" hidden>巡回で手札を戻す</button><button id="selectionDetail" type="button" hidden>カード詳細</button><div id="edgePick" class="edge-pick" hidden></div><div id="selectionStrip" class="selection-strip" hidden></div><p id="actionHint" class="action-hint"></p><button id="end">ターン終了</button></div>
 <details class="battle-help"><summary>操作方法</summary><p>手札や盤面のピースを選んでから操作ボタンを押します。連結は自分のピースを2体選択します。相手リーダーを攻撃するときは相手のHP表示を選べます。</p></details>
 <details class="zone log-zone"><summary>バトルログ</summary><div id="log" class="log" aria-live="polite"></div></details></div></section>
 <section id="online" class="hidden">
@@ -349,12 +356,20 @@ for(const card of C) {
   if(card.t==='equipment')card.d='装備ピースの攻撃力+'+card.a+'、体力+'+card.h+'。';
   Object.assign(card,specialEquipment[card.id],specialSpell[card.id]);
   if(card.t==='fusion'&&!card.id.endsWith('redf0')){
-    card.d='素材：'+card.m.map(id=>C.find(material=>material.id===id).n).join('＋')+'。一体化リンク時、両素材の盾を引き継ぐ。';
+    card.d='素材：'+card.m.map(id=>C.find(material=>material.id===id).n).join('＋')+'。一体化リンク時、素材の盾・成長を引き継ぐ。';
   }
 }
 const leaderText={
   blue:'音海楽団のリーダーは、空の山札からカードを引こうとすると勝利します。',
 };
+
+function attachmentChoices(unit,card) {
+  if(!unit||!card?.e||Array.isArray(card.e))return [];
+  return (unit.edges??[]).flatMap((edge,direction)=>{
+    if(!edge||edge.used||edge.s==='無'||edge.s===card.e.s)return [];
+    return [{direction,cost:card.e.s==='凸'?card.e.c:edge.c}];
+  });
+}
 
 function validateDeck(ids) {
   if (!Array.isArray(ids) || ids.length!==30) throw new Error('デッキを30枚にしてください。');
@@ -445,7 +460,7 @@ function summon() {
     if(!G.over)patrol(player);
   }
 }
-function fuse(){let p=G.p,c=C.find(x=>x.id===p.h[handSel]);if(!c||c.t!=='fusion')return;if(p.cost<c.cc)return alert('接続コスト不足。');if(p.b.length<2)return alert('融合素材2体が必要。');let a=unitSel,b=secondSel;if(a===b||!p.b[a]||!p.b[b])return;let u=p.b[a],v=p.b[b];if(u.mats||v.mats||u.equip||v.equip)return alert('装備中のピースは融合できません。');if(!c.m||u.id===v.id||![u.id,v.id].every(id=>c.m.includes(id)))return alert('この融合カードの指定素材ではありません。');p.cost-=c.cc;let indices=[a,b].sort((x,y)=>y-x);for(let i of indices){let m=p.b.splice(i,1)[0];toTrash(p,m,'融合素材')}let f=spendHand();let x=makeUnit(f);x.ready=false;x.shield=u.shield||v.shield;p.b.push(x);log(u.n+'＋'+v.n+' → '+f.n+'！接続コスト'+f.cc+'を使用。')}
+function fuse(){let p=G.p,c=C.find(x=>x.id===p.h[handSel]);if(!c||c.t!=='fusion')return;if(p.cost<c.cc)return alert('接続コスト不足。');if(p.b.length<2)return alert('融合素材2体が必要。');let a=unitSel,b=secondSel;if(a===b||!p.b[a]||!p.b[b])return;let u=p.b[a],v=p.b[b];if(u.mats||v.mats||u.equip||v.equip)return alert('装備中のピースは融合できません。');if(!c.m||u.id===v.id||![u.id,v.id].every(id=>c.m.includes(id)))return alert('この融合カードの指定素材ではありません。');p.cost-=c.cc;let indices=[a,b].sort((x,y)=>y-x);for(let i of indices){let m=p.b.splice(i,1)[0];toTrash(p,m,'融合素材')}let f=spendHand();let x=makeUnit(f);x.ready=false;x.shield=u.shield||v.shield;x.grows=u.k==='成長'||v.k==='成長';p.b.push(x);log(u.n+'＋'+v.n+' → '+f.n+'！接続コスト'+f.cc+'を使用。')}
 function edgePair(u,v,direction) {
   const star=u.k==='星導'||v.k==='星導';
   let fallback;
@@ -525,7 +540,23 @@ function damageUnit(player,index,damage){
   } else updateLink(unit);
 }
 function attack(){let p=G.p,c=G.c,u=p.b[unitSel];if(!u||!u.ready||targetSel>=c.b.length)return;let shields=c.b.map((x,i)=>x.shield?i:-1).filter(i=>i>=0);let ti=targetSel;if(shields.length&& (ti<0||!shields.includes(ti)))return alert('相手に盾がいるため盾を選んでください。');if(ti>=0&&c.b[ti])damageUnit(c,ti,u.a);else{c.hp-=u.a;log(u.n+'が相手リーダーに'+u.a+'ダメージ！')}u.ready=false;u.attacked=true;unitSel=targetSel=-1;winCheck()}
-function equip(){let p=G.p,c=C.find(x=>x.id===p.h[handSel]),u=p.b[unitSel];if(c?.t!=='equipment'||!u||u.mats||u.equip||C.find(card=>card.id===u.id)?.t!=='piece')return alert('装備できるのは装備なしの単独ピースのみ。');let ep=u.edges.findIndex(e=>!e.used&&e.s!=='無'&&e.s!==c.e.s);if(ep<0)return alert('装備カードと凸凹が合う未使用辺がありません。');const cost=c.e.s==='凸'?c.e.c:u.edges[ep].c;if(p.cost<cost)return alert('接続コスト不足。');p.cost-=cost;u.edges[ep].used=true;u.equip={id:c.id,n:c.n,a:c.a,h:c.h,effect:c.effect};u.a+=c.a;u.hp+=c.h;u.max+=c.h;spendHand();log(c.n+'を'+u.n+'に装備。接続コスト'+cost+'。')}
+function attachment(unit,card){
+  const choices=attachmentChoices(unit,card).filter(item=>action.direction===undefined||action.direction===item.direction);
+  return choices.reduce((best,item)=>!best||item.cost<best.cost?item:best,null);
+}
+function equip(){
+  const p=G.p,card=C.find(entry=>entry.id===p.h[handSel]),unit=p.b[unitSel];
+  if(card?.t!=='equipment'||!unit||unit.mats||unit.equip||C.find(entry=>entry.id===unit.id)?.t!=='piece')alert('装備できるのは装備なしの単独ピースのみ。');
+  const join=attachment(unit,card);
+  if(!join)alert('装備カードと凸凹が合う未使用辺がありません。');
+  if(p.cost<join.cost)alert('接続コスト不足。');
+  p.cost-=join.cost;
+  unit.edges[join.direction].used=true;
+  unit.equip={id:card.id,n:card.n,a:card.a,h:card.h,effect:card.effect};
+  unit.a+=card.a;unit.hp+=card.h;unit.max+=card.h;
+  spendHand();
+  log(card.n+'を'+unit.n+'に装備。接続コスト'+join.cost+'。');
+}
 function removeEquipment(player,unit,allowReturn){
   const equipment=unit.equip;
   unit.a=Math.max(0,unit.a-equipment.a);
@@ -548,9 +579,9 @@ function spell(){
   const p=G.p, card=C.find(entry=>entry.id===p.h[handSel]);
   const unit=p.b[unitSel], enemy=G.c.b[targetSel];
   if(card?.t!=='spell'||!unit)return;
-  const edge=unit.edges.find(port=>!port.used&&port.s!=='無'&&port.s!==card.e.s);
-  if(!edge)alert('詠唱と凸凹が合う辺がありません。');
-  const cost=card.e.s==='凸'?card.e.c:edge.c;
+  const join=attachment(unit,card);
+  if(!join)alert('詠唱と凸凹が合う辺がありません。');
+  const cost=join.cost;
   if(p.cost<cost)alert('接続コスト不足。');
   p.cost-=cost;
   spendHand();
@@ -600,7 +631,7 @@ function spell(){
 function grow(player){
   for(const unit of player.b){
     for(const piece of unit.mats??[unit]){
-      if(piece.k!=='成長'||player.cost<1)continue;
+      if((piece.k!=='成長'&&!piece.grows)||player.cost<1)continue;
       player.cost--;
       piece.a++;piece.hp++;piece.max++;
       piece.growth=(piece.growth??0)+1;
@@ -865,7 +896,7 @@ function unitHTML(u,i,side){
     '<span class="field-ports">'+ports+'</span><span class="field-atk" aria-label="攻撃 '+u.a+'">'+u.a+'</span><span class="field-hp" aria-label="体力 '+u.hp+'">'+u.hp+'</span></button>';
 }
 const actionIds={summon:'summon',fusion:'fuse',equip:'equip',spell:'spell',connect:'connect',attack:'attack',detach:'detach',firework:'firework',patrolReturn:'patrol'};
-let chooseEdge=false;
+let chooseEdge=null;
 function currentAction(kind,direction){
   return {kind,hand:handSel,unit:unitSel,second:secondSel,target:targetSel,direction};
 }
@@ -897,14 +928,21 @@ function renderActions(){
   const own=G.turn==='p'&&!G.over;
   $('end').disabled=!own||!!G.p.pending;
   $('actionHint').textContent=G.over?'':G.p.pending&&own?'巡回で山札の底に戻す手札を選んでください。':!own?'相手の操作を待っています。':handSel<0&&unitSel<0?'手札か盤面のピースを選択':targetSel===null&&G.p.b[unitSel]?.ready&&secondSel<0?'黄色い枠から攻撃対象を選択':!Object.keys(actionIds).some(id=>!$(id).hidden)?'対象を選ぶか、別のピースを選んでください。':'';
-  if(chooseEdge&&!$('connect').hidden){
-    const labels=['上 ↔ 下','右 ↔ 左','下 ↔ 上','左 ↔ 右'];
+  const source=G.p.b[unitSel];
+  const target=targetSel===-1?'相手リーダー':targetSel!==null?G.c.b[targetSel]?.n:null;
+  const strip=$('selectionStrip');
+  strip.hidden=!(selectedCard||source);
+  strip.textContent=[selectedCard?.n,source?.n,target?'対象：'+target:''].filter(Boolean).join(' · ');
+  if(chooseEdge){
+    const labels=chooseEdge==='connect'?['上 ↔ 下','右 ↔ 左','下 ↔ 上','左 ↔ 右']:['上','右','下','左'];
+    const candidates=chooseEdge==='connect'?[]:attachmentChoices(source,selectedCard);
     labels.forEach((label,direction)=>{
-      if(!legalAction('connect',direction))return;
+      if(!legalAction(chooseEdge,direction))return;
+      const choice=candidates.find(item=>item.direction===direction);
       const button=document.createElement('button');
       button.type='button';
-      button.textContent=label;
-      button.onclick=()=>window.applyBattleMove('connect',direction);
+      button.textContent=label+(choice?' · '+choice.cost+'消費':'');
+      button.onclick=()=>window.applyBattleMove(chooseEdge,direction);
       edgeList.append(button);
     });
     edgeList.hidden=!edgeList.childElementCount;
@@ -915,7 +953,8 @@ function selectHand(e){
   if(!target)return;
   const index=Number(target.dataset.hand);
   handSel=handSel===index?-1:index;
-  chooseEdge=false;
+  targetSel=null;
+  chooseEdge=null;
   renderGame();
   $('hand').querySelector('[data-hand="'+index+'"]')?.focus({preventScroll:true});
 }
@@ -927,7 +966,7 @@ function selectOwn(e){
   else if(index===unitSel){unitSel=-1;secondSel=-1;}
   else secondSel=secondSel===index?-1:index;
   targetSel=null;
-  chooseEdge=false;
+  chooseEdge=null;
   renderGame();
 }
 let flashTimer;
@@ -979,7 +1018,7 @@ $('book').onclick=e=>{
   if(card)openCard(card.dataset.id);
 };
 $('deck').onclick=e=>{let b=e.target.closest('[data-del]');if(b){deck.splice(+b.dataset.del,1);renderDeck()}};$('fill').onclick=()=>{const selected=$('br').value;deck=deckFor(selected==='all'?(C.find(x=>x.id===deck[0])?.r??'red'):selected);renderDeck();$('deckStatus').textContent='固定デッキを作りました。'};$('clear').onclick=()=>{deck=[];renderDeck()};$('start').onclick=()=>startGame();$('again').onclick=()=>startGame(true);
-document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{if(b.dataset.to==='battle'&&!G){startGame(true);return;}show(b.dataset.to)});$('hand').onclick=selectHand;$('pboard').onclick=selectOwn;$('cboard').onclick=e=>{let b=e.target.closest('[data-cu]');if(b&&(canAttackTarget(+b.dataset.cu)||canSpellTarget(+b.dataset.cu))){targetSel=+b.dataset.cu;secondSel=-1;chooseEdge=false;renderGame()}};
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{if(b.dataset.to==='battle'&&!G){startGame(true);return;}show(b.dataset.to)});$('hand').onclick=selectHand;$('pboard').onclick=selectOwn;$('cboard').onclick=e=>{let b=e.target.closest('[data-cu]');if(b&&(canAttackTarget(+b.dataset.cu)||canSpellTarget(+b.dataset.cu))){targetSel=+b.dataset.cu;secondSel=-1;chooseEdge=null;renderGame()}};
 
 (()=>{
  const $=id=>document.getElementById(id); let roomTimer=null, roomRequest=0;
@@ -1121,7 +1160,7 @@ document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{if(b.dataset.to==='b
  function move(kind,direction) {
    if(kind==='attack'&&!legalAction('attack'))return;
    const action=currentAction(kind,direction);
-   chooseEdge=false;
+   chooseEdge=null;
    if(G?.online)matchUpdate(action);
    else cpuMove(action);
  }
@@ -1130,7 +1169,7 @@ document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{if(b.dataset.to==='b
    ['summon','summon'],['fusion','fuse'],['connect','connect'],
    ['equip','equip'],['detach','detach'],['spell','spell'],
    ['attack','attack'],['end','end'],
- ]) $(id).onclick=()=>{if(kind==='connect'){chooseEdge=!chooseEdge;renderActions();}else move(kind);};
+ ]) $(id).onclick=()=>{if(['connect','equip','spell'].includes(kind)){chooseEdge=chooseEdge===kind?null:kind;renderActions();}else move(kind);};
  $('firework').onclick=()=>move('firework');
  $('patrolReturn').onclick=()=>move('patrol');
  $('faceTarget').onclick=()=>{if(canAttackTarget(-1)){targetSel=-1;renderGame();}};

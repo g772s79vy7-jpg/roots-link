@@ -101,13 +101,21 @@ for(const card of C) {
   if(card.t==='equipment')card.d='装備ピースの攻撃力+'+card.a+'、体力+'+card.h+'。';
   Object.assign(card,specialEquipment[card.id],specialSpell[card.id]);
   if(card.t==='fusion'&&!card.id.endsWith('redf0')){
-    card.d='素材：'+card.m.map(id=>C.find(material=>material.id===id).n).join('＋')+'。一体化リンク時、両素材の盾を引き継ぐ。';
+    card.d='素材：'+card.m.map(id=>C.find(material=>material.id===id).n).join('＋')+'。一体化リンク時、素材の盾・成長を引き継ぐ。';
   }
 }
 export {C as cards,R as factions};
 export const leaderText={
   blue:'音海楽団のリーダーは、空の山札からカードを引こうとすると勝利します。',
 };
+
+export function attachmentChoices(unit,card) {
+  if(!unit||!card?.e||Array.isArray(card.e))return [];
+  return (unit.edges??[]).flatMap((edge,direction)=>{
+    if(!edge||edge.used||edge.s==='無'||edge.s===card.e.s)return [];
+    return [{direction,cost:card.e.s==='凸'?card.e.c:edge.c}];
+  });
+}
 
 export function validateDeck(ids) {
   if (!Array.isArray(ids) || ids.length!==30) throw new Error('デッキを30枚にしてください。');
@@ -198,7 +206,7 @@ function summon() {
     if(!G.over)patrol(player);
   }
 }
-function fuse(){let p=G.p,c=C.find(x=>x.id===p.h[handSel]);if(!c||c.t!=='fusion')return;if(p.cost<c.cc)return alert('接続コスト不足。');if(p.b.length<2)return alert('融合素材2体が必要。');let a=unitSel,b=secondSel;if(a===b||!p.b[a]||!p.b[b])return;let u=p.b[a],v=p.b[b];if(u.mats||v.mats||u.equip||v.equip)return alert('装備中のピースは融合できません。');if(!c.m||u.id===v.id||![u.id,v.id].every(id=>c.m.includes(id)))return alert('この融合カードの指定素材ではありません。');p.cost-=c.cc;let indices=[a,b].sort((x,y)=>y-x);for(let i of indices){let m=p.b.splice(i,1)[0];toTrash(p,m,'融合素材')}let f=spendHand();let x=makeUnit(f);x.ready=false;x.shield=u.shield||v.shield;p.b.push(x);log(u.n+'＋'+v.n+' → '+f.n+'！接続コスト'+f.cc+'を使用。')}
+function fuse(){let p=G.p,c=C.find(x=>x.id===p.h[handSel]);if(!c||c.t!=='fusion')return;if(p.cost<c.cc)return alert('接続コスト不足。');if(p.b.length<2)return alert('融合素材2体が必要。');let a=unitSel,b=secondSel;if(a===b||!p.b[a]||!p.b[b])return;let u=p.b[a],v=p.b[b];if(u.mats||v.mats||u.equip||v.equip)return alert('装備中のピースは融合できません。');if(!c.m||u.id===v.id||![u.id,v.id].every(id=>c.m.includes(id)))return alert('この融合カードの指定素材ではありません。');p.cost-=c.cc;let indices=[a,b].sort((x,y)=>y-x);for(let i of indices){let m=p.b.splice(i,1)[0];toTrash(p,m,'融合素材')}let f=spendHand();let x=makeUnit(f);x.ready=false;x.shield=u.shield||v.shield;x.grows=u.k==='成長'||v.k==='成長';p.b.push(x);log(u.n+'＋'+v.n+' → '+f.n+'！接続コスト'+f.cc+'を使用。')}
 function edgePair(u,v,direction) {
   const star=u.k==='星導'||v.k==='星導';
   let fallback;
@@ -278,7 +286,23 @@ function damageUnit(player,index,damage){
   } else updateLink(unit);
 }
 function attack(){let p=G.p,c=G.c,u=p.b[unitSel];if(!u||!u.ready||targetSel>=c.b.length)return;let shields=c.b.map((x,i)=>x.shield?i:-1).filter(i=>i>=0);let ti=targetSel;if(shields.length&& (ti<0||!shields.includes(ti)))return alert('相手に盾がいるため盾を選んでください。');if(ti>=0&&c.b[ti])damageUnit(c,ti,u.a);else{c.hp-=u.a;log(u.n+'が相手リーダーに'+u.a+'ダメージ！')}u.ready=false;u.attacked=true;unitSel=targetSel=-1;winCheck()}
-function equip(){let p=G.p,c=C.find(x=>x.id===p.h[handSel]),u=p.b[unitSel];if(c?.t!=='equipment'||!u||u.mats||u.equip||C.find(card=>card.id===u.id)?.t!=='piece')return alert('装備できるのは装備なしの単独ピースのみ。');let ep=u.edges.findIndex(e=>!e.used&&e.s!=='無'&&e.s!==c.e.s);if(ep<0)return alert('装備カードと凸凹が合う未使用辺がありません。');const cost=c.e.s==='凸'?c.e.c:u.edges[ep].c;if(p.cost<cost)return alert('接続コスト不足。');p.cost-=cost;u.edges[ep].used=true;u.equip={id:c.id,n:c.n,a:c.a,h:c.h,effect:c.effect};u.a+=c.a;u.hp+=c.h;u.max+=c.h;spendHand();log(c.n+'を'+u.n+'に装備。接続コスト'+cost+'。')}
+function attachment(unit,card){
+  const choices=attachmentChoices(unit,card).filter(item=>action.direction===undefined||action.direction===item.direction);
+  return choices.reduce((best,item)=>!best||item.cost<best.cost?item:best,null);
+}
+function equip(){
+  const p=G.p,card=C.find(entry=>entry.id===p.h[handSel]),unit=p.b[unitSel];
+  if(card?.t!=='equipment'||!unit||unit.mats||unit.equip||C.find(entry=>entry.id===unit.id)?.t!=='piece')alert('装備できるのは装備なしの単独ピースのみ。');
+  const join=attachment(unit,card);
+  if(!join)alert('装備カードと凸凹が合う未使用辺がありません。');
+  if(p.cost<join.cost)alert('接続コスト不足。');
+  p.cost-=join.cost;
+  unit.edges[join.direction].used=true;
+  unit.equip={id:card.id,n:card.n,a:card.a,h:card.h,effect:card.effect};
+  unit.a+=card.a;unit.hp+=card.h;unit.max+=card.h;
+  spendHand();
+  log(card.n+'を'+unit.n+'に装備。接続コスト'+join.cost+'。');
+}
 function removeEquipment(player,unit,allowReturn){
   const equipment=unit.equip;
   unit.a=Math.max(0,unit.a-equipment.a);
@@ -301,9 +325,9 @@ function spell(){
   const p=G.p, card=C.find(entry=>entry.id===p.h[handSel]);
   const unit=p.b[unitSel], enemy=G.c.b[targetSel];
   if(card?.t!=='spell'||!unit)return;
-  const edge=unit.edges.find(port=>!port.used&&port.s!=='無'&&port.s!==card.e.s);
-  if(!edge)alert('詠唱と凸凹が合う辺がありません。');
-  const cost=card.e.s==='凸'?card.e.c:edge.c;
+  const join=attachment(unit,card);
+  if(!join)alert('詠唱と凸凹が合う辺がありません。');
+  const cost=join.cost;
   if(p.cost<cost)alert('接続コスト不足。');
   p.cost-=cost;
   spendHand();
@@ -353,7 +377,7 @@ function spell(){
 function grow(player){
   for(const unit of player.b){
     for(const piece of unit.mats??[unit]){
-      if(piece.k!=='成長'||player.cost<1)continue;
+      if((piece.k!=='成長'&&!piece.grows)||player.cost<1)continue;
       player.cost--;
       piece.a++;piece.hp++;piece.max++;
       piece.growth=(piece.growth??0)+1;
