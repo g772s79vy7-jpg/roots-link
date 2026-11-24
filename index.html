@@ -304,6 +304,7 @@ document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{if(b.dataset.to==='b
    if(G?.online) $('log').textContent=message;
  }
  async function matchUpdate(action) {
+   let refreshReady=false;
    if(!matchRoom)return;
    if(movePending){
      if(action&&!posting&&!queuedAction)queuedAction={action,version:matchVersion};
@@ -317,6 +318,11 @@ document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{if(b.dataset.to==='b
      const reply=await client.functions.invoke('roots-match',{body:{room:matchRoom,revision:matchVersion,action}});
      if(generation!==matchGeneration)return;
      if(reply.error){
+       if(reply.error.context?.status===409&&action?.kind==='ready'&&!action.retry){
+         queuedAction={action:{...action,retry:true},version:matchVersion};
+         refreshReady=true;
+         return;
+       }
        const details=await reply.error.context?.json?.().catch(()=>null);
        throw new Error(details?.error||reply.error.message);
      }
@@ -340,9 +346,13 @@ document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{if(b.dataset.to==='b
    } finally {
      movePending=false;
      posting=false;
+     if(refreshReady&&generation===matchGeneration){
+       matchUpdate();
+       return;
+     }
      const pending=queuedAction;
      queuedAction=null;
-     if(pending&&pending.version===matchVersion)matchUpdate(pending.action);
+     if(pending&&(pending.version===matchVersion||pending.action.kind==='ready'))matchUpdate(pending.action);
      else if(matchRoom&&!G?.over)matchTimer=setTimeout(()=>matchUpdate(),1600);
    }
  }
