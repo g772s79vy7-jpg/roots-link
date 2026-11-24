@@ -353,23 +353,11 @@ button.primary:hover,.active:hover,#end:enabled:hover,#start:enabled:hover{backg
   text-shadow:0 1px 3px #070810,0 1px 5px #070810,0 0 2px #070810;
 }
 .card .desc{color:#fff1de;background:#141224a6;border-radius:5px}
-.piece-review{display:grid;gap:5px;margin-block:10px}
-.piece-review[hidden],#book[hidden]{display:none}
-.review-piece{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px;padding:4px 8px;border:1px solid #514461;border-radius:8px;background:#251d32}
-.review-piece:has(input:checked){background:#432637;border-color:#b57489}
-.review-piece-open{width:100%;border:0;background:transparent;padding:0;display:flex;align-items:center;gap:9px;text-align:left;min-width:0}
-.review-art{width:44px;height:44px;flex:none;border-radius:6px;background-color:#322840;background-image:var(--piece-art,none);background-size:cover}
-.review-piece-name{overflow-wrap:anywhere;color:#f8edff}.review-piece-meta{display:block;margin-top:2px;color:#d4c3e1;font-size:.72rem}
-.review-piece label{display:flex;align-items:center;justify-content:center;gap:5px;min-height:44px;color:#f2d3dd;font-size:.75rem}
-.review-piece input{width:19px;height:19px;accent-color:#ecc1cf;margin:0}
-#reviewDialog{width:min(92vw,540px)}
-#reviewText{width:100%;padding:8px;color:#fff;background:#21192e;border:1px solid #806c94;border-radius:6px}
 </style>
 <header class="site-header"><h1>ROOTS <span>LINK</span></h1>
 <nav><button class="tab active" data-to="builder">デッキ編集</button><button class="tab" data-to="catalog">カード図鑑</button><button class="tab" data-to="battle">対戦</button><button class="tab" data-to="online">オンライン対戦</button></nav></header><main>
 <p id="startupStatus" class="room-status">カードデータを読み込んでいます…</p><section id="builder"><div class="layout"><div class="panel"><h2>カードを選ぶ</h2><div class="tools"><select id="br"><option value="all">全ルーツ</option></select><select id="bt"><option value="all">全種類</option><option value="piece">ピース</option><option value="fusion">融合</option><option value="equipment">装備</option><option value="spell">詠唱</option></select><input id="bs" placeholder="名前・効果を検索"></div><div id="pool" class="cards"></div><button id="poolMore" type="button" hidden>次のカードを表示</button></div><aside class="panel deck-panel"><div class="row"><h2>マイデッキ</h2><b id="count">0 / 30</b></div><div class="deck-library"><label for="savedDecks">保存済みデッキ</label><div class="row"><select id="savedDecks"></select><button id="loadDeck" type="button">編集する</button><button id="newDeck" type="button">新規</button></div><label for="deckName">デッキ名</label><div class="row"><input id="deckName" maxlength="32" placeholder="例：十二市 火花デッキ"><button id="saveDeck" class="primary" type="button" disabled>デッキを保存</button></div></div><div class="tools"><button id="fill">固定デッキ30枚を作る</button><button id="clear">全て外す</button></div><details id="deckDetails"><summary>デッキの中身を見る</summary><div id="deck" class="decklist"></div></details><section class="fusion-deck"><h3>融合ピース <span id="fusionCount">0 / 3</span></h3><div id="fusionList"></div><button id="browseFusion" type="button">融合ピースを選ぶ</button></section><hr><button id="start" type="button">CPU対戦のデッキを選ぶ</button><p id="deckStatus" class="small" role="status"></p><p class="small">30枚ちょうど / 同名カード3枚まで / 同じルーツのみ。装備と詠唱は30枚に含みます。融合は別枠です。</p></aside></div></section>
-<section id="catalog" class="hidden"><div class="panel"><h2>カード図鑑 <span id="total" class="small">500種</span></h2><div class="tools"><select id="cr"><option value="all">全ルーツ</option></select><select id="ct"><option value="all">全種類</option><option value="piece">ピース</option><option value="fusion">融合</option><option value="equipment">装備</option><option value="spell">詠唱</option></select><input id="cs" placeholder="名前・効果を検索"></div><div class="row"><button id="reviewToggle" type="button" aria-pressed="false">全ピース・削除候補</button><button id="reviewSummary" type="button" hidden>削除候補を確認（0件）</button></div>
-<div id="pieceReview" class="piece-review" hidden></div><div id="book" class="cards"></div><button id="bookMore" type="button" hidden>次のカードを表示</button></div></section>
+<section id="catalog" class="hidden"><div class="panel"><h2>カード図鑑 <span id="total" class="small">500種</span></h2><div class="tools"><select id="cr"><option value="all">全ルーツ</option></select><select id="ct"><option value="all">全種類</option><option value="piece">ピース</option><option value="fusion">融合</option><option value="equipment">装備</option><option value="spell">詠唱</option></select><input id="cs" placeholder="名前・効果を検索"></div><div id="book" class="cards"></div><button id="bookMore" type="button" hidden>次のカードを表示</button></div></section>
 <section id="battle" class="hidden"><div class="panel arena"><div class="row arena-heading"><h2 id="battleTitle">CPU対戦</h2><button id="battleBack" type="button" hidden>対戦を出る</button><button id="again" hidden>再戦</button><b id="round">対戦準備中</b><button id="fusionTrayButton" type="button">一体化</button><button id="battleLogButton" type="button">バトルログ</button><button id="battleSettings" type="button" aria-label="対戦設定" title="対戦設定">⚙ 設定</button></div><p id="leaderRules" class="small"></p><div class="battle board-stage">
  <div class="leader-bar rival-bar">
   <div class="reserve opponent-reserve"><div id="enemyHand" class="card-backs" aria-hidden="true"></div><span id="enemyHandCount"></span></div>
@@ -432,13 +420,7 @@ button.primary:hover,.active:hover,#end:enabled:hover,#start:enabled:hover{backg
 </div>
 <form method="dialog"><button>対戦に戻る</button></form>
 </dialog>
-<dialog id="reviewDialog" aria-labelledby="reviewTitle">
-<h2 id="reviewTitle">削除候補</h2>
-<p id="reviewCount" class="small"></p>
-<textarea id="reviewText" aria-label="削除候補一覧" readonly rows="9"></textarea>
-<div class="row"><button id="copyReview" type="button">削除候補をコピー</button><form method="dialog"><button>閉じる</button></form></div>
-<p id="reviewStatus" class="small" role="status"></p>
-</dialog><dialog id="cardDialog"><h2 id="detailTitle"></h2><p id="detailStats"></p><p id="detailText"></p><div id="detailShape" class="detail-shape jigsaw" hidden></div><p id="detailEdges" class="piece-ports"></p><button id="detailClose" type="button">閉じる</button></dialog>
+<dialog id="cardDialog"><h2 id="detailTitle"></h2><p id="detailStats"></p><p id="detailText"></p><div id="detailShape" class="detail-shape jigsaw" hidden></div><p id="detailEdges" class="piece-ports"></p><button id="detailClose" type="button">閉じる</button></dialog>
 <script>
 (() => {
   const notice=document.getElementById('startupStatus');
@@ -1212,61 +1194,8 @@ function renderPool(){
   $('pool').innerHTML=entries.slice(0,poolLimit).map(cardData=>card(cardData,true)).join('')||'<p>該当するカードはありません。</p>';
   $('poolMore').hidden=entries.length<=poolLimit;
 }
-const reviewStorageKey='roots-link.catalog-delete-candidates.v1';
-let reviewMode=false;
-let reviewObserver;
-let reviewIds=new Set();
-try{
-  const ids=JSON.parse(localStorage.getItem(reviewStorageKey)??'[]');
-  if(Array.isArray(ids))reviewIds=new Set(ids.filter(id=>C.some(card=>card.id===id)));
-}catch{}
-function updateReviewCount(){
-  const button=$('reviewSummary');
-  button.textContent='削除候補を確認（'+reviewIds.size+'件）';
-  button.disabled=!reviewIds.size;
-}
-function renderReview(entries){
-  reviewObserver?.disconnect();
-  const list=$('pieceReview');
-  list.innerHTML=entries.map(card=>`<div class="review-piece">
-    <button type="button" class="review-piece-open" data-review-open="${card.id}"><span class="review-art" data-review-art="${card.id}" aria-hidden="true"></span>
-      <span class="review-piece-name">${esc(card.n)}<span class="review-piece-meta">${esc(rootName(card.r))} · ${esc(typeName(card.t))}</span></span>
-    </button>
-    <label><input type="checkbox" data-review-id="${card.id}" aria-label="${esc(card.n)}を削除候補にする"${reviewIds.has(card.id)?' checked':''}>削除候補</label>
-  </div>`).join('')||'<p>該当するピースはありません。</p>';
-  const paint=element=>{
-    const card=C.find(item=>item.id===element.dataset.reviewArt);
-    element.style.setProperty('--piece-art',pieceArt(card));
-  };
-  const tiles=list.querySelectorAll('[data-review-art]');
-  if(typeof IntersectionObserver!=='function'){tiles.forEach(paint);return;}
-  reviewObserver=new IntersectionObserver(changes=>{
-    for(const {target,isIntersecting} of changes){
-      if(!isIntersecting)continue;
-      paint(target);
-      reviewObserver.unobserve(target);
-    }
-  },{rootMargin:'180px'});
-  tiles.forEach(tile=>reviewObserver.observe(tile));
-}
-function setReviewMode(on){
-  reviewMode=on;
-  $('reviewToggle').setAttribute('aria-pressed',String(on));
-  $('reviewSummary').hidden=!on;
-  $('pieceReview').hidden=!on;
-  $('book').hidden=on;
-  if(!on)reviewObserver?.disconnect();
-  updateReviewCount();
-  renderBook();
-}
 function renderBook(){
   const entries=list($('cr').value,$('ct').value,$('cs').value);
-  if(reviewMode){
-    $('bookMore').hidden=true;
-    $('total').textContent=entries.length+'種 / 全'+C.length+'種';
-    renderReview(entries);
-    return;
-  }
   $('book').innerHTML=entries.slice(0,bookLimit).map(cardData=>card(cardData)).join('')||'<p>該当するカードはありません。</p>';
   $('bookMore').hidden=entries.length<=bookLimit;
   $('total').textContent=entries.length+'種 / 全'+C.length+'種';
@@ -1811,36 +1740,6 @@ opts();renderPool();renderBook();renderDeck();renderSavedDecks();
 ['br','bt','bs'].forEach(id=>$(id).addEventListener('input',()=>{poolLimit=initialPage;renderPool();}));
 ['cr','ct','cs'].forEach(id=>$(id).addEventListener('input',()=>{bookLimit=initialPage;renderBook();}));
 $('poolMore').onclick=()=>{poolLimit+=initialPage;renderPool();};
-$('reviewToggle').onclick=()=>setReviewMode(!reviewMode);
-$('pieceReview').onclick=event=>{
-  const entry=event.target.closest('[data-review-open]');
-  if(entry)openCard(entry.dataset.reviewOpen);
-};
-$('pieceReview').onchange=event=>{
-  const box=event.target.closest('[data-review-id]');
-  if(!box)return;
-  if(box.checked)reviewIds.add(box.dataset.reviewId);
-  else reviewIds.delete(box.dataset.reviewId);
-  try{localStorage.setItem(reviewStorageKey,JSON.stringify([...reviewIds]));}
-  catch{$('reviewStatus').textContent='このブラウザではチェックを保存できません。';}
-  updateReviewCount();
-};
-$('reviewSummary').onclick=()=>{
-  const selected=C.filter(card=>reviewIds.has(card.id));
-  $('reviewCount').textContent=selected.length+'件 · チェックはこのブラウザに保存されます。';
-  $('reviewText').value=selected.map(card=>card.n+' ['+card.id+']').join('\n');
-  $('reviewDialog').showModal();
-};
-$('copyReview').onclick=async()=>{
-  const field=$('reviewText');
-  try{
-    await navigator.clipboard.writeText(field.value);
-    $('reviewStatus').textContent='削除候補をコピーしました。';
-  }catch{
-    field.focus();field.select();
-    $('reviewStatus').textContent='選択された一覧をコピーできます。';
-  }
-};
 $('bookMore').onclick=()=>{bookLimit+=initialPage;renderBook();};
 $('detailClose').onclick=()=>{const dialog=$('cardDialog');if(typeof dialog.close==='function')dialog.close();else dialog.removeAttribute('open');};
 function openCard(id){
@@ -2129,6 +2028,5 @@ document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{if(b.dataset.to==='b
    resumeRoom();
  }
 })();
-if(location.hash==='#review'){show('catalog');setReviewMode(true);}
 $('startupStatus').hidden=true;
 </script></html>
