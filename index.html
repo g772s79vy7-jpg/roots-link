@@ -114,14 +114,92 @@ button.primary:hover,.active:hover,#end:enabled:hover,#start:enabled:hover{backg
 .action-hint{flex-basis:100%;margin:0;color:#aec2ca;font-size:.76rem}.action-hint:empty{display:none}.edge-pick{display:flex;gap:4px;flex-wrap:wrap}
 [hidden]{display:none!important}
 @media(max-width:630px){.board{min-height:86px}.board .unit{min-height:80px;font-size:.73rem}.mini-card{flex-basis:86px}.arena-heading h2{font-size:.9rem}.battle-help{display:none}.log-zone{padding:6px 8px}}
+
+/* Arena: mirrored leaders, a three-slot field and a separate action rail. */
+.playing{background:radial-gradient(ellipse at 50% 26%,#29213e,#101019 60%,#0b0c12)}
+.playing main{max-width:940px}.playing .site-header{max-width:940px}
+.arena{padding:10px 14px;background:transparent;border:0;box-shadow:none}
+.arena-heading{min-height:28px}.arena-heading h2{font-size:.94rem;color:#d6cce2}
+#round{border:1px solid #60526e;background:#2a2436;color:#e9dff4}
+#round.your-turn{background:#352942;border-color:#bd94dd;color:#f4dcff}
+.board-stage{display:block;overflow:hidden;margin-top:8px;padding:5px 10px 8px;border:1px solid #645473;border-radius:18px;
+  background:radial-gradient(ellipse at 50% 48%,#3c3054 0%,#211b32 50%,#171622 100%);box-shadow:0 8px 30px #09070ec9,inset 0 0 38px #0e0b1c}
+.leader-bar{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:8px;min-height:48px}
+.portrait{position:relative;display:flex;align-items:center;justify-content:center;gap:6px;min-width:112px;min-height:38px;padding:3px 7px;
+  color:#f3eaf6;background:#221c32;border:1px solid #766285;border-radius:28px}
+.portrait b{font-size:.8rem}.portrait .hp{font-size:1.05rem;color:#ffb3a8;background:#572f42;border-radius:14px;padding:0 6px;min-width:23px;text-align:center}
+.own-bar .hp{background:#2c4b47;color:#c3f5dc}.portrait.targetable{outline:2px solid #f5b779;outline-offset:2px}
+.leader-mark{display:grid;place-items:center;width:25px;height:25px;border-radius:50%;color:#f8f0ff;font-family:serif;
+ background:radial-gradient(circle,#33283d,var(--leader-tone));border:1px solid var(--leader-tone);font-size:.8rem}
+.reserve{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:4px 8px;font-size:.7rem;color:#c8bbd3}
+.reserve b{color:#fff}.opponent-reserve{justify-content:flex-start;align-items:center;gap:3px}
+.card-backs{display:flex;padding-left:1px}.card-backs span{width:10px;height:15px;border-radius:2px;margin-right:-4px;
+ background:linear-gradient(50deg,#5c477d,#231a34 60%,#8665a2);border:1px solid #a38aba;transform:rotate(-7deg)}
+.card-backs span:last-child{margin-right:1px}
+.field{padding:4px 4px}.board-stage .board{min-height:96px;gap:8px;background:none;border:0}
+.empty-slot{min-height:96px;display:grid;place-items:center;border:1px dashed #a688c04f;border-radius:15px;
+ background:radial-gradient(ellipse,#9478ae17,transparent 75%)}
+.empty-slot span,.field-divider span{display:block;width:11px;height:11px;border:1px solid #a891c577;transform:rotate(45deg)}
+.field-divider{display:grid;place-items:center;height:13px;background:linear-gradient(90deg,transparent,#9c7cb866,transparent) center / 100% 1px no-repeat}
+.field-divider span{width:7px;height:7px;background:#675477}
+.board-stage .field-piece{position:relative;min-height:96px;margin:0;padding:8px 8px 22px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+ background:#262039;border-color:#75628b;text-align:center;line-height:1.17;color:#f9eefc;overflow-wrap:anywhere}
+.board-stage .field-piece.jigsaw{background:transparent;border-color:transparent}.board-stage .field-piece.jigsaw::after{background:#2c243e}
+.board-stage .field-piece:hover{background-color:#392e4e}.board-stage .field-piece.selected{outline:2px solid #edc886;outline-offset:-2px}
+.ready-piece .field-atk{box-shadow:0 0 0 1px #d1efb9,0 0 10px #a9d48166}
+.field-name{font-weight:760;font-size:.88rem}.field-condition,.field-ports{font-size:.65rem;color:#d6c5e2}.field-condition:empty,.field-ports:empty{display:none}
+.field-atk,.field-hp{position:absolute;bottom:5px;min-width:21px;padding:1px 4px;border-radius:8px;font-size:.83rem;font-weight:800;text-align:center}
+.field-atk{left:8px;background:#3c5144;color:#e2fcc9}.field-hp{right:8px;background:#5b3346;color:#ffd3c9}
+.energy{display:grid;gap:3px;font-size:.75rem;font-weight:780;color:#d0c1fb}
+.energy-dots{display:flex;gap:4px;padding-left:2px}.energy-dots i{width:10px;height:10px;transform:rotate(45deg);border:1px solid #776695;background:#21192e}
+.energy-dots .spent{background:#55436c}.energy-dots .filled{background:#c9a5ff;box-shadow:0 0 7px #c9a5ff66}
+.hand-zone{border-color:#4e3e62;border-radius:12px;background:#20192c;padding:4px 7px}.hand-heading{display:flex;justify-content:space-between;padding:0 2px;color:#e7d8f4;font-size:.78rem}
+.hand .mini-card{background:linear-gradient(160deg,#312840,#21192c);border-color:var(--mini-color);border-radius:8px}
+.hand .mini-card.selected{background:#4a3859}.hand .mini-name{font-weight:650}
+.battle-actions{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto;background:#211a31f7;border-color:#564368;gap:4px;padding:5px}
+.battle-actions>button{min-height:36px;padding:4px 6px;font-size:.78rem}
+.battle-actions #end{grid-column:3;grid-row:1 / span 3;align-self:stretch;min-width:79px;margin-left:1px;background:#e9c37a;color:#201628;border-color:#e9c37a}
+.action-hint,.edge-pick{grid-column:1 / 3}.action-hint{padding:6px 3px;color:#d5c4df}
+.log-zone{background:#1d1728;border-color:#4c3d60}.battle-flash{top:47%;background:#21172dee}
+@media(min-width:631px){.board-stage{padding-inline:26px}.arena{width:min(100%,720px)}}
+@media(max-width:630px){
+ .playing main{padding:4px 5px}.playing .site-header{padding:5px 8px}.playing .site-header h1{font-size:1.15rem}
+ .playing .site-header .tab{min-height:28px;padding:2px;font-size:.71rem}.arena{padding:0 2px}
+ .arena-heading h2{font-size:.79rem}#round{padding:3px 7px;font-size:.72rem}
+ .board-stage{margin-top:3px;padding:4px 5px;border-radius:12px}.leader-bar{min-height:39px;gap:3px}
+ .portrait{min-width:85px;min-height:32px;padding:2px 5px;gap:3px}.portrait b{font-size:.68rem}.leader-mark{width:19px;height:19px}
+ .reserve{font-size:.6rem;gap:1px 4px}.card-backs span{width:8px;height:12px}
+ .field{padding:2px}.board-stage .board{min-height:75px;gap:4px}
+ .board-stage .field-piece,.empty-slot{min-height:75px;padding:4px 4px 19px;border-radius:10px}
+ .board-stage .field-piece{gap:2px}.field-name{font-size:.71rem}.field-condition,.field-ports{font-size:.52rem}
+ .field-atk,.field-hp{font-size:.72rem;min-width:16px;bottom:4px}.field-atk{left:5px}.field-hp{right:5px}
+ .field-divider{height:9px}.energy{font-size:.64rem}.energy-dots i{width:7px;height:7px}
+ .hand{min-height:60px}.hand .mini-card{flex-basis:75px;min-height:62px;padding:15px 5px 13px}.mini-name{font-size:.65rem}
+ .battle-actions{margin:4px 0;bottom:env(safe-area-inset-bottom,0px)}.battle-actions #end{min-width:69px}.log-zone{margin:4px 0}
+}
 </style>
 <header class="site-header"><h1>ROOTS <span>LINK</span></h1>
 <nav><button class="tab active" data-to="builder">デッキ編集</button><button class="tab" data-to="catalog">カード図鑑</button><button class="tab" data-to="battle">対戦</button><button class="tab" data-to="online">オンライン対戦</button></nav></header><main>
 <p id="startupStatus" class="room-status">カードデータを読み込んでいます…</p><section id="builder"><div class="layout"><div class="panel"><h2>カードを選ぶ</h2><div class="tools"><select id="br"><option value="all">全ルーツ</option></select><select id="bt"><option value="all">全種類</option><option value="piece">ピース</option><option value="fusion">融合</option><option value="equipment">装備</option><option value="spell">詠唱</option></select><input id="bs" placeholder="名前・効果を検索"></div><div id="pool" class="cards"></div><button id="poolMore" type="button" hidden>次のカードを表示</button></div><aside class="panel deck-panel"><div class="row"><h2>マイデッキ</h2><b id="count">0 / 30</b></div><div class="tools"><button id="fill">固定デッキ30枚を作る</button><button id="clear">全て外す</button></div><details id="deckDetails"><summary>デッキの中身を見る</summary><div id="deck" class="decklist"></div></details><hr><button id="start" disabled>このデッキでCPU対戦！</button><p id="deckStatus" class="small" role="status"></p><p class="small">30枚ちょうど / 同名カード3枚まで / 同じルーツのみ。融合・装備・詠唱もデッキ30枚に含みます。</p></aside></div></section>
 <section id="catalog" class="hidden"><div class="panel"><h2>カード図鑑 <span id="total" class="small">500種</span></h2><div class="tools"><select id="cr"><option value="all">全ルーツ</option></select><select id="ct"><option value="all">全種類</option><option value="piece">ピース</option><option value="fusion">融合</option><option value="equipment">装備</option><option value="spell">詠唱</option></select><input id="cs" placeholder="名前・効果を検索"></div><div id="book" class="cards"></div><button id="bookMore" type="button" hidden>次のカードを表示</button></div></section>
-<section id="battle" class="hidden"><div class="panel arena"><div class="row arena-heading"><h2 id="battleTitle">CPU対戦</h2><button id="again">新しい対戦</button><b id="round">対戦準備中</b></div><p id="leaderRules" class="small"></p><div class="battle"><div id="battleFlash" class="battle-flash" role="status" hidden></div><div class="zone battlefield enemy"><button id="faceTarget" class="leader" type="button" aria-label="相手リーダーを選ぶ"><b id="opponentName">CPU</b><span id="chp" class="hp">20</span></button><div id="cboard" class="board"></div><div id="cinfo" class="small field-info"></div></div><div class="zone battlefield ally"><div class="leader"><b>あなた</b><span id="php" class="hp">20</span></div><div id="pboard" class="board"></div><div id="pinfo" class="small field-info"></div></div></div>
-<div class="zone hand-zone"><b>手札</b><div id="hand" class="hand"></div></div>
-<div class="tools battle-actions"><b id="cost">召喚 1 / 接続 1</b><button id="summon" disabled>ピース召喚</button><button id="fusion" disabled>融合</button><button id="equip" disabled>装備</button><button id="spell" disabled>詠唱を使う</button><button id="connect" disabled>選択2体を連結</button><button id="attack" disabled>選択ピースで攻撃</button><button id="detach" disabled>装備を外す</button><button id="firework" hidden>火鉢バチを無料召喚</button><button id="patrolReturn" hidden>巡回で手札を戻す</button><button id="selectionDetail" type="button" hidden>カード詳細</button><div id="edgePick" class="edge-pick" hidden></div><button id="end">ターン終了</button><p id="actionHint" class="action-hint"></p></div>
+<section id="battle" class="hidden"><div class="panel arena"><div class="row arena-heading"><h2 id="battleTitle">CPU対戦</h2><button id="again">新しい対戦</button><b id="round">対戦準備中</b></div><p id="leaderRules" class="small"></p><div class="battle board-stage">
+ <div class="leader-bar rival-bar">
+  <div class="reserve opponent-reserve"><div id="enemyHand" class="card-backs" aria-hidden="true"></div><span id="enemyHandCount"></span></div>
+  <button id="faceTarget" class="leader portrait" type="button" aria-label="相手リーダーを選ぶ"><span class="leader-mark" id="enemyMark" aria-hidden="true">◆</span><b id="opponentName">CPU</b><span id="chp" class="hp">20</span></button>
+  <div id="cinfo" class="reserve"></div>
+ </div>
+ <div class="field enemy-field"><div id="cboard" class="board"></div></div>
+ <div class="field-divider"><span></span></div>
+ <div id="battleFlash" class="battle-flash" role="status" hidden></div>
+ <div class="field ally-field"><div id="pboard" class="board"></div></div>
+ <div class="leader-bar own-bar">
+  <div class="energy"><div id="cost" aria-live="polite"></div><div id="energyDots" class="energy-dots" aria-hidden="true"></div></div>
+  <div class="leader portrait"><span class="leader-mark" id="ownMark" aria-hidden="true">◆</span><b>あなた</b><span id="php" class="hp">20</span></div>
+  <div id="pinfo" class="reserve"></div>
+ </div>
+</div>
+<div class="zone hand-zone"><div class="hand-heading"><b>手札</b><span id="handCount"></span></div><div id="hand" class="hand"></div></div>
+<div class="tools battle-actions"><button id="summon" disabled>ピース召喚</button><button id="fusion" disabled>融合</button><button id="equip" disabled>装備</button><button id="spell" disabled>詠唱を使う</button><button id="connect" disabled>選択2体を連結</button><button id="attack" disabled>選択ピースで攻撃</button><button id="detach" disabled>装備を外す</button><button id="firework" hidden>火鉢バチを無料召喚</button><button id="patrolReturn" hidden>巡回で手札を戻す</button><button id="selectionDetail" type="button" hidden>カード詳細</button><div id="edgePick" class="edge-pick" hidden></div><p id="actionHint" class="action-hint"></p><button id="end">ターン終了</button></div>
 <details class="battle-help"><summary>操作方法</summary><p>手札や盤面のピースを選んでから操作ボタンを押します。連結は自分のピースを2体選択します。相手リーダーを攻撃するときは相手のHP表示を選べます。</p></details>
 <details class="zone log-zone"><summary>バトルログ</summary><div id="log" class="log" aria-live="polite"></div></details></div></section>
 <section id="online" class="hidden">
@@ -723,26 +801,45 @@ function cpuMove(action){
     }
   }catch(error){$('log').textContent=error.message;}
 }
-function renderGame(){if(!G)return;let p=G.p,c=G.c;$('battleTitle').textContent=G.online?'オンライン対戦':'CPU対戦';$('opponentName').textContent=G.online?'相手':'CPU';$('leaderRules').textContent=[leaderText[p.root]&&'自分：'+leaderText[p.root],leaderText[c.root]&&'相手：'+leaderText[c.root]].filter(Boolean).join(' / ');$('php').textContent=p.hp;$('chp').textContent=c.hp;$('pinfo').textContent=`手札${p.h.length} / 山札${p.d.length} / トラッシュ${p.trash.length}`;$('cinfo').textContent=`手札${c.h.length} / 山札${c.d.length} / トラッシュ${c.trash.length}`;$('round').classList.toggle('your-turn',G.turn==='p'&&!G.over);$('round').textContent=G.over?(G.won?'勝利！':'敗北'):`ラウンド ${G.round}・${G.turn==='p'?'あなたのターン':G.online?'相手のターン':'CPUのターン'}`;$('cost').textContent=`共通コスト ${p.cost} / ${p.capacity}（未使用分はターン終了で消滅）`;$('hand').innerHTML=p.h.map((id,i)=>{
+const factionMarks={red:'火',blue:'潮',green:'花',white:'星',black:'影'};
+function renderHud(p,c){
+  $('enemyHandCount').textContent='手札 '+c.h.length;
+  $('enemyHand').innerHTML=Array.from({length:Math.min(9,c.h.length)},()=>'<span></span>').join('');
+  $('handCount').textContent=p.h.length+' / 9';
+  for(const [player,mark,info] of [[p,'ownMark','pinfo'],[c,'enemyMark','cinfo']]){
+    $(mark).textContent=factionMarks[player.root]??'◆';
+    $(mark).style.setProperty('--leader-tone',pieceColors[player.root]??'#b4a6ca');
+    $(info).innerHTML='<span>山札 <b>'+player.d.length+'</b></span><span>トラッシュ <b>'+player.trash.length+'</b></span>';
+  }
+  $('cost').textContent='コスト '+p.cost+' / '+p.capacity;
+  $('energyDots').innerHTML=Array.from({length:5},(_,i)=>'<i class="'+(i<p.cost?'filled':i<p.capacity?'spent':'')+'"></i>').join('');
+  $('faceTarget').classList.toggle('targetable',G.turn==='p'&&unitSel>=0&&targetSel<0&&secondSel<0&&legalAction('attack'));
+}
+function renderField(player,side){
+  const occupied=player.b.reduce((total,u)=>total+(u.mats?.length??1),0);
+  $(side+'board').innerHTML=player.b.map((unit,i)=>unitHTML(unit,i,side)).join('')+
+    '<div class="empty-slot" aria-hidden="true"><span></span></div>'.repeat(Math.max(0,3-occupied));
+}
+function renderGame(){if(!G)return;let p=G.p,c=G.c;$('battleTitle').textContent=G.online?'オンライン対戦':'CPU対戦';$('opponentName').textContent=G.online?'相手':'CPU';$('leaderRules').textContent=[leaderText[p.root]&&'自分：'+leaderText[p.root],leaderText[c.root]&&'相手：'+leaderText[c.root]].filter(Boolean).join(' / ');$('php').textContent=p.hp;$('chp').textContent=c.hp;renderHud(p,c);$('round').classList.toggle('your-turn',G.turn==='p'&&!G.over);$('round').textContent=G.over?(G.won?'勝利！':'敗北'):`ラウンド ${G.round}・${G.turn==='p'?'あなたのターン':G.online?'相手のターン':'CPUのターン'}`;$('hand').innerHTML=p.h.map((id,i)=>{
  const card=C.find(entry=>entry.id===id);
  const selected=i===handSel?' selected':'';
  const cost=card.t==='piece'?card.c:card.t==='fusion'?card.cc:card.e?.s==='凸'?card.e.c:'◇';
  const unit=card.t==='piece'||card.t==='fusion';
  return '<button type="button" class="mini-card'+selected+'" style="--mini-color:'+pieceColors[card.r]+'" data-hand="'+i+'" aria-pressed="'+(i===handSel)+'"><span class="mini-cost">'+cost+'</span><span class="mini-name">'+esc(card.n)+'</span><span class="mini-atk">'+(unit?'⚔'+card.a:'')+'</span><span class="mini-hp">'+(unit?'♥'+card.h:typeName(card.t))+'</span></button>';
 }).join('');
-$('pboard').innerHTML=p.b.map((u,i)=>unitHTML(u,i,'p')).join('');$('cboard').innerHTML=c.b.map((u,i)=>unitHTML(u,i,'c')).join('');renderActions();
+renderField(p,'p');renderField(c,'c');renderActions();
 $('faceTarget').disabled=G.over;
 $('again').hidden=!!G.online;
 }
 function unitHTML(u,i,side){
   const selected=side==='p'?(i===unitSel||i===secondSel):i===targetSel;
   const frame=shapeStyle(u);
-  const mats=u.mats?.map(m=>esc(m.n)+'('+m.hp+'/'+m.max+')').join(' ＋ ');
-  return `<div class="unit ${frame?'jigsaw':''} ${selected?'selected':''}" style="${frame};grid-column:span ${u.mats?.length??1}" data-${side}u="${i}">
-    <b>${esc(u.n)}</b><br><span class="piece-stat">⚔${u.a} ♥${u.hp}/${u.max}</span><br>
-    <small>${esc(u.k||'')} ${u.ready?'攻撃可':'行動不可'} ${u.shield?'🛡盾':''}</small><br>
-    <small class="piece-ports">${edgeLabels(u.edges)}</small>
-    ${u.equip?'<br><small>装備：'+esc(u.equip.n)+'</small>':''}${mats?'<br><small>'+mats+'</small>':''}</div>`;
+  const classes=['unit','field-piece',frame?'jigsaw':'',selected?'selected':'',side==='p'&&u.ready?'ready-piece':''].join(' ');
+  const ports=edgeLabels(u.edges);
+  const detail=[u.shield?'盾':'',u.equip?'装備：'+u.equip.n:'',u.mats?u.mats.length+'体連結':''].filter(Boolean).join(' · ');
+  return '<button type="button" class="'+classes+'" style="'+frame+';--root-color:'+pieceColors[u.r]+';grid-column:span '+(u.mats?.length??1)+'" data-'+side+'u="'+i+'" aria-pressed="'+selected+'">'+
+    '<span class="field-name">'+esc(u.n)+'</span><span class="field-condition">'+esc(detail||u.k||'')+'</span>'+
+    '<span class="field-ports">'+ports+'</span><span class="field-atk" aria-label="攻撃 '+u.a+'">'+u.a+'</span><span class="field-hp" aria-label="体力 '+u.hp+'">'+u.hp+'</span></button>';
 }
 const actionIds={summon:'summon',fusion:'fuse',equip:'equip',spell:'spell',connect:'connect',attack:'attack',detach:'detach',firework:'firework',patrolReturn:'patrol'};
 let chooseEdge=false;
