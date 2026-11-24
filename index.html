@@ -327,6 +327,17 @@ button.primary:hover,.active:hover,#end:enabled:hover,#start:enabled:hover{backg
   .damage-impact::before,.damage-impact::after{animation:none}
   .damage-value{animation:none;transform:translate(-50%,-65%)}
 }
+.cost-meters{display:flex;gap:8px;padding:4px 2px 2px}
+.cost-meter{flex:1;min-width:0;padding:5px 8px 7px;border:1px solid #76609e;border-radius:9px;background:#211b31;color:#e6d4ff;--meter-fill:#dabaff}
+.cost-meter[hidden]{display:none}
+#linkCostHud.cost-meter{border-color:#4d887f;background:#172c31;color:#c2fff3;--meter-fill:#83ecdb}
+.cost-reading{display:flex;align-items:baseline;justify-content:space-between;gap:4px;font-size:.78rem;font-weight:750;white-space:nowrap}
+.cost-now{font-size:1.45rem;line-height:1;font-variant-numeric:tabular-nums}
+.cost-cap{font-size:.78rem;opacity:.85}
+.cost-track{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-top:4px}
+.cost-track i{height:5px;border-radius:3px;background:#ffffff12}
+.cost-track .spent{background:#ffffff45}
+.cost-track .available{background:var(--meter-fill);box-shadow:0 0 5px color-mix(in srgb,var(--meter-fill),transparent 40%)}
 </style>
 <header class="site-header"><h1>ROOTS <span>LINK</span></h1>
 <nav><button class="tab active" data-to="builder">デッキ編集</button><button class="tab" data-to="catalog">カード図鑑</button><button class="tab" data-to="battle">対戦</button><button class="tab" data-to="online">オンライン対戦</button></nav></header><main>
@@ -343,10 +354,11 @@ button.primary:hover,.active:hover,#end:enabled:hover,#start:enabled:hover{backg
  <div id="turnBanner" class="turn-banner" role="status" hidden><small id="turnBannerTop"></small><strong id="turnBannerTitle"></strong></div><div id="battleFlash" class="battle-flash" role="status" hidden></div>
  <div class="field ally-field"><div id="pboard" class="board"></div></div>
  <div class="leader-bar own-bar">
-  <div class="energy"><div id="cost" aria-live="polite"></div><div id="linkCostHud" hidden></div><div id="energyDots" class="energy-dots" aria-hidden="true"></div></div>
+  <span></span>
   <div class="leader portrait"><b>あなた</b><span id="php" class="hp">20</span></div>
   <div id="pinfo" class="reserve"></div>
  </div>
+ <div class="cost-meters"><div id="cost" class="cost-meter" role="group" aria-live="polite"><div class="cost-reading"><span class="cost-label"></span><span><b class="cost-now"></b> <span class="cost-cap"></span></span></div><div class="cost-track" aria-hidden="true"></div></div><div id="linkCostHud" class="cost-meter" role="group" aria-live="polite"><div class="cost-reading"><span class="cost-label"></span><span><b class="cost-now"></b> <span class="cost-cap"></span></span></div><div class="cost-track" aria-hidden="true"></div></div></div>
 </div>
 <div class="zone hand-zone"><div class="hand-heading"><b>手札</b><span id="handCount"></span></div><div id="hand" class="hand"></div></div>
 <div class="tools battle-actions"><button id="summon" disabled>ピース召喚</button><button id="fusion" disabled>融合</button><button id="equip" disabled>装備</button><button id="spell" disabled>詠唱を使う</button><button id="connect" disabled>選択2体を連結</button><button id="detach" disabled>装備を外す</button><button id="firework" hidden>火鉢バチを無料召喚</button><button id="patrolReturn" hidden>巡回で手札を戻す</button><div id="edgePick" class="edge-pick" hidden></div><div id="selectionStrip" class="selection-strip" hidden></div><p id="selectedEffect" class="selected-effect" hidden></p><p id="actionHint" class="action-hint"></p><button id="end">ターン終了</button></div>
@@ -1276,6 +1288,17 @@ function updateFusionSignal(player){
   button.setAttribute('aria-label',hasMaterial?'一体化：手札に素材あり':'一体化');
   if($('fusionTray').open)renderFusionTray();
 }
+function renderCost(id,label,remaining,capacity){
+  const meter=$(id);
+  const description=label+' 残り'+remaining+' / '+capacity;
+  if(meter.getAttribute('aria-label')===description)return;
+  meter.setAttribute('aria-label',description);
+  meter.querySelector('.cost-label').textContent=label;
+  meter.querySelector('.cost-now').textContent=remaining;
+  meter.querySelector('.cost-cap').textContent='/ '+capacity;
+  meter.querySelector('.cost-track').innerHTML=Array.from({length:5},(_,i)=>
+    '<i class="'+(i<remaining?'available':i<capacity?'spent':'locked')+'"></i>').join('');
+}
 function renderHud(p,c){
   updateFusionSignal(p);
   $('enemyHandCount').textContent='手札 '+c.h.length;
@@ -1284,13 +1307,10 @@ function renderHud(p,c){
   for(const [player,mark,info] of [[p,'ownMark','pinfo'],[c,'enemyMark','cinfo']]){
     $(info).innerHTML='<span>山札 <b>'+player.d.length+'</b></span><span>トラッシュ <b>'+player.trash.length+'</b></span>';
   }
-  $('cost').textContent=(p.linkCost===undefined?'共通':'召喚')+' '+p.cost+'/'+p.capacity;
-  $('linkCostHud').hidden=p.linkCost===undefined;
-  $('linkCostHud').textContent=p.linkCost===undefined?'':'接続 '+p.linkCost+'/'+(p.linkCapacity??p.capacity-(p.activated?1:0));
-  $('energyDots').innerHTML=Array.from({length:5},(_,i)=>'<i class="'+(i<p.cost?'filled':i<p.capacity?'spent':'')+'"></i>').join('');
-  $('faceTarget').classList.toggle('targetable',canAttackTarget(-1));
-  $('faceTarget').classList.toggle('target-selected',targetSel===-1);
-  $('faceTarget').setAttribute('aria-pressed',String(targetSel===-1));
+  const shared=p.linkCost===undefined;
+  renderCost('cost',shared?'共通コスト':'召喚コスト',p.cost,p.capacity);
+  $('linkCostHud').hidden=shared;
+  if(!shared)renderCost('linkCostHud','接続コスト',p.linkCost,p.linkCapacity??p.capacity-(p.activated?1:0));
 }
 function renderField(player,side){
   const occupied=player.b.reduce((total,u)=>total+(u.mats?.length??1),0);
