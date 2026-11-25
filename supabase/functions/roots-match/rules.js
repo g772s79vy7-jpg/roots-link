@@ -186,6 +186,28 @@ function prepare(deck,host,fusion=starterFusion(C.find(card=>card.id===deck[0]).
 }
 
 const BOARD_LIMIT=5;
+function boardLayout(board){
+  const slots=new Array(board.length);
+  const occupied=new Set();
+  const span=unit=>unit.mats?.length??1;
+  const fits=(slot,size)=>Number.isInteger(slot)&&slot>=0&&slot+size<=BOARD_LIMIT&&
+    Array.from({length:size},(_,i)=>slot+i).every(i=>!occupied.has(i));
+  const place=(index,slot)=>{
+    slots[index]=slot;
+    for(let i=0;i<span(board[index]);i++)occupied.add(slot+i);
+  };
+  board.forEach((unit,index)=>{if(fits(unit.slot,span(unit)))place(index,unit.slot);});
+  for(const [index,unit] of board.entries()){
+    if(slots[index]!==undefined)continue;
+    const slot=Array.from({length:BOARD_LIMIT},(_,i)=>i).find(i=>fits(i,span(unit)));
+    if(slot===undefined){
+      let cursor=0;
+      return board.map(piece=>{const start=cursor;cursor+=span(piece);return start;});
+    }
+    place(index,slot);
+  }
+  return slots;
+}
 function boardSlots(p){return p.b.reduce((n,u)=>n+(u.mats?.length??1),0)}
 function applyMove(state,seat,action){
  const opponent=seat==='host'?'guest':'host';
@@ -267,8 +289,13 @@ function summon() {
   const cost=player.discounts?.includes(handSel)?Math.max(1,card.c-1):card.c;
   if(player.cost<cost)alert('召喚コスト不足。');
   player.cost-=cost;
+  const occupied=boardLayout(player.b);
+  const vacant=Array.from({length:BOARD_LIMIT},(_,i)=>i).filter(slot=>
+    !player.b.some((unit,index)=>slot>=occupied[index]&&slot<occupied[index]+(unit.mats?.length??1)));
+  const slot=action.slot===undefined?vacant[0]:action.slot;
+  if(!vacant.includes(slot))alert('空き枠を選んでください。');
   spendHand();
-  player.b.push(makeUnit(card));
+  player.b.push({...makeUnit(card),slot});
   log(card.n+'を召喚！');
   if(card.id==='redp0'&&player.h.includes('redp1')&&boardSlots(player)<BOARD_LIMIT)player.freeFirework=true;
   if(card.id==='redp1')drawPieceToHand(player);
@@ -283,7 +310,7 @@ function summon() {
     if(!G.over)patrol(player,drawn);
   }
 }
-function fuse(){let p=G.p,c=C.find(x=>x.id===(p.fusion? action.fusion:p.h[handSel]));if(!c||c.t!=='fusion'||(p.fusion&&!p.fusion.includes(c.id)))return;if(connectionCost(p)<c.cc)return alert('接続コスト不足。');if(p.b.length<2)return alert('融合素材2体が必要。');let a=unitSel,b=secondSel;if(a===b||!p.b[a]||!p.b[b])return;let u=p.b[a],v=p.b[b];if(u.mats||v.mats||u.equip||v.equip)return alert('装備中のピースは融合できません。');if(!c.m||u.id===v.id||![u.id,v.id].every(id=>c.m.includes(id)))return alert('この融合カードの指定素材ではありません。');spendConnection(p,c.cc);let indices=[a,b].sort((x,y)=>y-x);for(let i of indices){let m=p.b.splice(i,1)[0];toTrash(p,m,'融合素材')}let f=c;if(p.fusion)p.fusion=p.fusion.filter(id=>id!==f.id);else spendHand();let x=makeUnit(f);x.ready=false;x.shield=u.shield||v.shield;x.grows=u.k==='成長'||v.k==='成長';p.b.push(x);log(u.n+'＋'+v.n+' → '+f.n+'！接続コスト'+f.cc+'を使用。')}
+function fuse(){let p=G.p,c=C.find(x=>x.id===(p.fusion? action.fusion:p.h[handSel]));if(!c||c.t!=='fusion'||(p.fusion&&!p.fusion.includes(c.id)))return;if(connectionCost(p)<c.cc)return alert('接続コスト不足。');if(p.b.length<2)return alert('融合素材2体が必要。');let a=unitSel,b=secondSel;if(a===b||!p.b[a]||!p.b[b])return;let u=p.b[a],v=p.b[b];if(u.mats||v.mats||u.equip||v.equip)return alert('装備中のピースは融合できません。');if(!c.m||u.id===v.id||![u.id,v.id].every(id=>c.m.includes(id)))return alert('この融合カードの指定素材ではありません。');spendConnection(p,c.cc);let indices=[a,b].sort((x,y)=>y-x);for(let i of indices){let m=p.b.splice(i,1)[0];toTrash(p,m,'融合素材')}let f=c;if(p.fusion)p.fusion=p.fusion.filter(id=>id!==f.id);else spendHand();let x=makeUnit(f);x.ready=false;x.shield=u.shield||v.shield;x.grows=u.k==='成長'||v.k==='成長';x.slot=u.slot;p.b.push(x);log(u.n+'＋'+v.n+' → '+f.n+'！接続コスト'+f.cc+'を使用。')}
 function edgePair(u,v,direction) {
   const star=u.k==='星導'||v.k==='星導';
   let fallback;
@@ -380,7 +407,7 @@ function damageUnit(player,index,damage){
   else if(unit.mats.length===1){
     const [survivor]=unit.mats;
     player.b[index]={...makeUnit(C.find(card=>card.id===survivor.id)??survivor,false),...survivor,
-      ready:unit.ready,attacked:unit.attacked,attacks:unit.attacks??0};
+      slot:unit.slot,ready:unit.ready,attacked:unit.attacked,attacks:unit.attacks??0};
   } else updateLink(unit);
   if(unit.mats.length<=1&&player.leader==='luna')drawPieceToHand(player);
 }
@@ -599,6 +626,7 @@ function grow(player){
    }
  }
  if(JSON.stringify(state)===before)alert('その操作はできません。');
+ for(const player of [G.p,G.c])boardLayout(player.b).forEach((slot,index)=>{player.b[index].slot=slot;});
  return state;
 }
 

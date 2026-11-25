@@ -362,15 +362,23 @@ button.primary:hover,.active:hover,#end:enabled:hover,#start:enabled:hover{backg
  .board-stage .field-condition,.board-stage .field-ports{font-size:.49rem;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;-webkit-line-clamp:1}
  .board-stage :is(.field-atk,.field-hp){min-width:12px;font-size:.66rem;padding:1px 2px;bottom:10%}
 }
+.leader-hud{display:flex;align-items:center;gap:4px}
+.leader-hud .portrait{min-width:0}
+.leader-effect-button{font-size:.68rem;line-height:1.1;min-height:32px;padding:4px 6px;border-color:#9474bc;color:#faeaff;background:#35244e;white-space:nowrap}
+.leader-effect-button[hidden]{display:none}
+.summon-target,.board-stage .field-piece.attachment-target{outline:2px solid #81efd0;outline-offset:-2px;box-shadow:0 0 10px #78e8cc55}
+.summon-target{background:#204b46;color:#c6ffed;font-size:1.15rem;padding:0}
+.board-stage .field-piece.attachment-target.jigsaw::before{background:#81efd0}
+@media(max-width:630px){.leader-hud .portrait b{max-width:85px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}}
 </style>
 <header class="site-header"><h1>ROOTS <span>LINK</span></h1>
 <nav><button class="tab active" data-to="builder">デッキ編集</button><button class="tab" data-to="catalog">カード図鑑</button><button class="tab" data-to="battle">対戦</button><button class="tab" data-to="online">オンライン対戦</button></nav></header><main>
 <p id="startupStatus" class="room-status">カードデータを読み込んでいます…</p><section id="builder"><div class="layout"><div class="panel"><h2>カードを選ぶ</h2><div class="tools"><select id="br"><option value="all">全ルーツ</option></select><select id="bt"><option value="all">全種類</option><option value="piece">ピース</option><option value="fusion">融合</option><option value="equipment">装備</option><option value="spell">詠唱</option></select><input id="bs" placeholder="名前・効果を検索"></div><div id="pool" class="cards"></div><button id="poolMore" type="button" hidden>次のカードを表示</button></div><aside class="panel deck-panel"><div class="row"><h2>マイデッキ</h2><b id="count">0 / 30</b></div><div class="deck-library"><label for="savedDecks">保存済みデッキ</label><div class="row"><select id="savedDecks"></select><button id="loadDeck" type="button">編集する</button><button id="newDeck" type="button">新規</button></div><label for="deckName">デッキ名</label><div class="row"><input id="deckName" maxlength="32" placeholder="例：十二市 火花デッキ"><button id="saveDeck" class="primary" type="button" disabled>デッキを保存</button></div></div><div class="tools"><button id="fill">固定デッキ30枚を作る</button><button id="clear">全て外す</button></div><details id="deckDetails"><summary>デッキの中身を見る</summary><div id="deck" class="decklist"></div></details><section class="fusion-deck"><h3>融合ピース <span id="fusionCount">0 / 3</span></h3><div id="fusionList"></div><button id="browseFusion" type="button">融合ピースを選ぶ</button></section><hr><button id="start" type="button">CPU対戦のデッキを選ぶ</button><p id="deckStatus" class="small" role="status"></p><p class="small">30枚ちょうど / 同名カード3枚まで / 同じルーツのみ。装備と詠唱は30枚に含みます。融合は別枠です。</p></aside></div></section>
 <section id="catalog" class="hidden"><div class="panel"><h2>カード図鑑 <span id="total" class="small">250種</span></h2><div class="tools"><select id="cr"><option value="all">全ルーツ</option></select><select id="ct"><option value="all">全種類</option><option value="piece">ピース</option><option value="fusion">融合</option><option value="equipment">装備</option><option value="spell">詠唱</option></select><input id="cs" placeholder="名前・効果を検索"></div><div id="book" class="cards"></div><button id="bookMore" type="button" hidden>次のカードを表示</button></div></section>
-<section id="battle" class="hidden"><div class="panel arena"><div class="row arena-heading"><h2 id="battleTitle">CPU対戦</h2><button id="battleBack" type="button" hidden>対戦を出る</button><button id="again" hidden>再戦</button><b id="round">対戦準備中</b><button id="fusionTrayButton" type="button">一体化</button><button id="battleLogButton" type="button">バトルログ</button><button id="battleSettings" type="button" aria-label="対戦設定" title="対戦設定">⚙ 設定</button></div><p id="leaderRules" class="small"></p><div class="battle board-stage">
+<section id="battle" class="hidden"><div class="panel arena"><div class="row arena-heading"><h2 id="battleTitle">CPU対戦</h2><button id="battleBack" type="button" hidden>対戦を出る</button><button id="again" hidden>再戦</button><b id="round">対戦準備中</b><button id="fusionTrayButton" type="button">一体化</button><button id="battleLogButton" type="button">バトルログ</button><button id="battleSettings" type="button" aria-label="対戦設定" title="対戦設定">⚙ 設定</button></div><div class="battle board-stage">
  <div class="leader-bar rival-bar">
   <div class="reserve opponent-reserve"><div id="enemyHand" class="card-backs" aria-hidden="true"></div><span id="enemyHandCount"></span></div>
-  <button id="faceTarget" class="leader portrait" type="button" aria-label="相手リーダーを選ぶ"><b id="opponentName">CPU</b><span id="chp" class="hp">20</span></button>
+  <div class="leader-hud"><button id="faceTarget" class="leader portrait" type="button" aria-label="相手リーダーを選ぶ"><b id="opponentName">CPU</b><span id="chp" class="hp">20</span></button><button type="button" class="leader-effect-button" id="cLeaderEffect" aria-label="相手のリーダー効果">効果</button></div>
   <div id="cinfo" class="reserve"></div>
  </div>
  <div class="field enemy-field"><div id="cboard" class="board"></div></div>
@@ -379,7 +387,7 @@ button.primary:hover,.active:hover,#end:enabled:hover,#start:enabled:hover{backg
  <div class="field ally-field"><div id="pboard" class="board"></div></div>
  <div class="leader-bar own-bar">
   <span></span>
-  <div class="leader portrait"><b id="ownLeaderName">あなた</b><span id="php" class="hp">20</span></div>
+  <div class="leader-hud"><div class="leader portrait"><b id="ownLeaderName">あなた</b><span id="php" class="hp">20</span></div><button type="button" class="leader-effect-button" id="pLeaderEffect" aria-label="自分のリーダー効果">効果</button></div>
   <div id="pinfo" class="reserve"></div>
  </div>
  <div class="cost-meters"><div id="cost" class="cost-meter" role="group" aria-live="polite"><div class="cost-reading"><span class="cost-label"></span><span><b class="cost-now"></b> <span class="cost-cap"></span></span></div><div class="cost-track" aria-hidden="true"></div></div><div id="linkCostHud" class="cost-meter" role="group" aria-live="polite"><div class="cost-reading"><span class="cost-label"></span><span><b class="cost-now"></b> <span class="cost-cap"></span></span></div><div class="cost-track" aria-hidden="true"></div></div></div>
@@ -429,7 +437,7 @@ button.primary:hover,.active:hover,#end:enabled:hover,#start:enabled:hover{backg
 </div>
 <form method="dialog"><button>対戦に戻る</button></form>
 </dialog>
-<dialog id="cardDialog"><h2 id="detailTitle"></h2><p id="detailStats"></p><p id="detailText"></p><div id="detailShape" class="detail-shape jigsaw" hidden></div><p id="detailEdges" class="piece-ports"></p><button id="detailClose" type="button">閉じる</button></dialog>
+<dialog id="leaderEffectDialog" aria-labelledby="leaderEffectTitle"><h2 id="leaderEffectTitle"></h2><p id="leaderEffectDescription"></p><p id="leaderEffectProgress" class="small"></p><form method="dialog"><button>閉じる</button></form></dialog><dialog id="cardDialog"><h2 id="detailTitle"></h2><p id="detailStats"></p><p id="detailText"></p><div id="detailShape" class="detail-shape jigsaw" hidden></div><p id="detailEdges" class="piece-ports"></p><button id="detailClose" type="button">閉じる</button></dialog>
 <script>
 (() => {
   const notice=document.getElementById('startupStatus');
@@ -627,6 +635,28 @@ function prepare(deck,host,fusion=starterFusion(C.find(card=>card.id===deck[0]).
 }
 
 const BOARD_LIMIT=5;
+function boardLayout(board){
+  const slots=new Array(board.length);
+  const occupied=new Set();
+  const span=unit=>unit.mats?.length??1;
+  const fits=(slot,size)=>Number.isInteger(slot)&&slot>=0&&slot+size<=BOARD_LIMIT&&
+    Array.from({length:size},(_,i)=>slot+i).every(i=>!occupied.has(i));
+  const place=(index,slot)=>{
+    slots[index]=slot;
+    for(let i=0;i<span(board[index]);i++)occupied.add(slot+i);
+  };
+  board.forEach((unit,index)=>{if(fits(unit.slot,span(unit)))place(index,unit.slot);});
+  for(const [index,unit] of board.entries()){
+    if(slots[index]!==undefined)continue;
+    const slot=Array.from({length:BOARD_LIMIT},(_,i)=>i).find(i=>fits(i,span(unit)));
+    if(slot===undefined){
+      let cursor=0;
+      return board.map(piece=>{const start=cursor;cursor+=span(piece);return start;});
+    }
+    place(index,slot);
+  }
+  return slots;
+}
 function boardSlots(p){return p.b.reduce((n,u)=>n+(u.mats?.length??1),0)}
 function applyMove(state,seat,action){
  const opponent=seat==='host'?'guest':'host';
@@ -708,8 +738,13 @@ function summon() {
   const cost=player.discounts?.includes(handSel)?Math.max(1,card.c-1):card.c;
   if(player.cost<cost)alert('召喚コスト不足。');
   player.cost-=cost;
+  const occupied=boardLayout(player.b);
+  const vacant=Array.from({length:BOARD_LIMIT},(_,i)=>i).filter(slot=>
+    !player.b.some((unit,index)=>slot>=occupied[index]&&slot<occupied[index]+(unit.mats?.length??1)));
+  const slot=action.slot===undefined?vacant[0]:action.slot;
+  if(!vacant.includes(slot))alert('空き枠を選んでください。');
   spendHand();
-  player.b.push(makeUnit(card));
+  player.b.push({...makeUnit(card),slot});
   log(card.n+'を召喚！');
   if(card.id==='redp0'&&player.h.includes('redp1')&&boardSlots(player)<BOARD_LIMIT)player.freeFirework=true;
   if(card.id==='redp1')drawPieceToHand(player);
@@ -724,7 +759,7 @@ function summon() {
     if(!G.over)patrol(player,drawn);
   }
 }
-function fuse(){let p=G.p,c=C.find(x=>x.id===(p.fusion? action.fusion:p.h[handSel]));if(!c||c.t!=='fusion'||(p.fusion&&!p.fusion.includes(c.id)))return;if(connectionCost(p)<c.cc)return alert('接続コスト不足。');if(p.b.length<2)return alert('融合素材2体が必要。');let a=unitSel,b=secondSel;if(a===b||!p.b[a]||!p.b[b])return;let u=p.b[a],v=p.b[b];if(u.mats||v.mats||u.equip||v.equip)return alert('装備中のピースは融合できません。');if(!c.m||u.id===v.id||![u.id,v.id].every(id=>c.m.includes(id)))return alert('この融合カードの指定素材ではありません。');spendConnection(p,c.cc);let indices=[a,b].sort((x,y)=>y-x);for(let i of indices){let m=p.b.splice(i,1)[0];toTrash(p,m,'融合素材')}let f=c;if(p.fusion)p.fusion=p.fusion.filter(id=>id!==f.id);else spendHand();let x=makeUnit(f);x.ready=false;x.shield=u.shield||v.shield;x.grows=u.k==='成長'||v.k==='成長';p.b.push(x);log(u.n+'＋'+v.n+' → '+f.n+'！接続コスト'+f.cc+'を使用。')}
+function fuse(){let p=G.p,c=C.find(x=>x.id===(p.fusion? action.fusion:p.h[handSel]));if(!c||c.t!=='fusion'||(p.fusion&&!p.fusion.includes(c.id)))return;if(connectionCost(p)<c.cc)return alert('接続コスト不足。');if(p.b.length<2)return alert('融合素材2体が必要。');let a=unitSel,b=secondSel;if(a===b||!p.b[a]||!p.b[b])return;let u=p.b[a],v=p.b[b];if(u.mats||v.mats||u.equip||v.equip)return alert('装備中のピースは融合できません。');if(!c.m||u.id===v.id||![u.id,v.id].every(id=>c.m.includes(id)))return alert('この融合カードの指定素材ではありません。');spendConnection(p,c.cc);let indices=[a,b].sort((x,y)=>y-x);for(let i of indices){let m=p.b.splice(i,1)[0];toTrash(p,m,'融合素材')}let f=c;if(p.fusion)p.fusion=p.fusion.filter(id=>id!==f.id);else spendHand();let x=makeUnit(f);x.ready=false;x.shield=u.shield||v.shield;x.grows=u.k==='成長'||v.k==='成長';x.slot=u.slot;p.b.push(x);log(u.n+'＋'+v.n+' → '+f.n+'！接続コスト'+f.cc+'を使用。')}
 function edgePair(u,v,direction) {
   const star=u.k==='星導'||v.k==='星導';
   let fallback;
@@ -821,7 +856,7 @@ function damageUnit(player,index,damage){
   else if(unit.mats.length===1){
     const [survivor]=unit.mats;
     player.b[index]={...makeUnit(C.find(card=>card.id===survivor.id)??survivor,false),...survivor,
-      ready:unit.ready,attacked:unit.attacked,attacks:unit.attacks??0};
+      slot:unit.slot,ready:unit.ready,attacked:unit.attacked,attacks:unit.attacks??0};
   } else updateLink(unit);
   if(unit.mats.length<=1&&player.leader==='luna')drawPieceToHand(player);
 }
@@ -1040,6 +1075,7 @@ function grow(player){
    }
  }
  if(JSON.stringify(state)===before)alert('その操作はできません。');
+ for(const player of [G.p,G.c])boardLayout(player.b).forEach((slot,index)=>{player.b[index].slot=slot;});
  return state;
 }
 
@@ -1561,21 +1597,38 @@ function renderHud(p,c){
   if(!shared)renderCost('linkCostHud','接続コスト',p.linkCost,p.linkCapacity??p.capacity-(p.activated?1:0));
 }
 function renderField(player,side){
-  const occupied=boardSlots(player);
-  $(side+'board').innerHTML=player.b.map((unit,i)=>unitHTML(unit,i,side)).join('')+
-    '<div class="empty-slot" aria-hidden="true"><span></span></div>'.repeat(Math.max(0,BOARD_LIMIT-occupied));
+  const layout=boardLayout(player.b);
+  const occupied=new Set();
+  const units=player.b.map((unit,i)=>{
+    for(let j=0;j<(unit.mats?.length??1);j++)occupied.add(layout[i]+j);
+    return unitHTML(unit,i,side,layout[i]);
+  });
+  for(let slot=0;slot<BOARD_LIMIT;slot++){
+    if(occupied.has(slot))continue;
+    const style=' style="grid-column:'+(slot+1)+';grid-row:1"';
+    if(side==='p'&&legalAction('summon',undefined,undefined,undefined,{slot})){
+      units.push('<button type="button" class="empty-slot summon-target" data-summon-slot="'+slot+'" aria-label="'+(slot+1)+'枠目に召喚"'+style+'>＋</button>');
+    }else units.push('<div class="empty-slot" aria-hidden="true"'+style+'><span></span></div>');
+  }
+  $(side+'board').innerHTML=units.join('');
 }
-function leaderLine(player,side){
-  const leader=leaders.find(item=>item.id===player.leader);
-  if(!leader)return '';
-  const progress={
+function leaderProgress(player){
+  return {
     magma:(player.enemyLost??0)+'/12',haru:(player.activations??0)+'/6',
     lost:(player.selfLost??0)+'/3',aqua:'残り'+player.d.length+'枚',
     cosmo:'一体化 '+(player.fused?'済':'未')+' / 連結 '+(player.connected?'済':'未')
-  }[leader.id];
-  return side+' '+leader.name+'｜'+leader.effect+(progress?'（'+progress+'）':'');
+  }[player.leader]??'';
 }
-function renderGame(){if(!G)return;let p=G.p,c=G.c;$('battleTitle').textContent=G.online?'オンライン対戦':'CPU対戦';$('opponentName').textContent=leaders.find(l=>l.id===c.leader)?.name??(G.online?'相手':'CPU');$('ownLeaderName').textContent=leaders.find(l=>l.id===p.leader)?.name??'あなた';$('leaderRules').textContent=[leaderLine(p,'自分'),leaderLine(c,'相手')].filter(Boolean).join(' / ');$('php').textContent=p.hp;$('chp').textContent=c.hp;renderHud(p,c);$('round').classList.toggle('your-turn',G.turn==='p'&&!G.over);$('round').textContent=G.over?(G.won?'勝利！':'敗北'):`ターン ${G.round}・${G.turn==='p'?'あなたのターン':G.online?'相手のターン':'CPUのターン'}`;$('hand').innerHTML=p.h.map((id,i)=>{
+for(const side of ['p','c'])$(side+'LeaderEffect').onclick=()=>{
+  const player=G?.[side];
+  const leader=leaders.find(item=>item.id===player?.leader);
+  if(!leader)return;
+  $('leaderEffectTitle').textContent=leader.name;
+  $('leaderEffectDescription').textContent=leader.effect;
+  $('leaderEffectProgress').textContent=leaderProgress(player);
+  $('leaderEffectDialog').showModal();
+};
+function renderGame(){if(!G)return;let p=G.p,c=G.c;$('battleTitle').textContent=G.online?'オンライン対戦':'CPU対戦';$('opponentName').textContent=leaders.find(l=>l.id===c.leader)?.name??(G.online?'相手':'CPU');$('ownLeaderName').textContent=leaders.find(l=>l.id===p.leader)?.name??'あなた';for(const side of ['p','c']){const button=$(side+'LeaderEffect');button.hidden=!G[side].leader;button.textContent=leaderProgress(G[side])||'効果';}$('php').textContent=p.hp;$('chp').textContent=c.hp;renderHud(p,c);$('round').classList.toggle('your-turn',G.turn==='p'&&!G.over);$('round').textContent=G.over?(G.won?'勝利！':'敗北'):`ターン ${G.round}・${G.turn==='p'?'あなたのターン':G.online?'相手のターン':'CPUのターン'}`;$('hand').innerHTML=p.h.map((id,i)=>{
  const card=C.find(entry=>entry.id===id);
  const selected=i===handSel?' selected':'';
  const cost=card.t==='piece'?(p.discounts?.includes(i)?Math.max(1,card.c-1):card.c):card.t==='fusion'?card.cc:card.t==='equipment'&&p.leader==='musashi'?0:card.e?.s==='凸'?card.e.c:'';
@@ -1588,15 +1641,15 @@ $('faceTarget').disabled=!canAttackTarget(-1);
 $('again').hidden=!!G.online||!G.over;
 $('battleBack').hidden=!G.over;
 }
-function unitHTML(u,i,side){
+function unitHTML(u,i,side,slot){
   const selected=side==='p'?(i===unitSel||i===secondSel):i===targetSel;
   const frame=shapeStyle(u);
   const attackable=side==='c'&&canAttackTarget(i);
   const spellTarget=side==='c'&&!attackable&&canSpellTarget(i);
-  const classes=['unit','field-piece',frame?'jigsaw':'',u.mats?'linked-piece':'',selected?'selected':'',attackable?'attack-target':'',spellTarget?'spell-target':'',side==='p'&&u.ready?'ready-piece':''].join(' ');
+  const classes=['unit','field-piece',frame?'jigsaw':'',u.mats?'linked-piece':'',selected?'selected':'',attackable?'attack-target':'',spellTarget?'spell-target':'',side==='p'&&attachmentTarget(i)?'attachment-target':'',side==='p'&&u.ready?'ready-piece':''].join(' ');
   const ports=edgeLabels(u.edges);
   const detail=[u.shield?'盾':'',u.equip?'装備：'+u.equip.n:'',u.mats?u.mats.length+'体連結':''].filter(Boolean).join(' · ');
-  return '<button type="button" class="'+classes+'" style="'+frame+';'+artStyle(u).replaceAll('"','&quot;')+';--root-color:'+pieceColors[u.r]+';grid-column:span '+(u.mats?.length??1)+'" data-'+side+'u="'+i+'" aria-pressed="'+selected+'"'+'>'+
+  return '<button type="button" class="'+classes+'" style="'+frame+';'+artStyle(u).replaceAll('"','&quot;')+';--root-color:'+pieceColors[u.r]+';grid-row:1;grid-column:'+(slot+1)+' / span '+(u.mats?.length??1)+'" data-'+side+'u="'+i+'" aria-pressed="'+selected+'"'+'>'+
     '<span class="field-name">'+esc(u.n)+'</span><span class="field-condition">'+esc(detail||u.k||'')+'</span>'+
     '<span class="field-ports">'+ports+'</span><span class="field-atk" aria-label="攻撃 '+u.a+'">'+u.a+'</span><span class="field-hp" aria-label="体力 '+u.hp+'">'+u.hp+'</span></button>';
 }
@@ -1615,19 +1668,31 @@ function inspectPiece(unit){
 function currentAction(kind,direction,fusion){
   return {kind,hand:handSel,unit:unitSel,second:secondSel,target:targetSel,direction,fusion};
 }
-function legalAction(kind,direction,target=targetSel,fusion){
+function legalAction(kind,direction,target=targetSel,fusion,overrides={}){
   if(!G||G.over||G.turn!=='p')return false;
   if(kind==='attack'&&(target===null||secondSel>=0))return false;
   try{
-    applyMove({host:G.p,guest:G.c,round:G.round,turn:'host',winner:null,logs:[]},'host',{...currentAction(kind,direction,fusion),target});
+    applyMove({host:G.p,guest:G.c,round:G.round,turn:'host',winner:null,logs:[]},'host',{...currentAction(kind,direction,fusion),target,...overrides});
     return true;
   }catch{return false;}
 }
 function wantsSpellTarget(){const card=C.find(entry=>entry.id===G.p.h[handSel]);return [0,'break-equipment','weaken','bounce'].includes(card?.effect??card?.ef);}
-function canAttackTarget(index){return !wantsSpellTarget()&&legalAction('attack',undefined,index);}
+function canAttackTarget(index){return !handAttachment()&&legalAction('attack',undefined,index);}
 function canSpellTarget(index){
   const card=C.find(entry=>entry.id===G.p.h[handSel]);
   return [0,'break-equipment','weaken','bounce'].includes(card?.effect??card?.ef)&&legalAction('spell',undefined,index);
+}
+function handAttachment(){
+  const card=C.find(item=>item.id===G?.p.h[handSel]);
+  return card?.t==='equipment'?'equip':card?.t==='spell'?'spell':null;
+}
+function attachmentTarget(unit){
+  const kind=handAttachment();
+  if(!kind)return false;
+  if(kind==='spell'&&wantsSpellTarget()){
+    return G.c.b.some((_,target)=>legalAction(kind,undefined,target,undefined,{unit}));
+  }
+  return legalAction(kind,undefined,null,undefined,{unit});
 }
 function renderActions(){
   const edgeList=$('edgePick');
@@ -1642,12 +1707,14 @@ function renderActions(){
   const eligible=(G.p.fusion??[]).filter(id=>legalAction('fuse',undefined,targetSel,id));
   for(const [id,kind] of Object.entries(actionIds)){
     const possible=id==='fusion'&&G.p.fusion?eligible.length>0:legalAction(kind);
-    $(id).hidden=!possible;
+    $(id).hidden=id==='summon'||id==='spell'||id==='equip'||!possible;
     $(id).disabled=!possible;
   }
   const own=G.turn==='p'&&!G.over;
   $('end').disabled=!own||!!G.p.pending;
   $('actionHint').textContent=G.over?'':G.p.pending&&own?'巡回で山札の底に戻す手札を選んでください。':!own?'相手の操作を待っています。':handSel<0&&unitSel<0?'手札か盤面のピースを選択':targetSel===null&&!wantsSpellTarget()&&G.p.b[unitSel]?.ready&&secondSel<0?'黄色い対象をタップして攻撃':!Object.keys(actionIds).some(id=>!$(id).hidden)?'対象を選ぶか、別のピースを選んでください。':'';
+  if(own&&!G.p.pending&&selectedCard?.t==='piece'&&legalAction('summon'))$('actionHint').textContent='光っている空き枠をタップして召喚';
+  if(own&&!G.p.pending&&handAttachment())$('actionHint').textContent=unitSel>=0&&wantsSpellTarget()?'光っている相手ピースを選択':'光っている自分のピースを選択';
   const source=G.p.b[unitSel];
   const target=targetSel===-1?'相手リーダー':targetSel!==null?G.c.b[targetSel]?.n:null;
   const strip=$('selectionStrip');
@@ -1683,6 +1750,7 @@ function selectHand(e){
   if(!target)return;
   const index=Number(target.dataset.hand);
   handSel=handSel===index?-1:index;
+  unitSel=secondSel=-1;
   inspectedCard=null;
   targetSel=null;
   chooseEdge=null;
@@ -1690,9 +1758,23 @@ function selectHand(e){
   $('hand').querySelector('[data-hand="'+index+'"]')?.focus({preventScroll:true});
 }
 function selectOwn(e){
+  const empty=e.target.closest('[data-summon-slot]');
+  if(empty){
+    const slot=Number(empty.dataset.summonSlot);
+    if(legalAction('summon',undefined,undefined,undefined,{slot}))window.applyBattleMove('summon',undefined,undefined,slot);
+    return;
+  }
   const target=e.target.closest('[data-pu]');
   if(!target)return;
   const index=Number(target.dataset.pu);
+  const kind=handAttachment();
+  if(kind&&!G.p.pending&&G.turn==='p'&&!G.over){
+    if(!attachmentTarget(index))return;
+    unitSel=index;secondSel=-1;targetSel=null;
+    if(kind==='spell'&&wantsSpellTarget()){renderGame();return;}
+    window.applyBattleMove(kind);
+    return;
+  }
   inspectedCard=inspectPiece(G.p.b[index]);
   if(unitSel<0){unitSel=index;secondSel=-1;}
   else if(index===unitSel){unitSel=-1;secondSel=-1;}
@@ -1787,7 +1869,7 @@ function showDamage(hits,previous,next){
       const original=prior[index]?.n===name?index:prior.findIndex(piece=>piece.n===name);
       const field=original>=0?prior:next[side].b;
       const slot=Math.min(BOARD_LIMIT-1,Math.max(0,original>=0?original:index??0));
-      const start=field.slice(0,slot).reduce((total,piece)=>total+(piece.mats?.length??1),0);
+      const start=boardLayout(field)[slot]??slot;
       const span=field[slot]?.mats?.length??1;
       const bounds=anchor.getBoundingClientRect();
       const box=match?.getBoundingClientRect();
@@ -1865,7 +1947,7 @@ $('book').onclick=e=>{
   if(card)openCard(card.dataset.id);
 };
 $('deck').onclick=e=>{let b=e.target.closest('[data-del]');if(b){deck.splice(+b.dataset.del,1);renderDeck()}};$('fill').onclick=()=>{const selected=$('br').value;const root=selected==='all'?(C.find(x=>x.id===(deck[0]??fusionDeck[0]))?.r??'red'):selected;deck=deckFor(root);fusionDeck=starterFusion(root);renderDeck();$('deckStatus').textContent='固定デッキを作りました。'};$('clear').onclick=()=>{deck=[];fusionDeck=[];renderDeck()};$('start').onclick=chooseCpuDeck;$('again').onclick=chooseCpuDeck;
-document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{if(b.dataset.to==='battle'){chooseCpuDeck();return;}show(b.dataset.to)});$('hand').onclick=selectHand;$('pboard').onclick=selectOwn;$('cboard').onclick=e=>{let b=e.target.closest('[data-cu]');if(b){const index=+b.dataset.cu;inspectedCard=inspectPiece(G.c.b[index]);if(canAttackTarget(index)){window.attackBattleTarget(index);return;}if(canSpellTarget(index)){targetSel=index;secondSel=-1;}chooseEdge=null;renderGame()}};
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{if(b.dataset.to==='battle'){chooseCpuDeck();return;}show(b.dataset.to)});$('hand').onclick=selectHand;$('pboard').onclick=selectOwn;$('cboard').onclick=e=>{let b=e.target.closest('[data-cu]');if(b){const index=+b.dataset.cu;inspectedCard=inspectPiece(G.c.b[index]);if(canAttackTarget(index)){window.attackBattleTarget(index);return;}if(canSpellTarget(index)){targetSel=index;secondSel=-1;window.applyBattleMove('spell');return;}chooseEdge=null;renderGame()}};
 
 (()=>{
  const $=id=>document.getElementById(id); let roomTimer=null, roomRequest=0;
@@ -2002,9 +2084,9 @@ document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{if(b.dataset.to==='b
  $('chooseOnlineDeck').onclick=()=>openDeckPicker('オンライン対戦のデッキを選ぶ','このデッキで対戦',(cards,fusion,leader)=>{
    if(matchRoom&&!$('matchSetup').classList.contains('hidden'))matchUpdate({kind:'ready',deck:cards,fusion,leader});
  });
- function move(kind,direction,fusion) {
+ function move(kind,direction,fusion,slot) {
    if(kind==='attack'&&!legalAction('attack'))return;
-   const action=currentAction(kind,direction,fusion);
+   const action={...currentAction(kind,direction,fusion),slot};
    chooseEdge=null;
    if(G?.online)matchUpdate(action);
    else cpuMove(action);
