@@ -185,6 +185,8 @@ function prepare(deck,host,fusion=starterFusion(C.find(card=>card.id===deck[0]).
  return {hp:maxHp,maxHp,leader:leader.id,registeredFusion:[...fusion],fusion:[...fusion],h:d.splice(0,4),d,b:[],trash:[],cost:host?1:0,linkCost:host?1:0,capacity:host?1:0,pending:false,root:C.find(card=>card.id===deck[0]).r};
 }
 
+const BOARD_LIMIT=5;
+function boardSlots(p){return p.b.reduce((n,u)=>n+(u.mats?.length??1),0)}
 function applyMove(state,seat,action){
  const opponent=seat==='host'?'guest':'host';
  if(state.winner)throw new Error('対戦は終了しています。');
@@ -247,7 +249,7 @@ function applyMove(state,seat,action){
 log('巡回が発動。手札から1枚を山札の下へ戻します。');};
  const winCheck=()=>{if(G.c.hp<=0)state.winner=seat;if(G.p.hp<=0)state.winner=opponent;};
 function makeUnit(c,entering=true){return {n:c.n,id:c.id,r:c.r,a:c.a,hp:c.h,max:c.h,k:c.k||'',ready:c.k==='速攻'||G.p.leader==='volcano',shield:c.k==='盾'||(entering&&G.p.leader==='holy'&&!G.p.firstHoly&&(G.p.firstHoly=true)),rush:c.k!=='速攻'&&G.p.leader==='volcano',edges:c.e?c.e.map(x=>({...x,used:false})):[],equip:null,mats:null,entered:G.round,growth:0,attacks:0,attackLimit:c.attackLimit??1,attacked:false}}
-function boardSlots(p){return p.b.reduce((n,u)=>n+(u.mats?.length??1),0)}
+
 function spendHand(){const p=G.p;p.discounts=p.discounts?.filter(i=>i!==handSel).map(i=>i>handSel?i-1:i);let id=p.h.splice(handSel,1)[0];handSel=-1;return C.find(x=>x.id===id)}
 function drawPieceToHand(player) {
   if (player.h.length>=9) return;
@@ -261,14 +263,14 @@ function summon() {
   const player=G.p;
   const card=C.find(entry=>entry.id===player.h[handSel]);
   if(card?.t!=='piece')return;
-  if(boardSlots(player)>=3)alert('場は最大3枠。');
+  if(boardSlots(player)>=BOARD_LIMIT)alert('場は最大5枠。');
   const cost=player.discounts?.includes(handSel)?Math.max(1,card.c-1):card.c;
   if(player.cost<cost)alert('召喚コスト不足。');
   player.cost-=cost;
   spendHand();
   player.b.push(makeUnit(card));
   log(card.n+'を召喚！');
-  if(card.id==='redp0'&&player.h.includes('redp1')&&boardSlots(player)<3)player.freeFirework=true;
+  if(card.id==='redp0'&&player.h.includes('redp1')&&boardSlots(player)<BOARD_LIMIT)player.freeFirework=true;
   if(card.id==='redp1')drawPieceToHand(player);
   if(card.k==='活性'&&!player.activated){
     player.activated=true;
@@ -538,7 +540,7 @@ function grow(player){
     break;
   case 'summon': summon(); break;
   case 'firework': {
-    if(!G.p.freeFirework||G.p.h[handSel]!=='redp1'||boardSlots(G.p)>=3)alert('火鉢バチを選んでください。');
+    if(!G.p.freeFirework||G.p.h[handSel]!=='redp1'||boardSlots(G.p)>=BOARD_LIMIT)alert('火鉢バチを選んでください。');
     G.p.freeFirework=false;
     const card=spendHand();
     G.p.b.push(makeUnit(card));
@@ -584,7 +586,7 @@ function grow(player){
    winCheck();
  }
  for(const player of [G.p,G.c]){
-   if(player.leader==='newton'&&!player.apple&&player.lost>=(tuned?6:5)&&boardSlots(player)<3){
+   if(player.leader==='newton'&&!player.apple&&player.lost>=(tuned?6:5)&&boardSlots(player)<BOARD_LIMIT){
      player.apple=true;player.b.push({id:'green-apple',n:'りんご姫',r:'green',a:0,hp:tuned?9:15,max:tuned?9:15,shield:true,ready:false,edges:[],entered:G.round});
    }
  }
@@ -614,7 +616,7 @@ function playCpuTurn(state,seat='guest') {
   settlePatrol();
   for(let step=0;step<8&&!state.winner;step++){
     const {h,b}=state[seat];
-    if(b.length<3&&state[seat].freeFirework&&tryMove({kind:'firework',hand:h.indexOf('redp1')}))continue;
+    if(boardSlots(state[seat])<BOARD_LIMIT&&state[seat].freeFirework&&tryMove({kind:'firework',hand:h.indexOf('redp1')}))continue;
     let played=false;
     for(const id of state[seat].fusion??[]){
       const card=C.find(entry=>entry.id===id);

@@ -353,6 +353,15 @@ button.primary:hover,.active:hover,#end:enabled:hover,#start:enabled:hover{backg
   text-shadow:0 1px 3px #070810,0 1px 5px #070810,0 0 2px #070810;
 }
 .card .desc{color:#fff1de;background:#141224a6;border-radius:5px}
+.board-stage .board{--slot-gap:8px;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:var(--slot-gap)}
+.board-stage .field-piece,.board-stage .field-piece.linked-piece{width:100%;max-width:calc((100cqw - 4 * var(--slot-gap)) / 5);padding:1.5cqw 0 4cqw;gap:2px}
+@media(max-width:630px){
+ .board-stage .board{--slot-gap:4px;min-height:55px}
+ .board-stage .field-piece,.board-stage .field-piece.linked-piece{padding:1cqw 0 3.8cqw}
+ .board-stage .field-name{font-size:clamp(.51rem,2.4vw,.71rem);line-height:1.06}
+ .board-stage .field-condition,.board-stage .field-ports{font-size:.49rem;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;-webkit-line-clamp:1}
+ .board-stage :is(.field-atk,.field-hp){min-width:12px;font-size:.66rem;padding:1px 2px;bottom:10%}
+}
 </style>
 <header class="site-header"><h1>ROOTS <span>LINK</span></h1>
 <nav><button class="tab active" data-to="builder">デッキ編集</button><button class="tab" data-to="catalog">カード図鑑</button><button class="tab" data-to="battle">対戦</button><button class="tab" data-to="online">オンライン対戦</button></nav></header><main>
@@ -617,6 +626,8 @@ function prepare(deck,host,fusion=starterFusion(C.find(card=>card.id===deck[0]).
  return {hp:maxHp,maxHp,leader:leader.id,registeredFusion:[...fusion],fusion:[...fusion],h:d.splice(0,4),d,b:[],trash:[],cost:host?1:0,linkCost:host?1:0,capacity:host?1:0,pending:false,root:C.find(card=>card.id===deck[0]).r};
 }
 
+const BOARD_LIMIT=5;
+function boardSlots(p){return p.b.reduce((n,u)=>n+(u.mats?.length??1),0)}
 function applyMove(state,seat,action){
  const opponent=seat==='host'?'guest':'host';
  if(state.winner)throw new Error('対戦は終了しています。');
@@ -679,7 +690,7 @@ function applyMove(state,seat,action){
 log('巡回が発動。手札から1枚を山札の下へ戻します。');};
  const winCheck=()=>{if(G.c.hp<=0)state.winner=seat;if(G.p.hp<=0)state.winner=opponent;};
 function makeUnit(c,entering=true){return {n:c.n,id:c.id,r:c.r,a:c.a,hp:c.h,max:c.h,k:c.k||'',ready:c.k==='速攻'||G.p.leader==='volcano',shield:c.k==='盾'||(entering&&G.p.leader==='holy'&&!G.p.firstHoly&&(G.p.firstHoly=true)),rush:c.k!=='速攻'&&G.p.leader==='volcano',edges:c.e?c.e.map(x=>({...x,used:false})):[],equip:null,mats:null,entered:G.round,growth:0,attacks:0,attackLimit:c.attackLimit??1,attacked:false}}
-function boardSlots(p){return p.b.reduce((n,u)=>n+(u.mats?.length??1),0)}
+
 function spendHand(){const p=G.p;p.discounts=p.discounts?.filter(i=>i!==handSel).map(i=>i>handSel?i-1:i);let id=p.h.splice(handSel,1)[0];handSel=-1;return C.find(x=>x.id===id)}
 function drawPieceToHand(player) {
   if (player.h.length>=9) return;
@@ -693,14 +704,14 @@ function summon() {
   const player=G.p;
   const card=C.find(entry=>entry.id===player.h[handSel]);
   if(card?.t!=='piece')return;
-  if(boardSlots(player)>=3)alert('場は最大3枠。');
+  if(boardSlots(player)>=BOARD_LIMIT)alert('場は最大5枠。');
   const cost=player.discounts?.includes(handSel)?Math.max(1,card.c-1):card.c;
   if(player.cost<cost)alert('召喚コスト不足。');
   player.cost-=cost;
   spendHand();
   player.b.push(makeUnit(card));
   log(card.n+'を召喚！');
-  if(card.id==='redp0'&&player.h.includes('redp1')&&boardSlots(player)<3)player.freeFirework=true;
+  if(card.id==='redp0'&&player.h.includes('redp1')&&boardSlots(player)<BOARD_LIMIT)player.freeFirework=true;
   if(card.id==='redp1')drawPieceToHand(player);
   if(card.k==='活性'&&!player.activated){
     player.activated=true;
@@ -970,7 +981,7 @@ function grow(player){
     break;
   case 'summon': summon(); break;
   case 'firework': {
-    if(!G.p.freeFirework||G.p.h[handSel]!=='redp1'||boardSlots(G.p)>=3)alert('火鉢バチを選んでください。');
+    if(!G.p.freeFirework||G.p.h[handSel]!=='redp1'||boardSlots(G.p)>=BOARD_LIMIT)alert('火鉢バチを選んでください。');
     G.p.freeFirework=false;
     const card=spendHand();
     G.p.b.push(makeUnit(card));
@@ -1016,7 +1027,7 @@ function grow(player){
    winCheck();
  }
  for(const player of [G.p,G.c]){
-   if(player.leader==='newton'&&!player.apple&&player.lost>=(tuned?6:5)&&boardSlots(player)<3){
+   if(player.leader==='newton'&&!player.apple&&player.lost>=(tuned?6:5)&&boardSlots(player)<BOARD_LIMIT){
      player.apple=true;player.b.push({id:'green-apple',n:'りんご姫',r:'green',a:0,hp:tuned?9:15,max:tuned?9:15,shield:true,ready:false,edges:[],entered:G.round});
    }
  }
@@ -1046,7 +1057,7 @@ function playCpuTurn(state,seat='guest') {
   settlePatrol();
   for(let step=0;step<8&&!state.winner;step++){
     const {h,b}=state[seat];
-    if(b.length<3&&state[seat].freeFirework&&tryMove({kind:'firework',hand:h.indexOf('redp1')}))continue;
+    if(boardSlots(state[seat])<BOARD_LIMIT&&state[seat].freeFirework&&tryMove({kind:'firework',hand:h.indexOf('redp1')}))continue;
     let played=false;
     for(const id of state[seat].fusion??[]){
       const card=C.find(entry=>entry.id===id);
@@ -1550,9 +1561,9 @@ function renderHud(p,c){
   if(!shared)renderCost('linkCostHud','接続コスト',p.linkCost,p.linkCapacity??p.capacity-(p.activated?1:0));
 }
 function renderField(player,side){
-  const occupied=player.b.reduce((total,u)=>total+(u.mats?.length??1),0);
+  const occupied=boardSlots(player);
   $(side+'board').innerHTML=player.b.map((unit,i)=>unitHTML(unit,i,side)).join('')+
-    '<div class="empty-slot" aria-hidden="true"><span></span></div>'.repeat(Math.max(0,3-occupied));
+    '<div class="empty-slot" aria-hidden="true"><span></span></div>'.repeat(Math.max(0,BOARD_LIMIT-occupied));
 }
 function leaderLine(player,side){
   const leader=leaders.find(item=>item.id===player.leader);
@@ -1775,12 +1786,12 @@ function showDamage(hits,previous,next){
       const prior=previous[side].b;
       const original=prior[index]?.n===name?index:prior.findIndex(piece=>piece.n===name);
       const field=original>=0?prior:next[side].b;
-      const slot=Math.min(2,Math.max(0,original>=0?original:index??0));
+      const slot=Math.min(BOARD_LIMIT-1,Math.max(0,original>=0?original:index??0));
       const start=field.slice(0,slot).reduce((total,piece)=>total+(piece.mats?.length??1),0);
       const span=field[slot]?.mats?.length??1;
       const bounds=anchor.getBoundingClientRect();
       const box=match?.getBoundingClientRect();
-      const x=box&&bounds.width?(box.left+box.width/2-bounds.left)/bounds.width*100:(start+span/2)/3*100;
+      const x=box&&bounds.width?(box.left+box.width/2-bounds.left)/bounds.width*100:(start+span/2)/BOARD_LIMIT*100;
       impact.style.setProperty('--hit-x',Math.max(8,Math.min(92,x))+'%');
     }
     const key=[side,leader,index??name].join(':');
