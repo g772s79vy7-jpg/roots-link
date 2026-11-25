@@ -396,6 +396,22 @@ button.primary:hover,.active:hover,#end:enabled:hover,#start:enabled:hover{backg
 .wizard-leader small{color:#e7d4fa;line-height:1.4}
 #rootPicker{width:min(92vw,600px)}
 #deckLimitCount{white-space:nowrap;margin-inline-start:5px;color:#e4c7ed}
+.editor-overview{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:10px;padding:9px 12px}
+.editor-overview label,.editor-overview section>b{display:block;font-size:.8rem;font-weight:760;margin-bottom:4px}
+#editLeaderEffect{margin:4px 0}
+#deckEditor .layout{display:block}
+#deckEditor .layout>.panel{padding:9px}
+#deckEditor .deck-panel{position:static;max-height:none;overflow:visible}
+.piece-rail{display:flex;flex-wrap:nowrap;gap:8px;overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;padding:4px 2px 11px;scroll-snap-type:x proximity;scrollbar-color:#866c9b #20172e}
+.rail-piece{flex:0 0 clamp(109px,24vw,148px);min-width:0;display:flex;flex-direction:column;scroll-snap-align:start;gap:4px;padding:4px;border:1px solid #615173;border-radius:9px;background:#261d35}
+.rail-piece-detail{border:0;background:transparent;display:grid;grid-template-rows:auto minmax(2.5em,auto) auto;gap:2px;text-align:left;padding:0;color:#fcedff;line-height:1.22}
+.rail-piece-detail b{overflow-wrap:anywhere;font-size:.74rem}
+.rail-piece-detail small{font-size:.67rem;color:#d9c7ea}
+.rail-piece-art{position:relative;aspect-ratio:1;border-radius:6px;background:#342744 var(--piece-art,none) center/cover no-repeat}
+.rail-cost,.rail-stats{position:absolute;padding:3px 4px;border-radius:5px;background:#20172ee6;font-size:.68rem;font-weight:800;white-space:nowrap}
+.rail-cost{top:3px;left:3px;color:#ffe2a5}.rail-stats{bottom:3px;right:3px}
+.rail-add{margin-top:auto;padding:6px;font-size:.74rem}
+@media(max-width:630px){.editor-overview{grid-template-columns:1fr;gap:4px}.editor-overview .deck-curve{margin-block:3px}#deckEditor .layout>.panel{margin:6px 0}}
 </style>
 <header class="site-header"><h1>ROOTS <span>LINK</span></h1>
 <nav><button class="tab active" data-to="builder">デッキ編集</button><button class="tab" data-to="catalog">カード図鑑</button><button class="tab" data-to="battle">対戦</button><button class="tab" data-to="online">オンライン対戦</button></nav></header><main>
@@ -403,7 +419,7 @@ button.primary:hover,.active:hover,#end:enabled:hover,#start:enabled:hover{backg
 <div id="deckHome" class="panel deck-hub"><div class="row"><h2>デッキ一覧 <span id="deckLimitCount" class="small"></span></h2><button id="start" type="button">CPU対戦</button></div>
 <div class="tools"><button id="createDeck" class="primary" type="button">新規作成</button><button id="autoDeck" type="button">おまかせ編成</button><button id="importDeck" type="button">デッキコード</button><button id="resumeDeck" type="button" hidden>編集中に戻る</button></div>
 <div id="deckTiles" class="deck-tiles"></div><p id="deckHomeStatus" class="small" role="status"></p></div>
-<div id="deckEditor" class="hidden"><div class="row deck-editor-head"><button id="backDecks" type="button">‹ 一覧へ</button><b id="editorRoot"></b><span id="editorCount">0 / 30</span><button id="commitDeck" class="primary" type="button" disabled>保存</button></div><div class="layout"><div class="panel"><h2>3 / 3　ピースを選ぶ</h2><div class="tools"><select id="br" hidden><option value="all">全ルーツ</option></select><select id="bt"><option value="all">全種類</option><option value="piece">ピース</option><option value="fusion">融合</option><option value="equipment">装備</option><option value="spell">詠唱</option></select><select id="deckCostFilter" aria-label="召喚コスト"><option value="">全コスト</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select><input id="bs" placeholder="名前・効果を検索"></div><div id="pool" class="cards"></div><button id="poolMore" type="button" hidden>次のカードを表示</button></div><aside class="panel deck-panel"><div class="row"><h2>マイデッキ</h2><b id="count">0 / 30</b></div><div class="deck-library"><div hidden><label for="savedDecks">保存済みデッキ</label><div class="row"><select id="savedDecks"></select><button id="loadDeck" type="button">編集する</button><button id="newDeck" type="button">新規</button></div></div><label for="deckName">デッキ名</label><div class="row"><input id="deckName" maxlength="32" placeholder="例：十二市 火花デッキ"><button id="saveDeck" hidden class="primary" type="button" disabled>デッキを保存</button></div></div><div class="tools"><button id="fill">おまかせで入れ直す</button><button id="clear">全て外す</button></div><label for="editLeader">リーダー</label><select id="editLeader"></select><p id="editLeaderEffect" class="small"></p><div id="deckCurve" class="deck-curve" aria-label="召喚コスト分布"></div><details id="deckDetails" open><summary>デッキの中身</summary><div id="deck" class="decklist"></div></details><section class="fusion-deck"><h3>融合ピース <span id="fusionCount">0 / 3</span></h3><div id="fusionList"></div><button id="browseFusion" type="button">融合ピースを選ぶ</button></section><p id="deckStatus" class="small" role="status"></p><p class="small">30枚ちょうど / 同名ピース4枚まで / 同じルーツのみ。装備と詠唱は30枚に含みます。融合は別枠です。</p></aside></div></div></section>
+<div id="deckEditor" class="hidden"><div class="row deck-editor-head"><button id="backDecks" type="button">‹ 一覧へ</button><b id="editorRoot"></b><span id="editorCount">0 / 30</span><button id="commitDeck" class="primary" type="button" disabled>保存</button></div><div class="editor-overview panel"><section><label for="editLeader">リーダー</label><select id="editLeader"></select><p id="editLeaderEffect" class="small"></p></section><section><b>召喚コスト分布</b><div id="deckCurve" class="deck-curve" aria-label="召喚コスト分布"></div></section></div><div class="layout"><div class="panel"><div class="row"><h2>3 / 3　ピースを選ぶ</h2><span id="poolCount" class="small"></span></div><div class="tools"><select id="br" hidden><option value="all">全ルーツ</option></select><select id="bt"><option value="all">全種類</option><option value="piece">ピース</option><option value="fusion">融合</option><option value="equipment">装備</option><option value="spell">詠唱</option></select><select id="deckCostFilter" aria-label="召喚コスト"><option value="">全コスト</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select><input id="bs" placeholder="名前・効果を検索"></div><div id="pool" class="piece-rail" tabindex="0" role="region" aria-label="候補ピース。横にスクロール"></div></div><aside class="panel deck-panel"><div class="row"><h2>マイデッキ</h2><b id="count">0 / 30</b></div><div class="deck-library"><div hidden><label for="savedDecks">保存済みデッキ</label><div class="row"><select id="savedDecks"></select><button id="loadDeck" type="button">編集する</button><button id="newDeck" type="button">新規</button></div></div><label for="deckName">デッキ名</label><div class="row"><input id="deckName" maxlength="32" placeholder="例：十二市 火花デッキ"><button id="saveDeck" hidden class="primary" type="button" disabled>デッキを保存</button></div></div><div class="tools"><button id="fill">おまかせで入れ直す</button><button id="clear">全て外す</button></div><details id="deckDetails" open><summary>デッキの中身</summary><div id="deck" class="decklist"></div></details><section class="fusion-deck"><h3>融合ピース <span id="fusionCount">0 / 3</span></h3><div id="fusionList"></div><button id="browseFusion" type="button">融合ピースを選ぶ</button></section><p id="deckStatus" class="small" role="status"></p><p class="small">30枚ちょうど / 同名ピース4枚まで / 同じルーツのみ。装備と詠唱は30枚に含みます。融合は別枠です。</p></aside></div></div></section>
 <section id="catalog" class="hidden"><div class="panel"><h2>カード図鑑 <span id="total" class="small">250種</span></h2><div class="tools"><select id="cr"><option value="all">全ルーツ</option></select><select id="ct"><option value="all">全種類</option><option value="piece">ピース</option><option value="fusion">融合</option><option value="equipment">装備</option><option value="spell">詠唱</option></select><input id="cs" placeholder="名前・効果を検索"></div><div id="book" class="cards"></div><button id="bookMore" type="button" hidden>次のカードを表示</button></div></section>
 <section id="battle" class="hidden"><div class="panel arena"><div class="row arena-heading"><h2 id="battleTitle">CPU対戦</h2><button id="battleBack" type="button" hidden>対戦を出る</button><button id="again" hidden>再戦</button><b id="round">対戦準備中</b><button id="fusionTrayButton" type="button">一体化</button><button id="battleLogButton" type="button">バトルログ</button><button id="battleSettings" type="button" aria-label="対戦設定" title="対戦設定">⚙ 設定</button></div><div class="battle board-stage">
  <div class="leader-bar rival-bar">
@@ -1332,12 +1348,30 @@ function card(c,showAdd=false){
     <p class="desc">${esc(c.d)}</p><div class="piece-ports">${edgeLabels(c.e)}</div>${showAdd?`<button class="add-card" type="button" data-add="${c.id}">${c.t==='fusion'?'融合枠に追加':'追加'}</button>`:''}</article>`;
 }
 const initialPage=36;
-let poolLimit=initialPage,bookLimit=initialPage;
+let bookLimit=initialPage;
+function deckPieceCost(piece){
+  if(piece.t==='piece')return piece.c;
+  if(piece.t==='fusion')return piece.cc;
+  return piece.e?.s==='凸'?piece.e.c:Infinity;
+}
 function renderPool(){
   const cost=$('deckCostFilter').value;
-  const entries=list(editorRoot??$('br').value,$('bt').value,$('bs').value.trim()).filter(c=>!cost||c.t==='piece'&&c.c===Number(cost));
-  $('pool').innerHTML=entries.slice(0,poolLimit).map(cardData=>card(cardData,true)).join('')||'<p>該当するカードはありません。</p>';
-  $('poolMore').hidden=entries.length<=poolLimit;
+  const entries=list(editorRoot??$('br').value,$('bt').value,$('bs').value.trim())
+    .filter(c=>!cost||c.t==='piece'&&c.c===Number(cost))
+    .sort((a,b)=>deckPieceCost(a)-deckPieceCost(b)||a.n.localeCompare(b.n,'ja'));
+  $('poolCount').textContent=entries.length+'種 · コスト順 →';
+  $('pool').innerHTML=entries.map(c=>{
+    const cost=deckPieceCost(c), combat=c.t==='piece'||c.t==='fusion';
+    const badge=(c.t==='piece'?'召喚 ':'接続 ')+(Number.isFinite(cost)?cost:'可変');
+    return `<article class="rail-piece" data-id="${c.id}">
+      <button type="button" class="rail-piece-detail" aria-label="${esc(c.n)}の効果を見る">
+        <span class="rail-piece-art" style='${artStyle(c)}'><span class="rail-cost">${badge}</span>${combat?`<span class="rail-stats">${c.a} / ${c.h}</span>`:''}</span>
+        <b>${esc(c.n)}</b><small>${typeName(c.t)}</small>
+      </button>
+      <button type="button" class="rail-add" data-add="${c.id}" aria-label="${esc(c.n)}を追加">＋ 追加</button>
+    </article>`;
+  }).join('')||'<p>該当するピースはありません。</p>';
+  $('pool').scrollLeft=0;
 }
 function renderBook(){
   const entries=list($('cr').value,$('ct').value,$('cs').value);
@@ -1443,7 +1477,7 @@ $('deckName').oninput=()=>{
 function setDeckEditor(open){
   $('deckHome').classList.toggle('hidden',open);
   $('deckEditor').classList.toggle('hidden',!open);
-  if(open){poolLimit=initialPage;renderDeck();renderPool();}
+  if(open){renderDeck();renderPool();}
   else renderSavedDecks();
 }
 function editDeckEntry(entry,root){
@@ -1695,7 +1729,7 @@ function add(id){
   setStatus(entry.n+'を追加しました。');
 }
 $('fusionList').onclick=event=>{const detail=event.target.closest('[data-inspect-deck]');if(detail){openCard(detail.dataset.inspectDeck);return;}const item=event.target.closest('[data-fusion-remove]');if(item){fusionDeck=fusionDeck.filter(id=>id!==item.dataset.fusionRemove);renderDeck();}};
-$('browseFusion').onclick=()=>{$('bt').value='fusion';poolLimit=initialPage;renderPool();$('bt').scrollIntoView({block:'nearest'});};
+$('browseFusion').onclick=()=>{$('bt').value='fusion';renderPool();$('bt').scrollIntoView({block:'nearest'});};
 function show(id){document.body.classList.toggle('playing',id==='battle'&&!!G);document.querySelectorAll('main>section').forEach(s=>s.classList.toggle('hidden',s.id!==id));document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.to===id))}
 function log(s){G.logs.unshift(s);$('log').innerHTML=G.logs.map(esc).join('<br>')}
 let cpuMatch=null;
@@ -2110,9 +2144,9 @@ function showBattleEvent(previous,next){
   flashTimer=setTimeout(()=>{message.hidden=true;},1550);
 }
 opts();renderPool();renderBook();renderDeck();renderSavedDecks();
-['br','bt','bs','deckCostFilter'].forEach(id=>$(id).addEventListener('input',()=>{poolLimit=initialPage;renderPool();}));
+['br','bt','bs','deckCostFilter'].forEach(id=>$(id).addEventListener('input',()=>{renderPool();}));
 ['cr','ct','cs'].forEach(id=>$(id).addEventListener('input',()=>{bookLimit=initialPage;renderBook();}));
-$('poolMore').onclick=()=>{poolLimit+=initialPage;renderPool();};
+
 $('bookMore').onclick=()=>{bookLimit+=initialPage;renderBook();};
 $('detailClose').onclick=()=>{const dialog=$('cardDialog');if(typeof dialog.close==='function')dialog.close();else dialog.removeAttribute('open');};
 function openCard(id){
@@ -2122,6 +2156,11 @@ function openCard(id){
   const combat=card.t==='piece'||card.t==='fusion'?'攻撃 '+card.a+' / 体力 '+card.h+' · ':'';
   $('detailStats').textContent=rootName(card.r)+' · '+combat+typeName(card.t)+
     (card.t==='piece'?' · 召喚 '+card.c:card.t==='fusion'?' · 接続 '+card.cc:'');
+  if(card.t==='equipment'||card.t==='spell'){
+    const connect=deckPieceCost(card);
+    $('detailStats').textContent+=' · 接続 '+(Number.isFinite(connect)?connect:'盤面の凸の値');
+    if(card.t==='equipment')$('detailStats').textContent+=' · 攻撃+'+card.a+' / 体力+'+card.h;
+  }
   $('detailText').textContent=card.d||'固有効果なし';
   $('detailEdges').textContent='';
   const frame=shapeStyle(card);
