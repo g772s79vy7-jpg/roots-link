@@ -140,7 +140,7 @@ function validateDeck(ids) {
     root ??= card.r;
     if (card.r!==root) throw new Error('同じルーツのカードだけを使えます。');
     const count=(counts.get(card.n)??0)+1;
-    if(count>3) throw new Error('同名カードは3枚までです。');
+    if(count>4) throw new Error('同名ピースは4枚までです。');
     counts.set(card.n,count);
   }
   if(!ids.some(id=>C.find(card=>card.id===id).t==='piece')) throw new Error('デッキにはピースが必要です。');

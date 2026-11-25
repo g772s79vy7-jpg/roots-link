@@ -392,14 +392,18 @@ button.primary:hover,.active:hover,#end:enabled:hover,#start:enabled:hover{backg
 #deckEditor .deck-panel{position:sticky;top:55px;align-self:start}
 #deckEditor .cards{grid-template-columns:repeat(auto-fill,minmax(115px,1fr))}
 @media(max-width:630px){#deckEditor .layout{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:5px}#deckEditor .layout>.panel{min-width:0;padding:5px}#deckEditor .deck-panel{grid-row:1;grid-column:2;top:53px;max-height:calc(100dvh - 58px);overflow:auto}#deckEditor .layout>.panel:first-child{grid-column:1}#deckEditor .cards{grid-template-columns:1fr}#deckEditor .tools{gap:3px}#bs,#deckName,#editLeader{width:100%;min-width:0}#deckEditor .card{min-height:120px}#deckEditor .decklist{max-height:40dvh}}
+.wizard-leader{display:grid;gap:5px;text-align:left;padding:10px}
+.wizard-leader small{color:#e7d4fa;line-height:1.4}
+#rootPicker{width:min(92vw,600px)}
+#deckLimitCount{white-space:nowrap;margin-inline-start:5px;color:#e4c7ed}
 </style>
 <header class="site-header"><h1>ROOTS <span>LINK</span></h1>
 <nav><button class="tab active" data-to="builder">デッキ編集</button><button class="tab" data-to="catalog">カード図鑑</button><button class="tab" data-to="battle">対戦</button><button class="tab" data-to="online">オンライン対戦</button></nav></header><main>
 <p id="startupStatus" class="room-status">カードデータを読み込んでいます…</p><section id="builder">
-<div id="deckHome" class="panel deck-hub"><div class="row"><h2>デッキ一覧</h2><button id="start" type="button">CPU対戦</button></div>
-<div class="tools"><button id="createDeck" class="primary" type="button">新しく作る</button><button id="autoDeck" type="button">おまかせ編成</button><button id="importDeck" type="button">デッキコード</button><button id="resumeDeck" type="button" hidden>編集中に戻る</button></div>
+<div id="deckHome" class="panel deck-hub"><div class="row"><h2>デッキ一覧 <span id="deckLimitCount" class="small"></span></h2><button id="start" type="button">CPU対戦</button></div>
+<div class="tools"><button id="createDeck" class="primary" type="button">新規作成</button><button id="autoDeck" type="button">おまかせ編成</button><button id="importDeck" type="button">デッキコード</button><button id="resumeDeck" type="button" hidden>編集中に戻る</button></div>
 <div id="deckTiles" class="deck-tiles"></div><p id="deckHomeStatus" class="small" role="status"></p></div>
-<div id="deckEditor" class="hidden"><div class="row deck-editor-head"><button id="backDecks" type="button">‹ 一覧へ</button><b id="editorRoot"></b><span id="editorCount">0 / 30</span><button id="commitDeck" class="primary" type="button" disabled>保存</button></div><div class="layout"><div class="panel"><h2>カードを選ぶ</h2><div class="tools"><select id="br" hidden><option value="all">全ルーツ</option></select><select id="bt"><option value="all">全種類</option><option value="piece">ピース</option><option value="fusion">融合</option><option value="equipment">装備</option><option value="spell">詠唱</option></select><select id="deckCostFilter" aria-label="召喚コスト"><option value="">全コスト</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select><input id="bs" placeholder="名前・効果を検索"></div><div id="pool" class="cards"></div><button id="poolMore" type="button" hidden>次のカードを表示</button></div><aside class="panel deck-panel"><div class="row"><h2>マイデッキ</h2><b id="count">0 / 30</b></div><div class="deck-library"><div hidden><label for="savedDecks">保存済みデッキ</label><div class="row"><select id="savedDecks"></select><button id="loadDeck" type="button">編集する</button><button id="newDeck" type="button">新規</button></div></div><label for="deckName">デッキ名</label><div class="row"><input id="deckName" maxlength="32" placeholder="例：十二市 火花デッキ"><button id="saveDeck" hidden class="primary" type="button" disabled>デッキを保存</button></div></div><div class="tools"><button id="fill">おまかせで入れ直す</button><button id="clear">全て外す</button></div><label for="editLeader">リーダー</label><select id="editLeader"></select><p id="editLeaderEffect" class="small"></p><div id="deckCurve" class="deck-curve" aria-label="召喚コスト分布"></div><details id="deckDetails" open><summary>デッキの中身</summary><div id="deck" class="decklist"></div></details><section class="fusion-deck"><h3>融合ピース <span id="fusionCount">0 / 3</span></h3><div id="fusionList"></div><button id="browseFusion" type="button">融合ピースを選ぶ</button></section><p id="deckStatus" class="small" role="status"></p><p class="small">30枚ちょうど / 同名カード3枚まで / 同じルーツのみ。装備と詠唱は30枚に含みます。融合は別枠です。</p></aside></div></div></section>
+<div id="deckEditor" class="hidden"><div class="row deck-editor-head"><button id="backDecks" type="button">‹ 一覧へ</button><b id="editorRoot"></b><span id="editorCount">0 / 30</span><button id="commitDeck" class="primary" type="button" disabled>保存</button></div><div class="layout"><div class="panel"><h2>3 / 3　ピースを選ぶ</h2><div class="tools"><select id="br" hidden><option value="all">全ルーツ</option></select><select id="bt"><option value="all">全種類</option><option value="piece">ピース</option><option value="fusion">融合</option><option value="equipment">装備</option><option value="spell">詠唱</option></select><select id="deckCostFilter" aria-label="召喚コスト"><option value="">全コスト</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select><input id="bs" placeholder="名前・効果を検索"></div><div id="pool" class="cards"></div><button id="poolMore" type="button" hidden>次のカードを表示</button></div><aside class="panel deck-panel"><div class="row"><h2>マイデッキ</h2><b id="count">0 / 30</b></div><div class="deck-library"><div hidden><label for="savedDecks">保存済みデッキ</label><div class="row"><select id="savedDecks"></select><button id="loadDeck" type="button">編集する</button><button id="newDeck" type="button">新規</button></div></div><label for="deckName">デッキ名</label><div class="row"><input id="deckName" maxlength="32" placeholder="例：十二市 火花デッキ"><button id="saveDeck" hidden class="primary" type="button" disabled>デッキを保存</button></div></div><div class="tools"><button id="fill">おまかせで入れ直す</button><button id="clear">全て外す</button></div><label for="editLeader">リーダー</label><select id="editLeader"></select><p id="editLeaderEffect" class="small"></p><div id="deckCurve" class="deck-curve" aria-label="召喚コスト分布"></div><details id="deckDetails" open><summary>デッキの中身</summary><div id="deck" class="decklist"></div></details><section class="fusion-deck"><h3>融合ピース <span id="fusionCount">0 / 3</span></h3><div id="fusionList"></div><button id="browseFusion" type="button">融合ピースを選ぶ</button></section><p id="deckStatus" class="small" role="status"></p><p class="small">30枚ちょうど / 同名ピース4枚まで / 同じルーツのみ。装備と詠唱は30枚に含みます。融合は別枠です。</p></aside></div></div></section>
 <section id="catalog" class="hidden"><div class="panel"><h2>カード図鑑 <span id="total" class="small">250種</span></h2><div class="tools"><select id="cr"><option value="all">全ルーツ</option></select><select id="ct"><option value="all">全種類</option><option value="piece">ピース</option><option value="fusion">融合</option><option value="equipment">装備</option><option value="spell">詠唱</option></select><input id="cs" placeholder="名前・効果を検索"></div><div id="book" class="cards"></div><button id="bookMore" type="button" hidden>次のカードを表示</button></div></section>
 <section id="battle" class="hidden"><div class="panel arena"><div class="row arena-heading"><h2 id="battleTitle">CPU対戦</h2><button id="battleBack" type="button" hidden>対戦を出る</button><button id="again" hidden>再戦</button><b id="round">対戦準備中</b><button id="fusionTrayButton" type="button">一体化</button><button id="battleLogButton" type="button">バトルログ</button><button id="battleSettings" type="button" aria-label="対戦設定" title="対戦設定">⚙ 設定</button></div><div class="battle board-stage">
  <div class="leader-bar rival-bar">
@@ -463,7 +467,7 @@ button.primary:hover,.active:hover,#end:enabled:hover,#start:enabled:hover{backg
 </div>
 <form method="dialog"><button>対戦に戻る</button></form>
 </dialog>
-<dialog id="leaderEffectDialog" aria-labelledby="leaderEffectTitle"><h2 id="leaderEffectTitle"></h2><p id="leaderEffectDescription"></p><p id="leaderEffectProgress" class="small"></p><form method="dialog"><button>閉じる</button></form></dialog><dialog id="rootPicker" aria-labelledby="rootPickerTitle"><h2 id="rootPickerTitle">ルーツを選ぶ</h2><div id="rootChoices" class="deck-tiles"></div><form method="dialog"><button>戻る</button></form></dialog>
+<dialog id="leaderEffectDialog" aria-labelledby="leaderEffectTitle"><h2 id="leaderEffectTitle"></h2><p id="leaderEffectDescription"></p><p id="leaderEffectProgress" class="small"></p><form method="dialog"><button>閉じる</button></form></dialog><dialog id="rootPicker" aria-labelledby="rootPickerTitle"><h2 id="rootPickerTitle">ルーツを選ぶ</h2><div id="rootChoices" class="deck-tiles"></div><div class="row"><button id="rootWizardBack" type="button" hidden>ルーツ選択へ</button><form method="dialog"><button>キャンセル</button></form></div></dialog>
 <dialog id="deckCodeDialog" aria-labelledby="deckCodeTitle"><h2 id="deckCodeTitle">デッキコード</h2><textarea id="deckCode" rows="5" aria-label="デッキコード"></textarea><p id="deckCodeStatus" class="small" role="status"></p><div class="row"><button id="deckCodeAction" type="button">読み込む</button><form method="dialog"><button>閉じる</button></form></div></dialog><dialog id="cardDialog"><h2 id="detailTitle"></h2><p id="detailStats"></p><p id="detailText"></p><div id="detailShape" class="detail-shape jigsaw" hidden></div><p id="detailEdges" class="piece-ports"></p><button id="detailClose" type="button">閉じる</button></dialog>
 <script>
 (() => {
@@ -616,7 +620,7 @@ function validateDeck(ids) {
     root ??= card.r;
     if (card.r!==root) throw new Error('同じルーツのカードだけを使えます。');
     const count=(counts.get(card.n)??0)+1;
-    if(count>3) throw new Error('同名カードは3枚までです。');
+    if(count>4) throw new Error('同名ピースは4枚までです。');
     counts.set(card.n,count);
   }
   if(!ids.some(id=>C.find(card=>card.id===id).t==='piece')) throw new Error('デッキにはピースが必要です。');
@@ -1353,7 +1357,7 @@ function migrateDeck(cards,registered){
   if(cards.length===30&&core.length<30){
     for(const id of deckFor(root)){
       if(core.length===30)break;
-      if(core.filter(value=>value===id).length<3)core.push(id);
+      if(core.filter(value=>C.find(card=>card.id===value)?.n===C.find(card=>card.id===id)?.n).length<4)core.push(id);
     }
   }
   return {cards:core,fusion};
@@ -1365,6 +1369,7 @@ try{
 function validDeck(ids){try{validateDeck(ids);return true;}catch{return false;}}
 function deckCanPlay(){return validDeck(deck);}
 const deckLibraryKey='roots-link.deck-library.v1';
+const MAX_SAVED_DECKS=5;
 const draftMetaKey='roots-link.deck-draft.v1';
 let savedDecks=[];
 let editId=null, editorRoot=null, editorLeader=null;
@@ -1397,6 +1402,7 @@ function renderSavedDecks(){
 function saveNamedDeck(){
   const name=$('deckName').value.trim();
   if(!name||!deckCanPlay())return;
+  if(!savedDecks.some(entry=>entry.id===editId)&&savedDecks.length>=MAX_SAVED_DECKS){$('deckStatus').textContent='保存上限は5デッキです。一覧から空きを作ってください。';return;}
   const id=editId??(globalThis.crypto?.randomUUID?.()??String(Date.now())+String(Math.random()));
   const entry={id,name,cards:[...deck],fusion:[...fusionDeck],leader:editorLeader};
   const next=savedDecks.some(item=>item.id===id)?savedDecks.map(item=>item.id===id?entry:item):[...savedDecks,entry];
@@ -1462,17 +1468,38 @@ function editDeckEntry(entry,root){
   saveDraftMeta();
 }
 function chooseEditorRoot(auto){
-  $('rootPickerTitle').textContent=auto?'おまかせ編成のルーツ':'新しいデッキのルーツ';
-  $('rootChoices').replaceChildren(...R.map(([r,n])=>{
-    const button=document.createElement('button');
-    button.type='button';button.textContent=n;
-    button.onclick=()=>{
-      $('rootPicker').close();
-      editDeckEntry(auto?{name:n+' デッキ',cards:deckFor(r),fusion:starterFusion(r)}:null,r);
-    };
-    return button;
-  }));
-  $('rootPicker').showModal();
+  if(savedDecks.length>=MAX_SAVED_DECKS)return;
+  const dialog=$('rootPicker'), title=$('rootPickerTitle'), choices=$('rootChoices'), back=$('rootWizardBack');
+  const showRoots=()=>{
+    title.textContent='1 / 3　ルーツを選ぶ';
+    back.hidden=true;
+    choices.replaceChildren(...R.map(([root,name])=>{
+      const button=document.createElement('button');
+      button.type='button';button.textContent=name;
+      button.onclick=()=>showLeaders(root,name);
+      return button;
+    }));
+  };
+  const showLeaders=(root,rootLabel)=>{
+    title.textContent='2 / 3　リーダーを選ぶ';
+    back.hidden=false;back.onclick=showRoots;
+    choices.replaceChildren(...leaders.filter(leader=>leader.root===root).map(leader=>{
+      const button=document.createElement('button');
+      button.type='button';button.className='wizard-leader';
+      const label=document.createElement('strong');
+      label.textContent=leader.name+' · 体力 '+leader.hp;
+      const description=document.createElement('small');
+      description.textContent=leader.effect;
+      button.append(label,description);
+      button.onclick=()=>{
+        dialog.close();
+        editDeckEntry(auto?{name:rootLabel+' デッキ',cards:deckFor(root),fusion:starterFusion(root),leader:leader.id}:{leader:leader.id},root);
+      };
+      return button;
+    }));
+  };
+  showRoots();
+  dialog.showModal();
 }
 function showDeckCode(entry){
   const exporting=!!entry;
@@ -1503,6 +1530,10 @@ function showDeckCode(entry){
 }
 function renderDeckTiles(){
   const container=$('deckTiles');
+  const full=savedDecks.length>=MAX_SAVED_DECKS;
+  $('deckLimitCount').textContent=savedDecks.length+' / '+MAX_SAVED_DECKS;
+  for(const id of ['createDeck','autoDeck','importDeck'])$(id).disabled=full;
+  $('deckHomeStatus').textContent=full?'保存枠が埋まっています。新規作成するには空き枠が必要です。':'';
   container.replaceChildren();
   if(!savedDecks.length)container.textContent='保存したデッキがここに並びます。';
   for(const entry of savedDecks){
@@ -1512,6 +1543,7 @@ function renderDeckTiles(){
     tile.style.setProperty('--deck-accent',pieceColors[c.r]);
     tile.innerHTML=`<button type="button" class="deck-tile-open"><b>${esc(entry.name)}</b><small>${esc(rootName(c.r))} · ${entry.cards.length}枚 · 一体化 ${entry.fusion?.length??0}/3</small></button><div class="row"><button type="button" data-deck-copy>複製</button><button type="button" data-deck-code>コード</button><button type="button" data-deck-delete>削除</button></div>`;
     tile.querySelector('.deck-tile-open').onclick=()=>editDeckEntry(entry,c.r);
+    tile.querySelector('[data-deck-copy]').disabled=full;
     tile.querySelector('[data-deck-copy]').onclick=()=>editDeckEntry({...entry,id:null,name:(entry.name.slice(0,27)+' のコピー')},c.r);
     tile.querySelector('[data-deck-code]').onclick=()=>showDeckCode(entry);
     tile.querySelector('[data-deck-delete]').onclick=()=>{
@@ -1657,7 +1689,7 @@ function add(id){
   }
   if(deck.length>=30)return setStatus('デッキは30枚までです。');
   if(deck.length&&C.find(card=>card.id===deck[0]).r!==entry.r)return setStatus('マイデッキと同じルーツを選んでください。');
-  if(deck.filter(value=>C.find(card=>card.id===value).n===entry.n).length>=3)return setStatus('同名カードは3枚までです。');
+  if(deck.filter(value=>C.find(card=>card.id===value).n===entry.n).length>=4)return setStatus('同名ピースは4枚までです。');
   deck.push(id);
   renderDeck();
   setStatus(entry.n+'を追加しました。');
