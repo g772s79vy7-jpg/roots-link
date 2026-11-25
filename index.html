@@ -1201,12 +1201,41 @@ const artPalettes={
   white:['#1c2047','#5761a3','#d6b6ff','#fff4da'],
   black:['#211427','#784260','#e66b90','#ffe4c1'],
 };
-const namedMotifs={
- red:['虎','鼠','龍','牛','蛇','馬','兎','猿','犬','猪','狐','太鼓','鶴','河童','天狗','猫','鬼','竹','傘','百鬼'],
- blue:['イルカ','雨','人魚','ラッパ','歌姫','ラッパ','魚','鯨','クラゲ','歌姫','蛸','亀','魚','真珠','クラゲ','鮫','琴','巻貝','蓄音機','皇帝'],
- green:['桜','向日葵','コスモス','菫','薔薇','若葉','樫','葉','藤','欅','紅葉','椿','紫陽花','たんぽぽ','木蓮','竹','朝顔','苔','花','世界樹'],
- white:['弓','獅子','蠍','水瓶','羊','牛','双子','蟹','星','山羊','天秤','魚','星','蠍','牛','双子','水瓶','蟹','山羊','星'],
- black:['箱','兵士','熊','人形','怪人','包帯','狼','兵士','熊','道化','兎','箱','騎士','蜘蛛','狼','人形','人形','列車','道化','騎士'],
+const portraitSubjects={
+ red:['tiger','mouse','dragon','bull','snake','horse','rabbit','monkey','dog','boar','fox','drum','crane','kappa','tengu','cat','ogre','bamboo','umbrella','eye'],
+ blue:['dolphin','rain','mermaid','horn','singer','horn','fish','whale','jelly','singer','octopus','turtle','fish','pearl','jelly','shark','harp','shell','gramophone','crown'],
+ green:['cherry','sunflower','cosmos','violet','rose','sprout','oak','flask','wisteria','tree','maple','camellia','hydrangea','dandelion','magnolia','bamboo','morning','moss','spade','book'],
+ white:['bow','lion','scorpion','urn','ram','bull','twins','crab','halo','goat','scales','fish','veil','flask','bull','jester','urn','crab','goat','zodiac'],
+ black:['jackbox','tin','bear','puppet','monster','mummy','wolf','clock','bear','jester','rabbit','musicbox','hollow','spider','wolf','puppet','doll','train','jester','grave'],
+};
+const roleSubjects={
+ red:['fire','blade','shuriken','drum','fox'],
+ blue:['flute','drum','choir','harp','tuning'],
+ green:['spade','watering','sprout','book','specimen'],
+ white:['shield','halo','blade','compass','telescope'],
+ black:['top','wolf','hedgehog','skull','mummyRabbit'],
+};
+const fusionSubjects={
+ red:['firework','dragon','fox','crane','tengu'],
+ blue:['mermaid','whale','shark','jelly','crown'],
+ green:['sunflower','rose','bamboo','hydrangea','tree'],
+ white:['bow','twins','scorpion','urn','zodiac'],
+ black:['jackbox','monster','wolf','mummyRabbit','grave'],
+};
+function artSubject(card){
+  const match=card.id.match(/([pxf])(\d+)$/);
+  if(!match)return '';
+  const index=Number(match[2]);
+  if(match[1]==='f')return fusionSubjects[card.r][index];
+  if(match[1]==='x')return roleSubjects[card.r][index%5];
+  return portraitSubjects[card.r][index];
+}
+const roleAtmospheres={
+  red:['petals','mist','waves','snow','moon','flakes','cloud','petals','thunder','sun'],
+  blue:['coral','waves','pearls','cave','snow','harbor','waves','cove','current','moon'],
+  green:['sun','leaves','petals','birch','pearls','thorn','petals','fluff','clusters','fruit'],
+  white:['north','meteor','eclipse','ring','stars','sun','cloud','moon','aurora','snow'],
+  black:['boxes','beams','crates','moon','rain','gears','cave','beams','stars','boxes'],
 };
 function pieceArt(card){
   if(!card?.id||!artPalettes[card.r])return '';
@@ -1236,7 +1265,6 @@ function pieceArt(card){
     poly([[0,y],[22,y-10-rand()*20],[57,y-4],[95,y-14-rand()*17],[144,y+2],[144,144],[0,144]],i%2?base:night);
   }
   const FUSION=card.t==='fusion';
-  const motif=namedMotifs[card.r][index];
   const flower=(x,y,size,count)=>{
     for(let j=0;j<count;j++){const angle=j*6.283/count;disk(x+Math.cos(angle)*size*.63,y+Math.sin(angle)*size*.63,size*.56,size*.56,j%2?light:accent);}
     disk(x,y,size*.38,size*.38,night);disk(x,y,size*.2,size*.2,light);
@@ -1245,18 +1273,226 @@ function pieceArt(card){
     poly([[x,y-scale],[x+scale*.19,y-scale*.18],[x+scale*.79,y],[x+scale*.18,y+scale*.18],[x,y+scale],[x-scale*.18,y+scale*.18],[x-scale*.79,y],[x-scale*.18,y-scale*.18]],light);
   };
   const ring=(x,y,r,color,width)=>{g.strokeStyle=color;g.lineWidth=width;g.beginPath();g.arc(x,y,r,0,6.283);g.stroke()};
-  if(FUSION){
-    ring(72,69,55,light,2);ring(72,69,49,accent,3);
-    for(let j=0;j<8;j++){let a=j*Math.PI/4; spark(72+Math.sin(a)*53,69+Math.cos(a)*53,5);}
-    for(const [j,id] of (card.m??[]).entries()){
-      const material=C.find(item=>item.id===id);
-      const symbol=namedMotifs[material?.r]?.[Number(id.match(/\d+$/)?.[0])];
-      g.font='bold 22px system-ui';g.textAlign='center';g.textBaseline='middle';g.fillStyle=light;
-      const x=j?105:39;disk(x,91,18,18,night);g.fillText(symbol?.slice(0,1)??'✦',x,92);
+  const subject=artSubject(card);
+  const variant=index%5;
+  const ellipse=(x,y,rx,ry,angle,color)=>{
+    g.save();g.translate(x,y);g.rotate(angle);disk(0,0,rx,ry,color);g.restore();
+  };
+  const star=(x,y,r,points,color)=>{
+    const vertices=Array.from({length:points*2},(_,i)=>{
+      const a=i*Math.PI/points-Math.PI/2, size=i%2?r*.34:r;
+      return [x+Math.cos(a)*size,y+Math.sin(a)*size];
+    });
+    poly(vertices,color);
+  };
+  function scenery(kind){
+    if(['sun','moon','eclipse'].includes(kind)){
+      disk(101,32,24,24,light);
+      if(kind!=='sun')disk(kind==='eclipse'?101:109,kind==='eclipse'?32:26,kind==='eclipse'?20:23,night);
     }
-    poly([[72,18],[92,54],[120,34],[104,82],[72,105],[40,82],[24,34],[52,54]],night);
-    poly([[72,30],[81,61],[104,49],[94,78],[72,95],[50,78],[40,49],[63,61]],base);
-    spark(72,65,23);
+    if(['petals','snow','flakes','fluff','pearls','stars','north','meteor','fruit'].includes(kind)){
+      for(let n=0;n<13;n++){
+        const x=9+rand()*126,y=8+rand()*97;
+        if(['stars','north','meteor'].includes(kind)){spark(x,y,2+rand()*5);if(kind==='meteor')stroke([[x,y],[x+12,y-7]],accent,2);}
+        else ellipse(x,y,2+rand()*4,kind==='petals'?2:4,rand()*3,n%2?light:accent);
+      }
+    }
+    if(['waves','current','cove','harbor','mist','cloud','aurora'].includes(kind)){
+      for(let j=0;j<5;j++){
+        const y=24+j*20;
+        stroke([[0,y],[29,y-7],[54,y-3],[81,y+9],[114,y+5],[144,y-7]],j%2?light+'66':accent+'88',kind==='aurora'?6:3);
+      }
+    }
+    if(['cave','beams','birch','crates','boxes'].includes(kind)){
+      for(const x of [9,28,119,136]){
+        stroke([[x,0],[x+(x%2?7:-6),71],[x,144]],night+'cc',kind==='birch'?5:12);
+        if(kind==='birch')for(let y=17;y<130;y+=22)stroke([[x-2,y],[x+4,y-2]],light,3);
+      }
+    }
+    if(['coral','thorn','leaves','clusters'].includes(kind)){
+      for(const x of [17,125]){
+        stroke([[x,144],[x,80],[x-7,61]],accent,4);
+        for(const j of [0,1,2])ellipse(x+(j%2?7:-7),69+j*11,9,4,j%2?-.5:.5,light);
+      }
+    }
+    if(kind==='ring')ring(72,70,54,accent,3);
+    if(kind==='rain')for(let j=0;j<12;j++){const x=rand()*144,y=rand()*125;stroke([[x,y],[x-4,y+9]],light,2);}
+    if(kind==='thunder')for(const x of [24,117])poly([[x,7],[x-13,42],[x+1,40],[x-4,67],[x+19,30],[x+3,32]],light);
+    if(kind==='gears')for(const x of [20,123]){star(x,48,19,9,accent);disk(x,48,7,7,night);}
+  }
+  const plantShapes={
+    cherry:[5,.84],sunflower:[14,.32],cosmos:[8,.52],violet:[5,1],rose:[10,1],wisteria:[7,.8],
+    camellia:[7,.9],hydrangea:[6,1],dandelion:[15,.25],magnolia:[6,.48],morning:[5,1],moss:[12,1],
+  };
+  function emblem(kind,x,y,scale){
+    g.save();g.translate(x,y);g.scale(scale,scale);
+    const D=(a,b,rx,ry,c=light)=>disk(a,b,rx,ry,c);
+    const P=(pts,c=light)=>poly(pts,c);
+    const S=(pts,c=light,w=3)=>stroke(pts,c,w);
+    const R=(a,b,r,c=light,w=2)=>ring(a,b,r,c,w);
+    const blade=()=>{P([[-20,16],[12,-19],[23,-22],[20,-11],[-15,22]]);S([[-18,10],[-8,21]],accent,5);};
+    const listed=plantShapes[kind];
+    if(listed){
+      const [count,narrow]=listed;
+      for(let i=0;i<count;i++){
+        const a=i*Math.PI*2/count;
+        ellipse(Math.cos(a)*11,Math.sin(a)*11,13,10*narrow,a,i%2?light:accent);
+      }
+      D(0,0,7,7,night);D(0,0,4,4,accent);
+      if(kind==='rose')for(const radius of [5,10,15])R(1,0,radius,base,2);
+      if(kind==='hydrangea'||kind==='wisteria')for(const [a,b] of [[-10,-6],[9,-8],[-6,9],[10,10]])flower(a,b,5,4);
+      if(kind==='cherry')for(let i=0;i<5;i++){const a=i*Math.PI*2/5;D(Math.cos(a)*21,Math.sin(a)*21,2,2,base);}
+    }else switch(kind){
+    case 'firework':
+      for(let j=0;j<12;j++){const a=j*Math.PI/6;S([[Math.cos(a)*6,Math.sin(a)*6],[Math.cos(a)*23,Math.sin(a)*23]],j%2?light:accent,2);}
+      star(0,0,12,6,light);break;
+    case 'fire':
+      P([[-21,21],[-25,6],[-12,-8],[-10,2],[-4,-23],[4,-13],[7,-1],[16,-13],[24,7],[19,21]],accent);
+      P([[-12,20],[-14,9],[-5,-5],[0,7],[6,-7],[13,8],[10,20]]);break;
+    case 'blade': blade();break;
+    case 'shuriken':star(0,0,24,4,light);D(0,0,4,4,night);break;
+    case 'bow': S([[-15,-21],[2,-17],[14,0],[2,17],[-15,21]],accent,5);S([[-15,-21],[-11,0],[-15,21]]);S([[-20,4],[19,-7]],light,3);P([[15,-13],[24,-8],[18,-2]]);break;
+    case 'drum':
+      D(0,0,21,18,night);D(0,0,17,15,accent);D(0,-3,14,10);D(0,-3,6,5,base);S([[-18,-23],[13,8]],light,3);S([[20,-19],[-12,7]],accent,3);break;
+    case 'flute':case 'telescope':
+      S([[-22,14],[19,-15]],light,kind==='flute'?8:13);
+      for(let i=0;i<4;i++)D(-12+i*7,7-i*5,2,2,night);
+      if(kind==='telescope')S([[0,4],[-4,23],[12,23]],accent,3);break;
+    case 'horn':case 'tuning':
+      S([[-18,9],[9,9],[9,-1],[-7,-1],[-7,-10],[10,-10]],light,4);
+      if(kind==='horn')P([[6,-11],[24,-22],[24,2],[6,0]],accent);
+      else S([[10,-16],[10,10],[19,10],[19,-16]],accent,4);break;
+    case 'harp':
+      S([[-19,19],[-18,-18],[-5,-23],[14,-5],[19,18],[-19,19]],accent,5);
+      for(let i=-11;i<15;i+=5)S([[i,-18+(i+11)*.8],[i,17]],light,1.5);break;
+    case 'singer':case 'choir':
+      for(const i of kind==='choir'?[-15,0,15]:[0]){
+        D(i-4,12,6,4);S([[i,11],[i,-16],[i+8,-12]],light,3);
+      }break;
+    case 'rain': for(const a of [-13,0,13]){P([[a,-21],[a-7,-5],[a-5,1],[a+5,1],[a+7,-5]],accent);D(a,8,6,8);}break;
+    case 'pearl':case 'shell':
+      P([[-22,9],[-25,-5],[-15,-17],[0,-21],[15,-17],[25,-5],[22,9],[0,20]],accent);
+      for(const a of [-17,-9,0,9,17])S([[a,-13],[0,16]],night,2);
+      if(kind==='pearl')D(0,2,10,10);break;
+    case 'sprout':case 'oak':case 'maple':case 'tree':case 'bamboo':
+      S([[0,22],[0,-18]],accent,4);
+      if(kind==='tree'||kind==='oak'){for(const [a,b] of [[0,-17],[-12,-8],[12,-8],[0,1]])D(a,b,12,9);S([[0,9],[0,24]],accent,5);}
+      else if(kind==='maple'){star(0,-5,24,7,light);S([[0,13],[0,-9]],base,2);}
+      else for(const j of [0,1,2]){ellipse(-8,-13+j*9,11,4,.55,light);ellipse(8,-17+j*8,11,4,-.55,accent);}
+      break;
+    case 'watering':case 'urn':
+      D(0,9,18,13,accent);R(12,1,9,light,3);D(0,-5,10,5);
+      if(kind==='watering'){S([[-13,9],[-25,-6],[-24,-11]],light,5);for(const a of [-8,0,8])D(a+21,a+13,2,4);}
+      else {P([[-7,1],[-10,-18],[10,-18],[7,1]],accent);S([[-10,-18],[10,-18]],light,4);}break;
+    case 'spade':
+      S([[13,-20],[-10,11]],accent,5);P([[-22,6],[-6,17],[-14,25],[-26,24],[-28,15]]);R(15,-19,5);break;
+    case 'flask':
+      P([[-7,-22],[7,-22],[7,-5],[20,16],[13,23],[-13,23],[-20,16],[-7,-5]],light);P([[-12,6],[12,6],[17,16],[14,20],[-14,20],[-17,16]],accent);D(-3,10,3,3,base);break;
+    case 'book':case 'specimen':
+      P([[-23,-16],[-4,-18],[0,-11],[4,-18],[23,-16],[23,17],[5,15],[0,22],[-5,15],[-23,17]],light);
+      S([[0,-10],[0,20]],base,2);
+      if(kind==='book')for(const j of [-7,0,7]){S([[-19,j],[-6,j+2]],base,2);S([[7,j+2],[19,j]],base,2);}
+      else {ellipse(10,0,5,10,-.5,base);ellipse(-10,0,5,10,.5,accent);}break;
+    case 'shield':
+      P([[-19,-16],[0,-23],[19,-16],[17,6],[0,23],[-17,6]],accent);star(0,-1,12,4,light);break;
+    case 'halo':case 'compass':case 'zodiac':
+      R(0,0,23,light,4);R(0,0,17,accent,2);star(0,0,15,kind==='zodiac'?8:4,light);break;
+    case 'scales':
+      S([[0,-23],[0,21]],accent,5);S([[-21,-13],[21,-13]],light,4);
+      for(const a of [-15,15])P([[a,-12],[a-8,10],[a+8,10]],light);
+      S([[-10,22],[10,22]],accent,4);break;
+    case 'scorpion':case 'crab':case 'spider':
+      D(0,3,12,13,accent);
+      for(const dir of [-1,1])for(const j of [0,1,2,3])S([[dir*8,-4+j*4],[dir*(18+j%2*4),-13+j*8],[dir*25,-8+j*8]],light,3);
+      if(kind==='scorpion')S([[0,1],[9,-15],[2,-24],[-6,-21]],accent,5);
+      if(kind==='crab')for(const a of [-21,21]){D(a,-9,6,7);D(a,-13,2,5,night);}break;
+    case 'twins':case 'doll':case 'puppet':
+      for(const a of kind==='twins'?[-12,12]:[0]){
+        D(a,-7,9,10);P([[a-7,4],[a+7,4],[a+12,20],[a-12,20]],accent);
+        S([[a,-19],[a,-25]],light,2);S([[a-5,9],[a-14,2]],light,2);S([[a+5,9],[a+14,2]],light,2);
+      }break;
+    case 'top':case 'clock':case 'musicbox':case 'gramophone':
+      if(kind==='top'){D(0,-2,20,10);P([[-20,-2],[20,-2],[0,23]],accent);S([[0,-6],[0,-21]],light,5);}
+      else if(kind==='clock'){R(0,0,20,accent,5);S([[0,-13],[0,0],[9,8]]);S([[-5,22],[5,22]],light,4);}
+      else{P([[-21,8],[21,8],[18,22],[-18,22]],accent);S([[0,9],[0,-13],[10,-17]],light,4);P([[8,-18],[23,-25],[23,-7],[8,-11]],light);}
+      break;
+    case 'train':case 'tin':
+      P([[-23,-7],[15,-7],[22,6],[22,15],[-23,15]],accent);P([[-20,-18],[-3,-18],[-3,-6],[-20,-6]],light);
+      for(const a of [-15,1,16]){D(a,16,6,6,night);D(a,16,3,3);}break;
+    case 'grave':
+      P([[-15,23],[-15,-10],[-8,-20],[8,-20],[15,-10],[15,23]],accent);S([[0,-12],[0,11]],light,3);S([[-7,-4],[7,-4]],light,3);break;
+    case 'jackbox':
+      P([[-21,4],[21,4],[17,23],[-17,23]],accent);S([[-13,2],[-2,-5],[6,1],[0,-11]],light,3);D(0,-16,9,8);star(-15,-19,7,4,light);break;
+    case 'skull':case 'hollow':case 'monster':case 'mummy':case 'jester':
+      if(kind==='hollow'){P([[-20,-15],[20,-15],[15,18],[0,23],[-15,18]],accent);P([[-16,-4],[16,-4],[10,4],[-10,4]],night);}
+      else{D(0,-4,17,16,kind==='monster'?accent:light);P([[-10,3],[10,3],[8,18],[-8,18]],light);D(-6,-4,4,4,night);D(6,-4,4,4,night);S([[-6,13],[6,13]],night,2);}
+      if(kind==='mummy')for(const j of [-13,2,9])S([[-14,j],[15,j+4]],accent,3);
+      if(kind==='jester')P([[-13,-10],[-23,-24],[0,-17],[20,-25],[14,-8]],accent);
+      if(kind==='monster')S([[-13,-15],[-5,-10],[3,-16],[11,-11]],night,2);
+      break;
+    case 'dolphin':case 'fish':case 'whale':case 'shark':case 'mermaid':
+      D(0,0,20,kind==='whale'?13:9,accent);P([[-13,2],[-26,-11],[-25,12]]);
+      if(kind==='shark')P([[-4,-4],[5,-22],[12,-5]]);
+      if(kind==='dolphin')D(20,4,8,3);
+      if(kind==='whale')S([[0,-11],[-5,-20],[3,-24],[9,-18]],light,3);
+      if(kind==='mermaid'){D(8,-12,8,8);D(5,-3,8,6);P([[3,-12],[-6,-23],[-3,-5]],light);}
+      D(11,-2,2,2,night);break;
+    case 'jelly':case 'octopus':case 'turtle':
+      D(0,-5,kind==='turtle'?20:17,14,accent);
+      if(kind==='turtle'){D(21,-3,8,6);S([[0,-15],[-8,-3],[0,5],[8,-3],[0,-15]],light,2);}
+      else for(const j of [-14,-7,0,7,14])S([[j,0],[j-4,10],[j+3,20]],light,3);
+      break;
+    case 'crown':
+      P([[-23,-15],[-11,-3],[0,-20],[11,-3],[23,-15],[16,15],[-16,15]],accent);star(0,5,10,4,light);break;
+    case 'umbrella':
+      P([[-24,4],[-16,-10],[0,-18],[16,-10],[24,4]],accent);S([[0,-19],[0,23],[8,23]],light,4);S([[-17,3],[0,-15],[17,3]],light,2);break;
+    case 'eye':
+      D(0,0,22,12,light);D(0,0,9,11,accent);D(0,0,4,9,night);break;
+    case 'dragon':
+      S([[-21,18],[-7,12],[-12,0],[-8,-13],[7,-16],[17,-5],[23,-1]],accent,10);
+      P([[4,-16],[6,-26],[12,-17],[16,-25],[18,-11],[26,-3],[14,5],[7,-2]],light);
+      P([[-8,1],[-24,-13],[-21,1],[-27,11],[-12,7]],light);
+      D(17,-9,2,2,night);S([[23,-1],[28,4]],accent,2);break;
+    case 'snake':
+      S([[-16,-15],[5,-15],[15,-5],[4,4],[-9,2],[-17,10],[-7,20],[16,17]],accent,11);D(-17,-16,7,6);D(-20,-17,2,2,night);break;
+    case 'crane':case 'tengu':
+      P([[-25,9],[-23,-10],[-7,-1],[6,-15],[15,-13],[15,-8],[23,-6],[15,-2],[6,8],[0,21],[-10,16]],light);
+      S([[-21,-4],[-9,6],[-4,10]],accent,3);D(12,-10,2,2,night);break;
+    case 'kappa':
+      D(0,0,19,20,accent);D(0,-18,13,4,light);D(0,5,10,6,light);D(-7,-4,2,2,night);D(7,-4,2,2,night);break;
+    default:{
+      const tall=['rabbit','mummyRabbit','fox','wolf','dragon','ogre','goat','hedgehog'].includes(kind);
+      const horn=['bull','ram','goat','ogre','dragon'].includes(kind);
+      const round=['bear','mouse','monkey','dog'].includes(kind);
+      if(round){D(-16,-13,10,10,accent);D(16,-13,10,10,accent);D(-16,-13,5,5);D(16,-13,5,5);}
+      else if(tall||horn){
+        P([[-18,-4],[-24,-24],[-7,-14],[6,-14],[24,-24],[18,-4]],accent);
+        if(kind==='rabbit'||kind==='mummyRabbit'){ellipse(-10,-18,5,14,-.24,light);ellipse(10,-18,5,14,.24,light);}
+        if(horn){S([[-13,-13],[-23,-18],[-24,-25]],light,4);S([[13,-13],[23,-18],[24,-25]],light,4);}
+      }else {P([[-18,-4],[-18,-20],[-5,-11],[5,-11],[18,-20],[18,-4]],accent);}
+      if(kind==='lion')star(0,1,25,11,accent);
+      if(kind==='hedgehog')star(0,1,25,8,accent);
+      D(0,2,19,17,light);
+      if(kind==='fox'||kind==='wolf')P([[-18,0],[-10,20],[0,22],[10,20],[18,0],[0,10]],accent);
+      if(kind==='boar'){D(0,8,12,7,accent);S([[-10,10],[-15,6]],light,4);S([[10,10],[15,6]],light,4);}
+      D(-7,0,2.5,3.5,night);D(7,0,2.5,3.5,night);D(0,8,4,3,night);
+      if(kind==='tiger'){for(const j of [-1,1])S([[j*17,-6],[j*11,-1],[j*17,4]],base,3);S([[-5,-11],[0,-7],[5,-11]],base,3);}
+      if(kind==='cat'||kind==='mouse')for(const j of [-1,1])S([[j*7,9],[j*20,12]],base,2);
+      if(kind==='mummyRabbit')S([[-17,-4],[16,2]],accent,5);
+      break;
+    }}
+    g.restore();
+  }
+  if(FUSION){
+    ring(72,69,53,light,2);ring(72,69,47,accent,3);
+    for(let j=0;j<8;j++){const a=j*Math.PI/4;spark(72+Math.sin(a)*52,69+Math.cos(a)*52,4);}
+    poly([[72,21],[105,37],[118,72],[99,104],[72,121],[45,104],[26,72],[39,37]],night+'bb');
+    if(subject==='fox')for(const x of [34,47,60,84,97,110])ellipse(x,80,7,29,(x-72)*.023,accent);
+    emblem(subject,72,62,1.45);
+    for(const [j,id] of (card.m??[]).entries()){
+      const part=C.find(item=>item.id===id);
+      if(part){const x=j?105:39;disk(x,110,19,19,night);ring(x,110,18,accent,2);emblem(artSubject(part),x,110,.55);}
+    }
   }else if(card.t==='spell'){
     ring(72,70,40,light,2);ring(72,70,34,accent,4);
     for(let j=0;j<5+index;j++){
@@ -1277,35 +1513,52 @@ function pieceArt(card){
     if(shape===4){poly([[51,97],[84,35],[103,29],[96,49],[61,103]],light);stroke([[47,80],[73,96]],accent,7);stroke([[56,91],[44,108]],night,8);}
     g.restore();
   }else{
-    const variant=card.id.includes('x')?index%5:index%7;
-    const bird=['鶴','天狗'].includes(motif),ears=['虎','鼠','牛','兎','狐','猫','狼','熊','犬','猪','羊','山羊','獅子','龍'].includes(motif)||card.r==='black'&&index%2===0;
-    const aquatic=card.r==='blue';
-    const plant=card.r==='green';
-    const cx=69+Math.floor(rand()*8);
-    const face=card.r==='black'?'#bc898e':light;
-    poly([[cx-52,144],[cx-40,101],[cx-21,86],[cx+20,86],[cx+44,106],[cx+53,144]],night);
-    poly([[cx-36,133],[cx-26,102],[cx-10,98],[cx,113],[cx+14,96],[cx+32,104],[cx+38,133]],base);
-    if(variant%3===0)stroke([[cx-31,104],[cx+20,137]],accent,6);
-    else stroke([[cx-18,105],[cx,122],[cx+21,104]],light,3);
-    if(ears||bird){
-      const tall=['兎','狐','龍','狼'].includes(motif)?30:19;
-      poly([[cx-26,63],[cx-30,47-tall],[cx-6,43],[cx+10,43],[cx+30,47-tall],[cx+26,63]],night);
-      poly([[cx-23,49],[cx-25,51-tall],[cx-11,46],[cx+12,46],[cx+24,51-tall],[cx+21,50]],accent);
+    const isRole=card.id.includes('x');
+    if(isRole)scenery(roleAtmospheres[card.r][Math.floor(index/5)]);
+    else if(card.r==='white')scenery(['stars','ring','meteor','eclipse','aurora'][variant]);
+    else if(card.r==='blue')scenery(['current','waves','pearls','coral','cove'][variant]);
+    else if(card.r==='green')scenery(['petals','leaves','birch','clusters','sun'][variant]);
+    const x=69+Math.floor(rand()*7), y=58+Math.floor(rand()*5);
+    const turn=(variant-2)*.10;
+    const focused=['dragon','snake','crane','kappa','dolphin','fish','whale','shark','jelly','turtle','octopus','jackbox','train','hollow','spider','top','skull','bear','mummyRabbit','wolf','hedgehog'].includes(subject);
+    const animal=['tiger','mouse','bull','horse','rabbit','monkey','dog','boar','fox','cat','lion','ram','goat','ogre'].includes(subject);
+    if(focused){
+      g.save();g.translate(x,y+8);g.rotate(turn);
+      emblem(subject,0,0,2.05);
+      g.restore();
+    }else{
+      g.save();g.translate(x,y);g.rotate(turn);
+      const wide=subject==='bull'||subject==='tin'||subject==='monster'||subject==='shield';
+      const shoulders=wide?42:variant===1?28:34;
+      poly([[-54,84],[-shoulders,38],[-15,26],[16,26],[shoulders,38],[52,84]],night);
+      poly([[-37,77],[-shoulders+7,44],[-12,31],[0,48],[13,31],[shoulders-7,44],[37,77]],variant%2?accent:base);
+      stroke([[-16,34],[0,50],[18,34]],light,3);
+      if(animal)emblem(subject,0,0,1.45);
+      else{
+        disk(0,0,25,29,night);
+        disk(1,3,19,23,card.r==='black'?'#bc898e':light);
+        if(variant===0)poly([[-23,-2],[-22,-22],[-10,-33],[14,-28],[25,-14],[19,-5],[13,-17],[-3,-9],[-13,6]],base);
+        else if(variant===1)poly([[-26,13],[-23,-21],[-5,-32],[15,-28],[25,-14],[20,17],[11,-13],[-9,-10],[-16,15]],night);
+        else if(variant===2)poly([[-29,-16],[-14,-32],[13,-32],[26,-11],[0,-15]],accent);
+        else if(variant===3){disk(14,-25,10,10,night);poly([[-24,-5],[-21,-22],[14,-28],[26,-11],[4,-15],[-8,-6]],base);}
+        else poly([[-29,-4],[-25,-23],[0,-31],[26,-20],[28,-2],[13,-8],[-7,-15]],accent);
+        disk(-7,5,2.6,3.5,night);disk(9,5,2.6,3.5,night);
+        stroke([[-4,15],[1,17],[6,14]],night,1.6);
+        if(card.r==='black')stroke([[10,12],[16,15],[12,19]],base,1.8);
+      }
+      g.restore();
     }
-    if(aquatic){poly([[cx-32,83],[cx-54,57],[cx-41,45],[cx-22,55],[cx+21,55],[cx+48,48],[cx+52,66],[cx+32,83]],accent);}
-    disk(cx,65,28,32,night);disk(cx,67,22,24,face);
-    poly([[cx-24,57],[cx-22,45],[cx-10,35],[cx+13,37],[cx+28,51],[cx+24,61],[cx+3,49],[cx-7,61]],variant%2?base:night);
-    disk(cx-9,67,3,4,night);disk(cx+9,67,3,4,night);
-    if(bird||aquatic)poly([[cx-8,76],[cx+9,75],[cx+2,85]],accent);
-    else stroke([[cx-4,81],[cx,83],[cx+4,81]],night,2);
-    if(card.r==='black')stroke([[cx+12,73],[cx+18,83],[cx+10,84]],base,2);
-    if(plant){flower(cx-20,44,9,5+variant%3);flower(cx+19,58,6,5);}
-    else if(card.r==='white'){spark(cx,41,14);stroke([[cx-25,53],[cx,44],[cx+25,53]],accent,4);}
-    else if(card.r==='red')stroke([[cx-23,55],[cx+23,51],[cx+37,59]],base,5);
-    else if(aquatic){ring(cx+30,84,8,light,2);ring(cx-33,90,6,accent,2);}
-    if(variant%3===0){stroke([[21,127],[37,78],[40,69]],light,4);spark(39,69,8);}
-    if(variant%3===1){disk(111,109,15,20,night);disk(111,107,11,15,accent);spark(111,106,8);}
-    if(variant%3===2){stroke([[25,124],[44,100],[55,97]],accent,5);ring(39,112,10,light,2);}
+    const side=variant%2===0?110:34;
+    if(!focused){
+      disk(side,100,23,23,night+'dd');
+      emblem(subject,side,100,.81);
+    }else if(isRole){
+      ring(72,73,48,accent,2);
+    }
+    if(subject==='tiger')emblem('fire',23,107,.66);
+    if(subject==='mouse')emblem('firework',109,37,.77);
+    if(subject==='dragon'&&card.r==='red')emblem('blade',113,104,.8);
+    if(subject==='bull'&&card.r==='red')stroke([[47,127],[94,127]],light,7);
   }
   const art='url("'+canvas.toDataURL('image/webp',.82)+'")';
   artCache.set(card.id,art);
