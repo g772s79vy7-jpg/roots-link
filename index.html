@@ -493,6 +493,17 @@ button.primary:hover,.active:hover,#end:enabled:hover,#start:enabled:hover{backg
   },{once:true});
 })();
 </script>
+<script>window.rootsPortraits=Object.create(null);</script>
+<script src="./art/portrait-00.js"></script>
+<script src="./art/portrait-01.js"></script>
+<script src="./art/portrait-10.js"></script>
+<script src="./art/portrait-11.js"></script>
+<script src="./art/portrait-20.js"></script>
+<script src="./art/portrait-21.js"></script>
+<script src="./art/portrait-30.js"></script>
+<script src="./art/portrait-31.js"></script>
+<script src="./art/portrait-40.js"></script>
+<script src="./art/portrait-41.js"></script>
 <script>
 /* BEGIN SHARED RULES */
 const R=[['red','🔴十二市'],['blue','🔵音海楽団'],['green','🟢虹色学園'],['white','⚪天体衆'],['black','⚫怨墓侘屋']];
@@ -1240,6 +1251,12 @@ const roleAtmospheres={
 function pieceArt(card){
   if(!card?.id||!artPalettes[card.r])return '';
   if(artCache.has(card.id))return artCache.get(card.id);
+  const rendered=window.rootsPortraits[card.id];
+  if(rendered){
+    const image='url("data:image/webp;base64,'+rendered+'")';
+    artCache.set(card.id,image);
+    return image;
+  }
   const [night,base,accent,light]=artPalettes[card.r];
   const index=Number(card.id.match(/\d+$/)?.[0]??0);
   let seed=Array.from(card.id).reduce((n,c)=>Math.imul(n,31)+c.charCodeAt(0),17)>>>0;
